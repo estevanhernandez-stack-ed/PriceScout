@@ -1,0 +1,339 @@
+{
+  "metadata": {
+    "last_updated": "2025-08-13T16:01:32.281071"
+  },
+  "markets": {
+    "Fort Worth 76107": {
+      "theaters": [
+        {
+          "name": "Movie Tavern West 7th Street",
+          "url": "https://www.fandango.com/movie-tavern-west-7th-street-aavrw/theater-page"
+        },
+        {
+          "name": "Movie Tavern Hulen",
+          "url": "https://www.fandango.com/movie-tavern-hulen-aaupp/theater-page"
+        },
+        {
+          "name": "AMC DINE-IN Clearfork 8",
+          "url": "https://www.fandango.com/amc-dine-in-clearfork-8-aayjv/theater-page"
+        },
+        {
+          "name": "AMC Lake Worth 14",
+          "url": "https://www.fandango.com/amc-lake-worth-14-aawev/theater-page"
+        },
+        {
+          "name": "AMC Hulen 10",
+          "url": "https://www.fandango.com/amc-hulen-10-aaugx/theater-page"
+        },
+        {
+          "name": "AMC Palace 9",
+          "url": "https://www.fandango.com/amc-palace-9-aadcs/theater-page"
+        },
+        {
+          "name": "Regal Fossil Creek",
+          "url": "https://www.fandango.com/regal-fossil-creek-aactx/theater-page"
+        },
+        {
+          "name": "America Cinemas Fort Worth",
+          "url": "https://www.fandango.com/america-cinemas-fort-worth-aaeaf/theater-page"
+        },
+        {
+          "name": "Studio Movie Grill Chisholm Trail Ranch",
+          "url": "https://www.fandango.com/studio-movie-grill-chisholm-trail-ranch-aaysw/theater-page"
+        },
+        {
+          "name": "Cinemark Rave Ridgmar 13 and XD",
+          "url": "https://www.fandango.com/cinemark-rave-ridgmar-13-and-xd-aarfi/theater-page"
+        }
+      ]
+    },
+    "Denton 76201": {
+      "theaters": [
+        {
+          "name": "Movie Tavern Denton",
+          "url": "https://www.fandango.com/movie-tavern-denton-aagzu/theater-page"
+        },
+        {
+          "name": "Alamo Drafthouse Denton",
+          "url": "https://www.fandango.com/alamo-drafthouse-denton-aayje/theater-page"
+        },
+        {
+          "name": "AMC Highland Village 12",
+          "url": "https://www.fandango.com/amc-highland-village-12-aausf/theater-page"
+        }
+      ]
+    },
+    "Little Rock 72223": {
+      "theaters": [
+        {
+          "name": "Movie Tavern Little Rock",
+          "url": "https://www.fandango.com/movie-tavern-little-rock-aayie/theater-page"
+        },
+        {
+          "name": "AMC Chenal 9",
+          "url": "https://www.fandango.com/amc-chenal-9-aauyb/theater-page"
+        },
+        {
+          "name": "Cinemark Colonel Glenn and XD",
+          "url": "https://www.fandango.com/cinemark-colonel-glenn-and-xd-aaqsf/theater-page"
+        },
+        {
+          "name": "Riverdale 10 VIP Cinema",
+          "url": "https://www.fandango.com/riverdale-10-vip-cinema-aakfy/theater-page"
+        }
+      ]
+    },
+    "Citiplace 70808": {
+      "theaters": [
+        {
+          "name": "Movie Tavern Citiplace Cinema",
+          "url": "https://www.fandango.com/movie-tavern-citiplace-cinema-aaxqb/theater-page"
+        },
+        {
+          "name": "AMC Mall of Louisiana 15",
+          "url": "https://www.fandango.com/amc-mall-of-louisiana-15-aawwo/theater-page"
+        },
+        {
+          "name": "Cinemark Perkins Rowe and XD",
+          "url": "https://www.fandango.com/cinemark-perkins-rowe-and-xd-aauir/theater-page"
+        }
+      ]
+    },
+    "Juban 70726": {
+      "theaters": [
+        {
+          "name": "Movie Tavern Juban Crossing",
+          "url": "https://www.fandango.com/movie-tavern-juban-crossing-aaxur/theater-page"
+        },
+        {
+          "name": "AMC Baton Rouge 16",
+          "url": "https://www.fandango.com/amc-baton-rouge-16-aawwn/theater-page"
+        },
+        {
+          "name": "Celebrity Theatres Baton Rouge",
+          "url": "https://www.fandango.com/celebrity-theatres-baton-rouge-aaycz/theater-page"
+        }
+      ]
+    },
+    "Covington 70433": {
+      "theaters": [
+        {
+          "name": "Movie Tavern Covington",
+          "url": "https://www.fandango.com/movie-tavern-covington-aaxho/theater-page"
+        },
+        {
+          "name": "The Grand 16 - Slidell",
+          "url": "https://www.fandango.com/the-grand-16-slidell-aaugy/theater-page"
+        }
+      ]
+    },
+    "Roswell 30075": {
+      "theaters": [
+        {
+          "name": "Movie Tavern Roswell",
+          "url": "https://www.fandango.com/movie-tavern-roswell-aaxfo/theater-page"
+        },
+        {
+          "name": "AMC DINE-IN North Point Mall 12",
+          "url": "https://www.fandango.com/amc-dine-in-north-point-mall-12-aaxbw/theater-page"
+        },
+        {
+          "name": "Aurora Cineplex",
+          "url": "https://www.fandango.com/aurora-cineplex-aawea/theater-page"
+        },
+        {
+          "name": "Regal Avalon",
+          "url": "https://www.fandango.com/regal-avalon-aaxie/theater-page"
+        },
+        {
+          "name": "Regal Cherokee",
+          "url": "https://www.fandango.com/regal-cherokee-aaevw/theater-page"
+        },
+        {
+          "name": "Studio Movie Grill Marietta",
+          "url": "https://www.fandango.com/studio-movie-grill-marietta-aayfs/theater-page"
+        },
+        {
+          "name": "Studio Movie Grill North Point",
+          "url": "https://www.fandango.com/studio-movie-grill-north-point-aadcc/theater-page"
+        }
+      ]
+    },
+    "Horizon Village 30024": {
+      "theaters": [
+        {
+          "name": "Movie Tavern Horizon Village",
+          "url": "https://www.fandango.com/movie-tavern-horizon-village-aawqy/theater-page"
+        },
+        {
+          "name": "AMC Colonial 18",
+          "url": "https://www.fandango.com/amc-colonial-18-aadci/theater-page"
+        },
+        {
+          "name": "AMC Sugarloaf Mills 18",
+          "url": "https://www.fandango.com/amc-sugarloaf-mills-18-aarel/theater-page"
+        },
+        {
+          "name": "Regal Mall of Georgia IMAX",
+          "url": "https://www.fandango.com/regal-mall-of-georgia-imax-aankx/theater-page"
+        },
+        {
+          "name": "Studio Movie Grill - Duluth",
+          "url": "https://www.fandango.com/studio-movie-grill-duluth-aawvh/theater-page"
+        }
+      ]
+    },
+    "Tucker 30084": {
+      "theaters": [
+        {
+          "name": "Movie Tavern Tucker Cinema",
+          "url": "https://www.fandango.com/movie-tavern-tucker-cinema-aauvk/theater-page"
+        },
+        {
+          "name": "AMC North Dekalb 16",
+          "url": "https://www.fandango.com/amc-north-dekalb-16-aadcg/theater-page"
+        }
+      ]
+    },
+    "Aurora 80013": {
+      "theaters": [
+        {
+          "name": "Movie Tavern Aurora",
+          "url": "https://www.fandango.com/movie-tavern-aurora-aaufx/theater-page"
+        },
+        {
+          "name": "AMC Arapahoe Crossing 16",
+          "url": "https://www.fandango.com/amc-arapahoe-crossing-16-aaewn/theater-page"
+        },
+        {
+          "name": "AMC DINE-IN Southlands 16",
+          "url": "https://www.fandango.com/amc-dine-in-southlands-16-aatxu/theater-page"
+        },
+        {
+          "name": "Cinemark Century Aurora and XD",
+          "url": "https://www.fandango.com/cinemark-century-aurora-and-xd-aajni/theater-page"
+        }
+      ]
+    },
+    "Syracuse 13204": {
+      "theaters": [
+        {
+          "name": "Movie Tavern Syracuse",
+          "url": "https://www.fandango.com/movie-tavern-syracuse-aaxwo/theater-page"
+        },
+        {
+          "name": "Regal Destiny USA",
+          "url": "https://www.fandango.com/regal-destiny-usa-aajgh/theater-page"
+        }
+      ]
+    },
+    "Williamsburg 23188": {
+      "theaters": [
+        {
+          "name": "Movie Tavern Williamsburg",
+          "url": "https://www.fandango.com/movie-tavern-williamsburg-aaviz/theater-page"
+        },
+        {
+          "name": "Regal New Town",
+          "url": "https://www.fandango.com/regal-new-town-aatvd/theater-page"
+        }
+      ]
+    },
+    "Brannon Crossing 40356": {
+      "theaters": [
+        {
+          "name": "Movie Tavern Brannon Crossing",
+          "url": "https://www.fandango.com/movie-tavern-brannon-crossing-aaxqc/theater-page"
+        },
+        {
+          "name": "Cinemark Fayette Mall and XD",
+          "url": "https://www.fandango.com/cinemark-fayette-mall-and-xd-aauap/theater-page"
+        },
+        {
+          "name": "Regal Hamburg Pavilion IMAX & RPX",
+          "url": "https://www.fandango.com/regal-hamburg-pavilion-imax-and-rpx-aaogk/theater-page"
+        },
+        {
+          "name": "Krikorian Theatres at LexLive",
+          "url": "https://www.fandango.com/krikorian-theatres-at-lexlive-aayvf/theater-page"
+        }
+      ]
+    },
+    "Flourtown 19031": {
+      "theaters": [
+        {
+          "name": "Movie Tavern Flourtown",
+          "url": "https://www.fandango.com/movie-tavern-flourtown-aaxqa/theater-page"
+        },
+        {
+          "name": "AMC 309 Cinema 9 ",
+          "url": "https://www.fandango.com/amc-309-cinema-9-aadag/theater-page"
+        },
+        {
+          "name": "Regal Warrington Crossing ScreenX, 4DX & IMAX",
+          "url": "https://www.fandango.com/regal-warrington-crossing-screenx-4dx-and-imax-aanja/theater-page"
+        },
+        {
+          "name": "AMC Plymouth Meeting Mall 12",
+          "url": "https://www.fandango.com/amc-plymouth-meeting-mall-12-aalbh/theater-page"
+        },
+        {
+          "name": "Regal Plymouth Meeting",
+          "url": "https://www.fandango.com/regal-plymouth-meeting-aadhw/theater-page"
+        },
+        {
+          "name": "Regal UA Main Street Theatre",
+          "url": "https://www.fandango.com/regal-ua-main-street-theatre-aadhz/theater-page"
+        }
+      ]
+    },
+    "Exton 19341": {
+      "theaters": [
+        {
+          "name": "Movie Tavern Exton",
+          "url": "https://www.fandango.com/movie-tavern-exton-aaxrs/theater-page"
+        },
+        {
+          "name": "Regal Downingtown & IMAX",
+          "url": "https://www.fandango.com/regal-downingtown-and-imax-aamgg/theater-page"
+        },
+        {
+          "name": "Regal Edgmont Square",
+          "url": "https://www.fandango.com/regal-edgmont-square-aaebq/theater-page"
+        },
+        {
+          "name": "AMC DINE-IN Painters Crossing 9",
+          "url": "https://www.fandango.com/amc-dine-in-painters-crossing-9-aadai/theater-page"
+        }
+      ]
+    },
+    "Collegeville 19426": {
+      "theaters": [
+        {
+          "name": "Movie Tavern Collegeville Cinema",
+          "url": "https://www.fandango.com/movie-tavern-collegeville-cinema-aawkh/theater-page"
+        },
+        {
+          "name": "Regal UA King Of Prussia 4DX & IMAX",
+          "url": "https://www.fandango.com/regal-ua-king-of-prussia-4dx-and-imax-aaoqp/theater-page"
+        }
+      ]
+    },
+    "Trexlertown 18087": {
+      "theaters": [
+        {
+          "name": "Movie Tavern Trexlertown",
+          "url": "https://www.fandango.com/movie-tavern-trexlertown-aaylg/theater-page"
+        },
+        {
+          "name": "AMC Tilghman Square 8",
+          "url": "https://www.fandango.com/amc-tilghman-square-8-aabeh/theater-page"
+        },
+        {
+          "name": "AMC Center Valley 16",
+          "url": "https://www.fandango.com/amc-center-valley-16-aauhq/theater-page"
+        }
+      ]
+    }
+  }
+}

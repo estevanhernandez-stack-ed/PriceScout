@@ -1,0 +1,8 @@
+streamlit
+pandas
+playwright
+beautifulsoup4
+pgeocode
+jinja2
+requests
+openpyxl
