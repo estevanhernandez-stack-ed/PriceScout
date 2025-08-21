@@ -1,0 +1,706 @@
+Theater Name,Film Title,Format,Showtime,Daypart,Ticket Type,Price,Capacity,Previous Price,Price_Change
+AMC Albuquerque 12,Americana (2025),2D,1:30p,Matinee,Adult,$7.74,N/A,N/A,N/A
+AMC Albuquerque 12,Americana (2025),2D,1:30p,Matinee,Senior,$6.88,N/A,N/A,N/A
+AMC Albuquerque 12,Americana (2025),2D,1:30p,Matinee,Child,$6.02,N/A,N/A,N/A
+AMC Albuquerque 12,Nobody 2 (2025),2D,1:00p,Matinee,Adult,$7.74,N/A,N/A,N/A
+AMC Albuquerque 12,Nobody 2 (2025),2D,1:00p,Matinee,Senior,$6.88,N/A,N/A,N/A
+AMC Albuquerque 12,Nobody 2 (2025),2D,1:00p,Matinee,Child,$6.02,N/A,N/A,N/A
+AMC Albuquerque 12,Nobody 2 (2025),2D,3:30p,Matinee,Adult,$7.74,N/A,N/A,N/A
+AMC Albuquerque 12,Nobody 2 (2025),2D,3:30p,Matinee,Senior,$6.88,N/A,N/A,N/A
+AMC Albuquerque 12,Nobody 2 (2025),2D,3:30p,Matinee,Child,$6.02,N/A,N/A,N/A
+AMC Albuquerque 12,Nobody 2 (2025),2D,6:00p,Prime,Adult,$9.68,N/A,N/A,N/A
+AMC Albuquerque 12,Nobody 2 (2025),2D,6:00p,Prime,Senior,$8.60,N/A,N/A,N/A
+AMC Albuquerque 12,Nobody 2 (2025),2D,6:00p,Prime,Child,$7.52,N/A,N/A,N/A
+AMC Albuquerque 12,Nobody 2 (2025),2D,8:30p,Prime,Adult,$9.68,N/A,N/A,N/A
+AMC Albuquerque 12,Nobody 2 (2025),2D,8:30p,Prime,Senior,$8.60,N/A,N/A,N/A
+AMC Albuquerque 12,Nobody 2 (2025),2D,8:30p,Prime,Child,$7.52,N/A,N/A,N/A
+AMC Albuquerque 12,Shin Godzilla 4K (2025),2D,7:00p,Prime,Adult,$9.68,N/A,N/A,N/A
+AMC Albuquerque 12,Shin Godzilla 4K (2025),2D,7:00p,Prime,Senior,$8.60,N/A,N/A,N/A
+AMC Albuquerque 12,Shin Godzilla 4K (2025),2D,7:00p,Prime,Child,$7.52,N/A,N/A,N/A
+AMC Albuquerque 12,Freakier Friday (2025),2D,1:20p,Matinee,Adult,$7.74,N/A,N/A,N/A
+AMC Albuquerque 12,Freakier Friday (2025),2D,1:20p,Matinee,Senior,$6.88,N/A,N/A,N/A
+AMC Albuquerque 12,Freakier Friday (2025),2D,1:20p,Matinee,Child,$6.02,N/A,N/A,N/A
+AMC Albuquerque 12,Freakier Friday (2025),2D,4:30p,Twilight,Adult,$9.68,N/A,N/A,N/A
+AMC Albuquerque 12,Freakier Friday (2025),2D,4:30p,Twilight,Senior,$8.60,N/A,N/A,N/A
+AMC Albuquerque 12,Freakier Friday (2025),2D,4:30p,Twilight,Child,$7.52,N/A,N/A,N/A
+AMC Albuquerque 12,Freakier Friday (2025),2D,7:30p,Prime,Adult,$9.68,N/A,N/A,N/A
+AMC Albuquerque 12,Freakier Friday (2025),2D,7:30p,Prime,Senior,$8.60,N/A,N/A,N/A
+AMC Albuquerque 12,Freakier Friday (2025),2D,7:30p,Prime,Child,$7.52,N/A,N/A,N/A
+AMC Albuquerque 12,Weapons (2025),2D,8:10p,Prime,Adult,$13.98,N/A,N/A,N/A
+AMC Albuquerque 12,Weapons (2025),2D,8:10p,Prime,Senior,$12.90,N/A,N/A,N/A
+AMC Albuquerque 12,Weapons (2025),2D,8:10p,Prime,Child,$11.83,N/A,N/A,N/A
+AMC Albuquerque 12,Weapons (2025),2D,1:00p,Matinee,Adult,$7.74,N/A,N/A,N/A
+AMC Albuquerque 12,Weapons (2025),2D,1:00p,Matinee,Senior,$6.88,N/A,N/A,N/A
+AMC Albuquerque 12,Weapons (2025),2D,1:00p,Matinee,Child,$6.02,N/A,N/A,N/A
+AMC Albuquerque 12,Weapons (2025),2D,4:05p,Twilight,Adult,$9.68,N/A,N/A,N/A
+AMC Albuquerque 12,Weapons (2025),2D,4:05p,Twilight,Senior,$8.60,N/A,N/A,N/A
+AMC Albuquerque 12,Weapons (2025),2D,4:05p,Twilight,Child,$7.52,N/A,N/A,N/A
+AMC Albuquerque 12,Weapons (2025),2D,7:10p,Prime,Adult,$9.68,N/A,N/A,N/A
+AMC Albuquerque 12,Weapons (2025),2D,7:10p,Prime,Senior,$8.60,N/A,N/A,N/A
+AMC Albuquerque 12,Weapons (2025),2D,7:10p,Prime,Child,$7.52,N/A,N/A,N/A
+AMC Albuquerque 12,Sketch (2025),2D,1:30p,Matinee,Adult,$7.74,N/A,N/A,N/A
+AMC Albuquerque 12,Sketch (2025),2D,1:30p,Matinee,Senior,$6.88,N/A,N/A,N/A
+AMC Albuquerque 12,Sketch (2025),2D,1:30p,Matinee,Child,$6.02,N/A,N/A,N/A
+AMC Albuquerque 12,Sketch (2025),2D,4:15p,Twilight,Adult,$9.68,N/A,N/A,N/A
+AMC Albuquerque 12,Sketch (2025),2D,4:15p,Twilight,Senior,$8.60,N/A,N/A,N/A
+AMC Albuquerque 12,Sketch (2025),2D,4:15p,Twilight,Child,$7.52,N/A,N/A,N/A
+AMC Albuquerque 12,The Bad Guys 2 (2025),2D,1:10p,Matinee,Adult,$7.74,N/A,N/A,N/A
+AMC Albuquerque 12,The Bad Guys 2 (2025),2D,1:10p,Matinee,Senior,$6.88,N/A,N/A,N/A
+AMC Albuquerque 12,The Bad Guys 2 (2025),2D,1:10p,Matinee,Child,$6.02,N/A,N/A,N/A
+AMC Albuquerque 12,The Bad Guys 2 (2025),2D,4:00p,Twilight,Adult,$9.68,N/A,N/A,N/A
+AMC Albuquerque 12,The Bad Guys 2 (2025),2D,4:00p,Twilight,Senior,$8.60,N/A,N/A,N/A
+AMC Albuquerque 12,The Bad Guys 2 (2025),2D,4:00p,Twilight,Child,$7.52,N/A,N/A,N/A
+AMC Albuquerque 12,The Bad Guys 2 (2025),2D,6:45p,Prime,Adult,$9.68,N/A,N/A,N/A
+AMC Albuquerque 12,The Bad Guys 2 (2025),2D,6:45p,Prime,Senior,$8.60,N/A,N/A,N/A
+AMC Albuquerque 12,The Bad Guys 2 (2025),2D,6:45p,Prime,Child,$7.52,N/A,N/A,N/A
+AMC Albuquerque 12,The Naked Gun (2025),2D,1:40p,Matinee,Adult,$7.74,N/A,N/A,N/A
+AMC Albuquerque 12,The Naked Gun (2025),2D,1:40p,Matinee,Senior,$6.88,N/A,N/A,N/A
+AMC Albuquerque 12,The Naked Gun (2025),2D,1:40p,Matinee,Child,$6.02,N/A,N/A,N/A
+AMC Albuquerque 12,The Naked Gun (2025),2D,5:00p,Twilight,Adult,$9.68,N/A,N/A,N/A
+AMC Albuquerque 12,The Naked Gun (2025),2D,5:00p,Twilight,Senior,$8.60,N/A,N/A,N/A
+AMC Albuquerque 12,The Naked Gun (2025),2D,5:00p,Twilight,Child,$7.52,N/A,N/A,N/A
+AMC Albuquerque 12,The Naked Gun (2025),2D,7:30p,Prime,Adult,$9.68,N/A,N/A,N/A
+AMC Albuquerque 12,The Naked Gun (2025),2D,7:30p,Prime,Senior,$8.60,N/A,N/A,N/A
+AMC Albuquerque 12,The Naked Gun (2025),2D,7:30p,Prime,Child,$7.52,N/A,N/A,N/A
+AMC Albuquerque 12,The Fantastic Four: First Steps (2025),2D,1:50p,Matinee,Adult,$8.17,N/A,N/A,N/A
+AMC Albuquerque 12,The Fantastic Four: First Steps (2025),2D,1:50p,Matinee,Senior,$7.31,N/A,N/A,N/A
+AMC Albuquerque 12,The Fantastic Four: First Steps (2025),2D,1:50p,Matinee,Child,$6.45,N/A,N/A,N/A
+AMC Albuquerque 12,The Fantastic Four: First Steps (2025),2D,4:45p,Twilight,Adult,$10.21,N/A,N/A,N/A
+AMC Albuquerque 12,The Fantastic Four: First Steps (2025),2D,4:45p,Twilight,Senior,$9.14,N/A,N/A,N/A
+AMC Albuquerque 12,The Fantastic Four: First Steps (2025),2D,4:45p,Twilight,Child,$8.06,N/A,N/A,N/A
+AMC Albuquerque 12,The Fantastic Four: First Steps (2025),2D,7:40p,Prime,Adult,$10.21,N/A,N/A,N/A
+AMC Albuquerque 12,The Fantastic Four: First Steps (2025),2D,7:40p,Prime,Senior,$9.14,N/A,N/A,N/A
+AMC Albuquerque 12,The Fantastic Four: First Steps (2025),2D,7:40p,Prime,Child,$8.06,N/A,N/A,N/A
+AMC Albuquerque 12,Superman (2025),2D,1:40p,Matinee,Adult,$8.17,N/A,N/A,N/A
+AMC Albuquerque 12,Superman (2025),2D,1:40p,Matinee,Senior,$7.31,N/A,N/A,N/A
+AMC Albuquerque 12,Superman (2025),2D,1:40p,Matinee,Child,$6.45,N/A,N/A,N/A
+AMC Albuquerque 12,Superman (2025),2D,4:15p,Twilight,Adult,$10.21,N/A,N/A,N/A
+AMC Albuquerque 12,Superman (2025),2D,4:15p,Twilight,Senior,$9.14,N/A,N/A,N/A
+AMC Albuquerque 12,Superman (2025),2D,4:15p,Twilight,Child,$8.06,N/A,N/A,N/A
+AMC Albuquerque 12,Superman (2025),2D,7:40p,Prime,Adult,$10.21,N/A,N/A,N/A
+AMC Albuquerque 12,Superman (2025),2D,7:40p,Prime,Senior,$9.14,N/A,N/A,N/A
+AMC Albuquerque 12,Superman (2025),2D,7:40p,Prime,Child,$8.06,N/A,N/A,N/A
+AMC Albuquerque 12,Jurassic World Rebirth (2025),2D,4:50p,Twilight,Adult,$13.44,N/A,N/A,N/A
+AMC Albuquerque 12,Jurassic World Rebirth (2025),2D,4:50p,Twilight,Senior,$12.37,N/A,N/A,N/A
+AMC Albuquerque 12,Jurassic World Rebirth (2025),2D,4:50p,Twilight,Child,$11.29,N/A,N/A,N/A
+AMC Albuquerque 12,Jurassic World Rebirth (2025),2D,1:30p,Matinee,Adult,$8.17,N/A,N/A,N/A
+AMC Albuquerque 12,Jurassic World Rebirth (2025),2D,1:30p,Matinee,Senior,$7.31,N/A,N/A,N/A
+AMC Albuquerque 12,Jurassic World Rebirth (2025),2D,1:30p,Matinee,Child,$6.45,N/A,N/A,N/A
+AMC Albuquerque 12,Jurassic World Rebirth (2025),2D,8:00p,Prime,Adult,$10.21,N/A,N/A,N/A
+AMC Albuquerque 12,Jurassic World Rebirth (2025),2D,8:00p,Prime,Senior,$9.14,N/A,N/A,N/A
+AMC Albuquerque 12,Jurassic World Rebirth (2025),2D,8:00p,Prime,Child,$8.06,N/A,N/A,N/A
+AMC Albuquerque 12,F1 The Movie (2025),2D,1:00p,Matinee,Adult,$12.47,N/A,N/A,N/A
+AMC Albuquerque 12,F1 The Movie (2025),2D,1:00p,Matinee,Senior,$11.61,N/A,N/A,N/A
+AMC Albuquerque 12,F1 The Movie (2025),2D,1:00p,Matinee,Child,$10.75,N/A,N/A,N/A
+AMC Albuquerque 12,F1 The Movie (2025),2D,4:35p,Twilight,Adult,$14.52,N/A,N/A,N/A
+AMC Albuquerque 12,F1 The Movie (2025),2D,4:35p,Twilight,Senior,$13.44,N/A,N/A,N/A
+AMC Albuquerque 12,F1 The Movie (2025),2D,4:35p,Twilight,Child,$12.37,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Americana (2025),2D,11:25a,Matinee,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Americana (2025),2D,11:25a,Matinee,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Americana (2025),2D,11:25a,Matinee,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Americana (2025),2D,2:10p,Matinee,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Americana (2025),2D,2:10p,Matinee,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Americana (2025),2D,2:10p,Matinee,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Americana (2025),2D,5:00p,Twilight,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Americana (2025),2D,5:00p,Twilight,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Americana (2025),2D,5:00p,Twilight,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Americana (2025),2D,7:45p,Prime,General Admission,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Americana (2025),2D,7:45p,Prime,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Americana (2025),2D,7:45p,Prime,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Americana (2025),2D,10:30p,Late Night,General Admission,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Americana (2025),2D,10:30p,Late Night,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Americana (2025),2D,10:30p,Late Night,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),D-BOX,10:00a,Matinee,Matinee,$18.57,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),D-BOX,10:00a,Matinee,Child,$18.03,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),D-BOX,10:00a,Matinee,Senior,$13.45,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),2D,11:25a,Matinee,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),2D,11:25a,Matinee,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),2D,11:25a,Matinee,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),D-BOX,12:25p,Matinee,Matinee,$18.57,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),D-BOX,12:25p,Matinee,Child,$18.03,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),D-BOX,12:25p,Matinee,Senior,$13.45,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),2D,1:50p,Matinee,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),2D,1:50p,Matinee,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),2D,1:50p,Matinee,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),D-BOX,2:50p,Matinee,Matinee,$18.57,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),D-BOX,2:50p,Matinee,Child,$18.03,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),D-BOX,2:50p,Matinee,Senior,$13.45,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),2D,4:15p,Twilight,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),2D,4:15p,Twilight,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),2D,4:15p,Twilight,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),D-BOX,5:15p,Twilight,Matinee,$18.57,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),D-BOX,5:15p,Twilight,Child,$18.03,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),D-BOX,5:15p,Twilight,Senior,$13.45,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),2D,6:40p,Prime,General Admission,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),2D,6:40p,Prime,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),2D,6:40p,Prime,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),D-BOX,7:40p,Prime,General Admission DBOX,$21.79,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),D-BOX,7:40p,Prime,Child,$18.03,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),D-BOX,7:40p,Prime,Senior,$13.45,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),2D,9:05p,Late Night,General Admission,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),2D,9:05p,Late Night,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),2D,9:05p,Late Night,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),D-BOX,10:05p,Late Night,General Admission DBOX,$21.79,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),D-BOX,10:05p,Late Night,Child,$18.03,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),D-BOX,10:05p,Late Night,Senior,$13.45,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),XD,10:20a,Matinee,Matinee,$13.72,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),XD,10:20a,Matinee,Child,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),XD,10:20a,Matinee,Senior,$11.84,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),XD,5:45p,Twilight,Matinee,$13.72,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),XD,5:45p,Twilight,Child,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),XD,5:45p,Twilight,Senior,$11.84,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),XD,8:10p,Prime,XD GenAd,$16.95,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),XD,8:10p,Prime,Child,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),XD,8:10p,Prime,Senior,$11.84,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),XD,10:35p,Late Night,XD GenAd,$16.95,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),XD,10:35p,Late Night,Child,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Nobody 2 (2025),XD,10:35p,Late Night,Senior,$11.84,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Shin Godzilla 4K (2025),2D,10:25a,Matinee,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Shin Godzilla 4K (2025),2D,10:25a,Matinee,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Shin Godzilla 4K (2025),2D,10:25a,Matinee,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Shin Godzilla 4K (2025),2D,1:20p,Matinee,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Shin Godzilla 4K (2025),2D,1:20p,Matinee,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Shin Godzilla 4K (2025),2D,1:20p,Matinee,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Shin Godzilla 4K (2025),2D,4:15p,Twilight,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Shin Godzilla 4K (2025),2D,4:15p,Twilight,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Shin Godzilla 4K (2025),2D,4:15p,Twilight,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Shin Godzilla 4K (2025),2D,7:10p,Prime,General Admission,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Shin Godzilla 4K (2025),2D,7:10p,Prime,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Shin Godzilla 4K (2025),2D,7:10p,Prime,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Shin Godzilla 4K (2025),2D,10:05p,Late Night,General Admission,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Shin Godzilla 4K (2025),2D,10:05p,Late Night,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Shin Godzilla 4K (2025),2D,10:05p,Late Night,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Freakier Friday (2025),2D,10:00a,Matinee,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Freakier Friday (2025),2D,10:00a,Matinee,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Freakier Friday (2025),2D,10:00a,Matinee,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Freakier Friday (2025),2D,11:05a,Matinee,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Freakier Friday (2025),2D,11:05a,Matinee,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Freakier Friday (2025),2D,11:05a,Matinee,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Freakier Friday (2025),2D,12:50p,Matinee,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Freakier Friday (2025),2D,12:50p,Matinee,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Freakier Friday (2025),2D,12:50p,Matinee,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Freakier Friday (2025),2D,1:55p,Matinee,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Freakier Friday (2025),2D,1:55p,Matinee,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Freakier Friday (2025),2D,1:55p,Matinee,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Freakier Friday (2025),2D,3:40p,Matinee,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Freakier Friday (2025),2D,3:40p,Matinee,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Freakier Friday (2025),2D,3:40p,Matinee,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Freakier Friday (2025),2D,4:45p,Twilight,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Freakier Friday (2025),2D,4:45p,Twilight,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Freakier Friday (2025),2D,4:45p,Twilight,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Freakier Friday (2025),2D,7:40p,Prime,General Admission,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Freakier Friday (2025),2D,7:40p,Prime,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Freakier Friday (2025),2D,7:40p,Prime,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Freakier Friday (2025),2D,9:40p,Late Night,General Admission,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Freakier Friday (2025),2D,9:40p,Late Night,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Freakier Friday (2025),2D,9:40p,Late Night,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Freakier Friday (2025),XD,12:05p,Matinee,Matinee,$13.72,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Freakier Friday (2025),XD,12:05p,Matinee,Child,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Freakier Friday (2025),XD,12:05p,Matinee,Senior,$11.84,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Freakier Friday (2025),XD,2:55p,Matinee,Matinee,$13.72,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Freakier Friday (2025),XD,2:55p,Matinee,Child,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Freakier Friday (2025),XD,2:55p,Matinee,Senior,$11.84,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),2D,10:15a,Matinee,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),2D,10:15a,Matinee,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),2D,10:15a,Matinee,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),D-BOX,10:55a,Matinee,Matinee,$18.57,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),D-BOX,10:55a,Matinee,Child,$18.03,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),D-BOX,10:55a,Matinee,Senior,$13.45,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),2D,12:15p,Matinee,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),2D,12:15p,Matinee,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),2D,12:15p,Matinee,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),2D,1:20p,Matinee,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),2D,1:20p,Matinee,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),2D,1:20p,Matinee,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),D-BOX,2:00p,Matinee,Matinee,$18.57,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),D-BOX,2:00p,Matinee,Child,$18.03,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),D-BOX,2:00p,Matinee,Senior,$13.45,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),2D,3:20p,Matinee,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),2D,3:20p,Matinee,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),2D,3:20p,Matinee,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),2D,4:25p,Twilight,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),2D,4:25p,Twilight,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),2D,4:25p,Twilight,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),D-BOX,5:05p,Twilight,Matinee,$18.57,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),D-BOX,5:05p,Twilight,Child,$18.03,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),D-BOX,5:05p,Twilight,Senior,$13.45,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),2D,6:25p,Prime,General Admission,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),2D,6:25p,Prime,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),2D,6:25p,Prime,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),2D,7:30p,Prime,General Admission,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),2D,7:30p,Prime,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),2D,7:30p,Prime,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),D-BOX,8:15p,Prime,General Admission DBOX,$21.79,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),D-BOX,8:15p,Prime,Child,$18.03,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),D-BOX,8:15p,Prime,Senior,$13.45,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),2D,9:30p,Late Night,General Admission,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),2D,9:30p,Late Night,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),2D,9:30p,Late Night,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),2D,10:35p,Late Night,General Admission,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),2D,10:35p,Late Night,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),2D,10:35p,Late Night,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),XD,12:45p,Matinee,Matinee,$13.72,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),XD,12:45p,Matinee,Child,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),XD,12:45p,Matinee,Senior,$11.84,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),XD,3:50p,Matinee,Matinee,$13.72,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),XD,3:50p,Matinee,Child,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),XD,3:50p,Matinee,Senior,$11.84,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),XD,6:55p,Prime,XD GenAd,$16.95,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),XD,6:55p,Prime,Child,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),XD,6:55p,Prime,Senior,$11.84,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),XD,10:00p,Late Night,XD GenAd,$16.95,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),XD,10:00p,Late Night,Child,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Weapons (2025),XD,10:00p,Late Night,Senior,$11.84,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Sketch (2025),2D,10:45a,Matinee,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Sketch (2025),2D,10:45a,Matinee,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Sketch (2025),2D,10:45a,Matinee,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Sketch (2025),2D,1:25p,Matinee,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Sketch (2025),2D,1:25p,Matinee,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Sketch (2025),2D,1:25p,Matinee,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Sketch (2025),2D,4:00p,Twilight,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Sketch (2025),2D,4:00p,Twilight,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Sketch (2025),2D,4:00p,Twilight,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Sketch (2025),2D,6:35p,Prime,General Admission,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Sketch (2025),2D,6:35p,Prime,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Sketch (2025),2D,6:35p,Prime,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Sketch (2025),2D,9:15p,Late Night,General Admission,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Sketch (2025),2D,9:15p,Late Night,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Sketch (2025),2D,9:15p,Late Night,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Bad Guys 2 (2025),2D,4:05p,Twilight,Matinee,$13.72,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Bad Guys 2 (2025),2D,4:05p,Twilight,Child,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Bad Guys 2 (2025),2D,4:05p,Twilight,Senior,$11.84,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Bad Guys 2 (2025),2D,10:20a,Matinee,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Bad Guys 2 (2025),2D,10:20a,Matinee,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Bad Guys 2 (2025),2D,10:20a,Matinee,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Bad Guys 2 (2025),2D,1:15p,Matinee,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Bad Guys 2 (2025),2D,1:15p,Matinee,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Bad Guys 2 (2025),2D,1:15p,Matinee,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Bad Guys 2 (2025),2D,6:50p,Prime,General Admission,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Bad Guys 2 (2025),2D,6:50p,Prime,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Bad Guys 2 (2025),2D,6:50p,Prime,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Bad Guys 2 (2025),2D,9:35p,Late Night,General Admission,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Bad Guys 2 (2025),2D,9:35p,Late Night,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Bad Guys 2 (2025),2D,9:35p,Late Night,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Naked Gun (2025),2D,10:10a,Matinee,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Naked Gun (2025),2D,10:10a,Matinee,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Naked Gun (2025),2D,10:10a,Matinee,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Naked Gun (2025),2D,10:35a,Matinee,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Naked Gun (2025),2D,10:35a,Matinee,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Naked Gun (2025),2D,10:35a,Matinee,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Naked Gun (2025),2D,12:55p,Matinee,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Naked Gun (2025),2D,12:55p,Matinee,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Naked Gun (2025),2D,12:55p,Matinee,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Naked Gun (2025),2D,3:15p,Matinee,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Naked Gun (2025),2D,3:15p,Matinee,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Naked Gun (2025),2D,3:15p,Matinee,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Naked Gun (2025),2D,5:35p,Twilight,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Naked Gun (2025),2D,5:35p,Twilight,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Naked Gun (2025),2D,5:35p,Twilight,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Naked Gun (2025),2D,7:55p,Prime,General Admission,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Naked Gun (2025),2D,7:55p,Prime,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Naked Gun (2025),2D,7:55p,Prime,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Naked Gun (2025),2D,10:15p,Late Night,General Admission,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Naked Gun (2025),2D,10:15p,Late Night,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Naked Gun (2025),2D,10:15p,Late Night,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Fantastic Four: First Steps (2025),2D,4:20p,Twilight,Matinee,$13.72,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Fantastic Four: First Steps (2025),2D,4:20p,Twilight,Child,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Fantastic Four: First Steps (2025),2D,4:20p,Twilight,Senior,$11.84,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Fantastic Four: First Steps (2025),2D,10:30a,Matinee,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Fantastic Four: First Steps (2025),2D,10:30a,Matinee,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Fantastic Four: First Steps (2025),2D,10:30a,Matinee,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Fantastic Four: First Steps (2025),2D,12:10p,Matinee,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Fantastic Four: First Steps (2025),2D,12:10p,Matinee,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Fantastic Four: First Steps (2025),2D,12:10p,Matinee,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Fantastic Four: First Steps (2025),2D,1:25p,Matinee,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Fantastic Four: First Steps (2025),2D,1:25p,Matinee,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Fantastic Four: First Steps (2025),2D,1:25p,Matinee,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Fantastic Four: First Steps (2025),2D,3:05p,Matinee,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Fantastic Four: First Steps (2025),2D,3:05p,Matinee,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Fantastic Four: First Steps (2025),2D,3:05p,Matinee,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Fantastic Four: First Steps (2025),2D,7:15p,Prime,General Admission,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Fantastic Four: First Steps (2025),2D,7:15p,Prime,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Fantastic Four: First Steps (2025),2D,7:15p,Prime,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Fantastic Four: First Steps (2025),2D,9:10p,Late Night,General Admission,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Fantastic Four: First Steps (2025),2D,9:10p,Late Night,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Fantastic Four: First Steps (2025),2D,9:10p,Late Night,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Fantastic Four: First Steps (2025),2D,10:10p,Late Night,General Admission,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Fantastic Four: First Steps (2025),2D,10:10p,Late Night,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,The Fantastic Four: First Steps (2025),2D,10:10p,Late Night,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Superman (2025),2D,10:05a,Matinee,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Superman (2025),2D,10:05a,Matinee,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Superman (2025),2D,10:05a,Matinee,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Superman (2025),2D,1:10p,Matinee,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Superman (2025),2D,1:10p,Matinee,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Superman (2025),2D,1:10p,Matinee,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Superman (2025),2D,4:15p,Twilight,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Superman (2025),2D,4:15p,Twilight,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Superman (2025),2D,4:15p,Twilight,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Superman (2025),2D,7:20p,Prime,General Admission,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Superman (2025),2D,7:20p,Prime,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Superman (2025),2D,7:20p,Prime,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Superman (2025),2D,10:25p,Late Night,General Admission,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Superman (2025),2D,10:25p,Late Night,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Superman (2025),2D,10:25p,Late Night,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Jurassic World Rebirth (2025),2D,12:40p,Matinee,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Jurassic World Rebirth (2025),2D,12:40p,Matinee,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Jurassic World Rebirth (2025),2D,12:40p,Matinee,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Jurassic World Rebirth (2025),2D,3:55p,Matinee,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Jurassic World Rebirth (2025),2D,3:55p,Matinee,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Jurassic World Rebirth (2025),2D,3:55p,Matinee,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Jurassic World Rebirth (2025),2D,7:05p,Prime,General Admission,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Jurassic World Rebirth (2025),2D,7:05p,Prime,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Jurassic World Rebirth (2025),2D,7:05p,Prime,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Jurassic World Rebirth (2025),2D,10:20p,Late Night,General Admission,$13.18,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Jurassic World Rebirth (2025),2D,10:20p,Late Night,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,Jurassic World Rebirth (2025),2D,10:20p,Late Night,Senior,$8.07,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,F1 The Movie (2025),2D,3:15p,Matinee,Matinee,$9.96,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,F1 The Movie (2025),2D,3:15p,Matinee,Child,$9.42,N/A,N/A,N/A
+Cinemark Century Rio Plex 24 and XD,F1 The Movie (2025),2D,3:15p,Matinee,Senior,$8.07,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Americana (2025),2D,10:00p,Late Night,Adult,$15.60,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Americana (2025),2D,10:00p,Late Night,Senior,$13.98,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Americana (2025),2D,10:00p,Late Night,Child,$12.90,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Nobody 2 (2025),2D,2:00p,Matinee,Adult,$12.37,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Nobody 2 (2025),2D,2:00p,Matinee,Child,$11.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Nobody 2 (2025),2D,2:00p,Matinee,Senior,$11.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Nobody 2 (2025),2D,4:25p,Twilight,Adult,$12.37,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Nobody 2 (2025),2D,4:25p,Twilight,Child,$11.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Nobody 2 (2025),2D,4:25p,Twilight,Senior,$11.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Nobody 2 (2025),2D,6:35p,Prime,Adult,$15.60,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Nobody 2 (2025),2D,6:35p,Prime,Senior,$13.98,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Nobody 2 (2025),2D,6:35p,Prime,Child,$12.90,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Nobody 2 (2025),2D,9:05p,Late Night,Adult,$15.60,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Nobody 2 (2025),2D,9:05p,Late Night,Senior,$13.98,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Nobody 2 (2025),2D,9:05p,Late Night,Child,$12.90,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Nobody 2 (2025),2D,10:15p,Late Night,Adult,$12.37,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Nobody 2 (2025),2D,10:15p,Late Night,Child,$11.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Nobody 2 (2025),2D,10:15p,Late Night,Senior,$11.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Nobody 2 (2025),2D,2:30p,Matinee,Adult,$19.90,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Nobody 2 (2025),2D,2:30p,Matinee,Child,$18.82,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Nobody 2 (2025),2D,2:30p,Matinee,Senior,$18.82,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Nobody 2 (2025),2D,5:00p,Twilight,Adult,$19.90,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Nobody 2 (2025),2D,5:00p,Twilight,Child,$18.82,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Nobody 2 (2025),2D,5:00p,Twilight,Senior,$18.82,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Nobody 2 (2025),2D,7:30p,Prime,Adult,$23.13,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Nobody 2 (2025),2D,7:30p,Prime,Senior,$21.51,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Nobody 2 (2025),2D,7:30p,Prime,Child,$20.44,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Nobody 2 (2025),2D,10:55p,Late Night,Adult,$19.90,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Nobody 2 (2025),2D,10:55p,Late Night,Senior,$18.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Nobody 2 (2025),2D,10:55p,Late Night,Child,$17.21,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Shin Godzilla 4K (2025),2D,10:05a,Matinee,Adult,$12.37,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Shin Godzilla 4K (2025),2D,10:05a,Matinee,Child,$11.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Shin Godzilla 4K (2025),2D,10:05a,Matinee,Senior,$11.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Shin Godzilla 4K (2025),2D,11:00a,Matinee,Adult,$12.37,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Shin Godzilla 4K (2025),2D,11:00a,Matinee,Child,$11.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Shin Godzilla 4K (2025),2D,11:00a,Matinee,Senior,$11.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Shin Godzilla 4K (2025),2D,12:55p,Matinee,Adult,$12.37,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Shin Godzilla 4K (2025),2D,12:55p,Matinee,Child,$11.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Shin Godzilla 4K (2025),2D,12:55p,Matinee,Senior,$11.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Shin Godzilla 4K (2025),2D,3:50p,Matinee,Adult,$12.37,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Shin Godzilla 4K (2025),2D,3:50p,Matinee,Child,$11.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Shin Godzilla 4K (2025),2D,3:50p,Matinee,Senior,$11.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Freakier Friday (2025),2D,11:00a,Matinee,Adult,$16.68,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Freakier Friday (2025),2D,11:00a,Matinee,Child,$15.60,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Freakier Friday (2025),2D,11:00a,Matinee,Senior,$15.60,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Freakier Friday (2025),2D,1:50p,Matinee,Adult,$16.68,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Freakier Friday (2025),2D,1:50p,Matinee,Child,$15.60,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Freakier Friday (2025),2D,1:50p,Matinee,Senior,$15.60,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Freakier Friday (2025),2D,11:30a,Matinee,Adult,$12.37,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Freakier Friday (2025),2D,11:30a,Matinee,Child,$11.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Freakier Friday (2025),2D,11:30a,Matinee,Senior,$11.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Freakier Friday (2025),2D,2:20p,Matinee,Adult,$12.37,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Freakier Friday (2025),2D,2:20p,Matinee,Child,$11.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Freakier Friday (2025),2D,2:20p,Matinee,Senior,$11.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Freakier Friday (2025),2D,5:10p,Twilight,Adult,$15.60,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Freakier Friday (2025),2D,5:10p,Twilight,Senior,$13.98,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Freakier Friday (2025),2D,5:10p,Twilight,Child,$12.90,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Freakier Friday (2025),2D,8:00p,Prime,Adult,$15.60,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Freakier Friday (2025),2D,8:00p,Prime,Senior,$13.98,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Freakier Friday (2025),2D,8:00p,Prime,Child,$12.90,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Weapons (2025),2D,7:15p,Prime,Adult,$23.13,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Weapons (2025),2D,7:15p,Prime,Senior,$21.51,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Weapons (2025),2D,7:15p,Prime,Child,$20.44,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Weapons (2025),2D,10:30p,Late Night,Adult,$23.13,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Weapons (2025),2D,10:30p,Late Night,Senior,$21.51,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Weapons (2025),2D,10:30p,Late Night,Child,$20.44,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Weapons (2025),2D,12:20p,Matinee,Adult,$12.37,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Weapons (2025),2D,12:20p,Matinee,Child,$11.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Weapons (2025),2D,12:20p,Matinee,Senior,$11.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Weapons (2025),2D,12:45p,Matinee,Adult,$12.37,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Weapons (2025),2D,12:45p,Matinee,Child,$11.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Weapons (2025),2D,12:45p,Matinee,Senior,$11.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Weapons (2025),2D,3:30p,Matinee,Adult,$12.37,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Weapons (2025),2D,3:30p,Matinee,Child,$11.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Weapons (2025),2D,3:30p,Matinee,Senior,$11.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Weapons (2025),2D,3:50p,Matinee,Adult,$12.37,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Weapons (2025),2D,3:50p,Matinee,Child,$11.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Weapons (2025),2D,3:50p,Matinee,Senior,$11.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Weapons (2025),2D,6:45p,Prime,Adult,$15.60,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Weapons (2025),2D,6:45p,Prime,Senior,$13.98,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Weapons (2025),2D,6:45p,Prime,Child,$12.90,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Weapons (2025),2D,9:45p,Late Night,Adult,$12.37,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Weapons (2025),2D,9:45p,Late Night,Child,$11.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Weapons (2025),2D,9:45p,Late Night,Senior,$11.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Weapons (2025),2D,4:35p,Twilight,Adult,$16.68,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Weapons (2025),2D,4:35p,Twilight,Child,$15.60,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Weapons (2025),2D,4:35p,Twilight,Senior,$15.60,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Weapons (2025),2D,7:45p,Prime,Adult,$19.90,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Weapons (2025),2D,7:45p,Prime,Senior,$18.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Weapons (2025),2D,7:45p,Prime,Child,$17.21,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Weapons (2025),2D,10:00p,Late Night,Adult,$23.13,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Weapons (2025),2D,10:00p,Late Night,Senior,$21.51,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Weapons (2025),2D,10:00p,Late Night,Child,$20.44,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Sketch (2025),2D,10:35a,Matinee,Adult,$12.37,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Sketch (2025),2D,10:35a,Matinee,Child,$11.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Sketch (2025),2D,10:35a,Matinee,Senior,$11.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Sketch (2025),2D,1:15p,Matinee,Adult,$12.37,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Sketch (2025),2D,1:15p,Matinee,Child,$11.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Sketch (2025),2D,1:15p,Matinee,Senior,$11.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Sketch (2025),2D,4:00p,Twilight,Adult,$12.37,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Sketch (2025),2D,4:00p,Twilight,Child,$11.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Sketch (2025),2D,4:00p,Twilight,Senior,$11.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Bad Guys 2 (2025),2D,10:00a,Matinee,Adult,$18.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Bad Guys 2 (2025),2D,10:00a,Matinee,Child,$17.21,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Bad Guys 2 (2025),2D,10:00a,Matinee,Senior,$17.21,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Bad Guys 2 (2025),2D,10:40a,Matinee,Adult,$13.44,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Bad Guys 2 (2025),2D,10:40a,Matinee,Child,$12.37,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Bad Guys 2 (2025),2D,10:40a,Matinee,Senior,$12.37,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Bad Guys 2 (2025),2D,1:15p,Matinee,Adult,$13.44,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Bad Guys 2 (2025),2D,1:15p,Matinee,Child,$12.37,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Bad Guys 2 (2025),2D,1:15p,Matinee,Senior,$12.37,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Bad Guys 2 (2025),2D,3:55p,Matinee,Adult,$13.44,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Bad Guys 2 (2025),2D,3:55p,Matinee,Child,$12.37,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Bad Guys 2 (2025),2D,3:55p,Matinee,Senior,$12.37,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Bad Guys 2 (2025),2D,6:35p,Prime,Adult,$16.68,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Bad Guys 2 (2025),2D,6:35p,Prime,Senior,$15.05,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Bad Guys 2 (2025),2D,6:35p,Prime,Child,$13.98,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Naked Gun (2025),2D,12:30p,Matinee,Adult,$13.44,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Naked Gun (2025),2D,12:30p,Matinee,Child,$12.37,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Naked Gun (2025),2D,12:30p,Matinee,Senior,$12.37,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Naked Gun (2025),2D,2:55p,Matinee,Adult,$13.44,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Naked Gun (2025),2D,2:55p,Matinee,Child,$12.37,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Naked Gun (2025),2D,2:55p,Matinee,Senior,$12.37,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Naked Gun (2025),2D,5:20p,Twilight,Adult,$16.68,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Naked Gun (2025),2D,5:20p,Twilight,Senior,$15.05,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Naked Gun (2025),2D,5:20p,Twilight,Child,$13.98,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Naked Gun (2025),2D,7:50p,Prime,Adult,$16.68,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Naked Gun (2025),2D,7:50p,Prime,Senior,$15.05,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Naked Gun (2025),2D,7:50p,Prime,Child,$13.98,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Naked Gun (2025),2D,10:20p,Late Night,Adult,$16.68,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Naked Gun (2025),2D,10:20p,Late Night,Senior,$15.05,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Naked Gun (2025),2D,10:20p,Late Night,Child,$13.98,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Fantastic Four: First Steps (2025),2D,11:25a,Matinee,Adult,$23.13,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Fantastic Four: First Steps (2025),2D,11:25a,Matinee,Child,$22.05,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Fantastic Four: First Steps (2025),2D,11:25a,Matinee,Senior,$22.05,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Fantastic Four: First Steps (2025),2D,12:40p,Matinee,Adult,$19.36,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Fantastic Four: First Steps (2025),2D,12:40p,Matinee,Child,$18.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Fantastic Four: First Steps (2025),2D,12:40p,Matinee,Senior,$18.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Fantastic Four: First Steps (2025),2D,3:30p,Matinee,Adult,$19.36,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Fantastic Four: First Steps (2025),2D,3:30p,Matinee,Child,$18.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Fantastic Four: First Steps (2025),2D,3:30p,Matinee,Senior,$18.29,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Fantastic Four: First Steps (2025),2D,6:20p,Prime,Adult,$22.59,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Fantastic Four: First Steps (2025),2D,6:20p,Prime,Senior,$20.98,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Fantastic Four: First Steps (2025),2D,6:20p,Prime,Child,$19.90,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Fantastic Four: First Steps (2025),2D,12:00p,Matinee,Adult,$14.52,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Fantastic Four: First Steps (2025),2D,12:00p,Matinee,Child,$13.44,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Fantastic Four: First Steps (2025),2D,12:00p,Matinee,Senior,$13.44,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Fantastic Four: First Steps (2025),2D,3:00p,Matinee,Adult,$14.52,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Fantastic Four: First Steps (2025),2D,3:00p,Matinee,Child,$13.44,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Fantastic Four: First Steps (2025),2D,3:00p,Matinee,Senior,$13.44,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Fantastic Four: First Steps (2025),2D,6:00p,Prime,Adult,$17.74,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Fantastic Four: First Steps (2025),2D,6:00p,Prime,Senior,$16.13,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Fantastic Four: First Steps (2025),2D,6:00p,Prime,Child,$15.05,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Fantastic Four: First Steps (2025),2D,9:00p,Prime,Adult,$17.74,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Fantastic Four: First Steps (2025),2D,9:00p,Prime,Senior,$16.13,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",The Fantastic Four: First Steps (2025),2D,9:00p,Prime,Child,$15.05,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Superman (2025),2D,10:05a,Matinee,Adult,$14.52,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Superman (2025),2D,10:05a,Matinee,Child,$13.44,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Superman (2025),2D,10:05a,Matinee,Senior,$13.44,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Superman (2025),2D,1:10p,Matinee,Adult,$14.52,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Superman (2025),2D,1:10p,Matinee,Child,$13.44,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Superman (2025),2D,1:10p,Matinee,Senior,$13.44,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Superman (2025),2D,4:20p,Twilight,Adult,$14.52,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Superman (2025),2D,4:20p,Twilight,Child,$13.44,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Superman (2025),2D,4:20p,Twilight,Senior,$13.44,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Superman (2025),2D,7:30p,Prime,Adult,$17.74,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Superman (2025),2D,7:30p,Prime,Senior,$16.13,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Superman (2025),2D,7:30p,Prime,Child,$15.05,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Superman (2025),2D,10:40p,Late Night,Adult,$17.74,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Superman (2025),2D,10:40p,Late Night,Senior,$16.13,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Superman (2025),2D,10:40p,Late Night,Child,$15.05,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Jurassic World Rebirth (2025),2D,11:50a,Matinee,Adult,$14.52,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Jurassic World Rebirth (2025),2D,11:50a,Matinee,Child,$13.44,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Jurassic World Rebirth (2025),2D,11:50a,Matinee,Senior,$13.44,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Jurassic World Rebirth (2025),2D,2:55p,Matinee,Adult,$14.52,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Jurassic World Rebirth (2025),2D,2:55p,Matinee,Child,$13.44,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Jurassic World Rebirth (2025),2D,2:55p,Matinee,Senior,$13.44,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Jurassic World Rebirth (2025),2D,6:00p,Prime,Adult,$17.74,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Jurassic World Rebirth (2025),2D,6:00p,Prime,Senior,$16.13,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Jurassic World Rebirth (2025),2D,6:00p,Prime,Child,$15.05,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Jurassic World Rebirth (2025),2D,9:10p,Late Night,Adult,$17.74,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Jurassic World Rebirth (2025),2D,9:10p,Late Night,Senior,$16.13,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",Jurassic World Rebirth (2025),2D,9:10p,Late Night,Child,$15.05,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",F1 The Movie (2025),2D,12:00p,Matinee,Adult,$24.74,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",F1 The Movie (2025),2D,12:00p,Matinee,Senior,$23.13,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",F1 The Movie (2025),2D,12:00p,Matinee,Child,$22.05,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",F1 The Movie (2025),2D,3:40p,Matinee,Adult,$24.74,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",F1 The Movie (2025),2D,3:40p,Matinee,Senior,$23.13,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",F1 The Movie (2025),2D,3:40p,Matinee,Child,$22.05,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",F1 The Movie (2025),2D,9:05p,Late Night,Adult,$22.05,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",F1 The Movie (2025),2D,9:05p,Late Night,Senior,$20.44,N/A,N/A,N/A
+"Regal Winrock ScreenX, IMAX & RPX",F1 The Movie (2025),2D,9:05p,Late Night,Child,$19.36,N/A,N/A,N/A
+Regal UA Cottonwood,Americana (2025),2D,1:30p,Matinee,Adult,$12.90,N/A,N/A,N/A
+Regal UA Cottonwood,Americana (2025),2D,1:30p,Matinee,Child,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Americana (2025),2D,1:30p,Matinee,Senior,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Americana (2025),2D,4:20p,Twilight,Adult,$12.90,N/A,N/A,N/A
+Regal UA Cottonwood,Americana (2025),2D,4:20p,Twilight,Child,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Americana (2025),2D,4:20p,Twilight,Senior,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Americana (2025),2D,7:15p,Prime,Adult,$16.13,N/A,N/A,N/A
+Regal UA Cottonwood,Americana (2025),2D,7:15p,Prime,Senior,$14.52,N/A,N/A,N/A
+Regal UA Cottonwood,Americana (2025),2D,7:15p,Prime,Child,$13.44,N/A,N/A,N/A
+Regal UA Cottonwood,Americana (2025),2D,10:05p,Late Night,Adult,$16.13,N/A,N/A,N/A
+Regal UA Cottonwood,Americana (2025),2D,10:05p,Late Night,Senior,$14.52,N/A,N/A,N/A
+Regal UA Cottonwood,Americana (2025),2D,10:05p,Late Night,Child,$13.44,N/A,N/A,N/A
+Regal UA Cottonwood,Nobody 2 (2025),2D,11:50a,Matinee,Adult,$12.90,N/A,N/A,N/A
+Regal UA Cottonwood,Nobody 2 (2025),2D,11:50a,Matinee,Child,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Nobody 2 (2025),2D,11:50a,Matinee,Senior,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Nobody 2 (2025),2D,12:50p,Matinee,Adult,$12.90,N/A,N/A,N/A
+Regal UA Cottonwood,Nobody 2 (2025),2D,12:50p,Matinee,Child,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Nobody 2 (2025),2D,12:50p,Matinee,Senior,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Nobody 2 (2025),2D,2:30p,Matinee,Adult,$12.90,N/A,N/A,N/A
+Regal UA Cottonwood,Nobody 2 (2025),2D,2:30p,Matinee,Child,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Nobody 2 (2025),2D,2:30p,Matinee,Senior,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Nobody 2 (2025),2D,3:30p,Matinee,Adult,$12.90,N/A,N/A,N/A
+Regal UA Cottonwood,Nobody 2 (2025),2D,3:30p,Matinee,Child,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Nobody 2 (2025),2D,3:30p,Matinee,Senior,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Nobody 2 (2025),2D,5:10p,Twilight,Adult,$16.13,N/A,N/A,N/A
+Regal UA Cottonwood,Nobody 2 (2025),2D,5:10p,Twilight,Senior,$14.52,N/A,N/A,N/A
+Regal UA Cottonwood,Nobody 2 (2025),2D,5:10p,Twilight,Child,$13.44,N/A,N/A,N/A
+Regal UA Cottonwood,Nobody 2 (2025),2D,6:50p,Prime,Adult,$16.13,N/A,N/A,N/A
+Regal UA Cottonwood,Nobody 2 (2025),2D,6:50p,Prime,Senior,$14.52,N/A,N/A,N/A
+Regal UA Cottonwood,Nobody 2 (2025),2D,6:50p,Prime,Child,$13.44,N/A,N/A,N/A
+Regal UA Cottonwood,Nobody 2 (2025),2D,9:25p,Late Night,Adult,$16.13,N/A,N/A,N/A
+Regal UA Cottonwood,Nobody 2 (2025),2D,9:25p,Late Night,Senior,$14.52,N/A,N/A,N/A
+Regal UA Cottonwood,Nobody 2 (2025),2D,9:25p,Late Night,Child,$13.44,N/A,N/A,N/A
+Regal UA Cottonwood,Nobody 2 (2025),2D,10:20p,Late Night,Adult,$16.13,N/A,N/A,N/A
+Regal UA Cottonwood,Nobody 2 (2025),2D,10:20p,Late Night,Senior,$14.52,N/A,N/A,N/A
+Regal UA Cottonwood,Nobody 2 (2025),2D,10:20p,Late Night,Child,$13.44,N/A,N/A,N/A
+Regal UA Cottonwood,Shin Godzilla 4K (2025),2D,12:00p,Matinee,Adult,$12.90,N/A,N/A,N/A
+Regal UA Cottonwood,Shin Godzilla 4K (2025),2D,12:00p,Matinee,Child,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Shin Godzilla 4K (2025),2D,12:00p,Matinee,Senior,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Shin Godzilla 4K (2025),2D,3:00p,Matinee,Adult,$12.90,N/A,N/A,N/A
+Regal UA Cottonwood,Shin Godzilla 4K (2025),2D,3:00p,Matinee,Child,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Shin Godzilla 4K (2025),2D,3:00p,Matinee,Senior,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Shin Godzilla 4K (2025),2D,6:00p,Prime,Adult,$16.13,N/A,N/A,N/A
+Regal UA Cottonwood,Shin Godzilla 4K (2025),2D,6:00p,Prime,Senior,$14.52,N/A,N/A,N/A
+Regal UA Cottonwood,Shin Godzilla 4K (2025),2D,6:00p,Prime,Child,$13.44,N/A,N/A,N/A
+Regal UA Cottonwood,Shin Godzilla 4K (2025),2D,9:00p,Prime,Adult,$16.13,N/A,N/A,N/A
+Regal UA Cottonwood,Shin Godzilla 4K (2025),2D,9:00p,Prime,Senior,$14.52,N/A,N/A,N/A
+Regal UA Cottonwood,Shin Godzilla 4K (2025),2D,9:00p,Prime,Child,$13.44,N/A,N/A,N/A
+Regal UA Cottonwood,Freakier Friday (2025),2D,11:40a,Matinee,Adult,$12.90,N/A,N/A,N/A
+Regal UA Cottonwood,Freakier Friday (2025),2D,11:40a,Matinee,Child,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Freakier Friday (2025),2D,11:40a,Matinee,Senior,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Freakier Friday (2025),2D,12:50p,Matinee,Adult,$12.90,N/A,N/A,N/A
+Regal UA Cottonwood,Freakier Friday (2025),2D,12:50p,Matinee,Child,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Freakier Friday (2025),2D,12:50p,Matinee,Senior,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Freakier Friday (2025),2D,3:40p,Matinee,Adult,$12.90,N/A,N/A,N/A
+Regal UA Cottonwood,Freakier Friday (2025),2D,3:40p,Matinee,Child,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Freakier Friday (2025),2D,3:40p,Matinee,Senior,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Freakier Friday (2025),2D,6:45p,Prime,Adult,$16.13,N/A,N/A,N/A
+Regal UA Cottonwood,Freakier Friday (2025),2D,6:45p,Prime,Senior,$14.52,N/A,N/A,N/A
+Regal UA Cottonwood,Freakier Friday (2025),2D,6:45p,Prime,Child,$13.44,N/A,N/A,N/A
+Regal UA Cottonwood,Freakier Friday (2025),2D,9:30p,Late Night,Adult,$16.13,N/A,N/A,N/A
+Regal UA Cottonwood,Freakier Friday (2025),2D,9:30p,Late Night,Senior,$14.52,N/A,N/A,N/A
+Regal UA Cottonwood,Freakier Friday (2025),2D,9:30p,Late Night,Child,$13.44,N/A,N/A,N/A
+Regal UA Cottonwood,Weapons (2025),2D,1:05p,Matinee,Adult,$12.90,N/A,N/A,N/A
+Regal UA Cottonwood,Weapons (2025),2D,1:05p,Matinee,Child,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Weapons (2025),2D,1:05p,Matinee,Senior,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Weapons (2025),2D,1:25p,Matinee,Adult,$12.90,N/A,N/A,N/A
+Regal UA Cottonwood,Weapons (2025),2D,1:25p,Matinee,Child,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Weapons (2025),2D,1:25p,Matinee,Senior,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Weapons (2025),2D,4:15p,Twilight,Adult,$12.90,N/A,N/A,N/A
+Regal UA Cottonwood,Weapons (2025),2D,4:15p,Twilight,Child,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Weapons (2025),2D,4:15p,Twilight,Senior,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Weapons (2025),2D,4:30p,Twilight,Adult,$12.90,N/A,N/A,N/A
+Regal UA Cottonwood,Weapons (2025),2D,4:30p,Twilight,Child,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Weapons (2025),2D,4:30p,Twilight,Senior,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Weapons (2025),2D,7:35p,Prime,Adult,$12.90,N/A,N/A,N/A
+Regal UA Cottonwood,Weapons (2025),2D,7:35p,Prime,Child,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Weapons (2025),2D,7:35p,Prime,Senior,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Weapons (2025),2D,10:40p,Late Night,Adult,$16.13,N/A,N/A,N/A
+Regal UA Cottonwood,Weapons (2025),2D,10:40p,Late Night,Senior,$14.52,N/A,N/A,N/A
+Regal UA Cottonwood,Weapons (2025),2D,10:40p,Late Night,Child,$13.44,N/A,N/A,N/A
+Regal UA Cottonwood,Sketch (2025),2D,11:30a,Matinee,Adult,$12.90,N/A,N/A,N/A
+Regal UA Cottonwood,Sketch (2025),2D,11:30a,Matinee,Child,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Sketch (2025),2D,11:30a,Matinee,Senior,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Sketch (2025),2D,1:50p,Matinee,Adult,$12.90,N/A,N/A,N/A
+Regal UA Cottonwood,Sketch (2025),2D,1:50p,Matinee,Child,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Sketch (2025),2D,1:50p,Matinee,Senior,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Sketch (2025),2D,4:25p,Twilight,Adult,$12.90,N/A,N/A,N/A
+Regal UA Cottonwood,Sketch (2025),2D,4:25p,Twilight,Child,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,Sketch (2025),2D,4:25p,Twilight,Senior,$11.83,N/A,N/A,N/A
+Regal UA Cottonwood,The Bad Guys 2 (2025),2D,1:15p,Matinee,Adult,$13.98,N/A,N/A,N/A
+Regal UA Cottonwood,The Bad Guys 2 (2025),2D,1:15p,Matinee,Child,$12.90,N/A,N/A,N/A
+Regal UA Cottonwood,The Bad Guys 2 (2025),2D,1:15p,Matinee,Senior,$12.90,N/A,N/A,N/A
+Regal UA Cottonwood,The Bad Guys 2 (2025),2D,3:55p,Matinee,Adult,$13.98,N/A,N/A,N/A
+Regal UA Cottonwood,The Bad Guys 2 (2025),2D,3:55p,Matinee,Child,$12.90,N/A,N/A,N/A
+Regal UA Cottonwood,The Bad Guys 2 (2025),2D,3:55p,Matinee,Senior,$12.90,N/A,N/A,N/A
+Regal UA Cottonwood,The Bad Guys 2 (2025),2D,6:45p,Prime,Adult,$17.21,N/A,N/A,N/A
+Regal UA Cottonwood,The Bad Guys 2 (2025),2D,6:45p,Prime,Senior,$15.60,N/A,N/A,N/A
+Regal UA Cottonwood,The Bad Guys 2 (2025),2D,6:45p,Prime,Child,$14.52,N/A,N/A,N/A
+Regal UA Cottonwood,The Naked Gun (2025),2D,2:30p,Matinee,Adult,$13.98,N/A,N/A,N/A
+Regal UA Cottonwood,The Naked Gun (2025),2D,2:30p,Matinee,Child,$12.90,N/A,N/A,N/A
+Regal UA Cottonwood,The Naked Gun (2025),2D,2:30p,Matinee,Senior,$12.90,N/A,N/A,N/A
+Regal UA Cottonwood,The Naked Gun (2025),2D,4:55p,Twilight,Adult,$13.98,N/A,N/A,N/A
+Regal UA Cottonwood,The Naked Gun (2025),2D,4:55p,Twilight,Child,$12.90,N/A,N/A,N/A
+Regal UA Cottonwood,The Naked Gun (2025),2D,4:55p,Twilight,Senior,$12.90,N/A,N/A,N/A
+Regal UA Cottonwood,The Naked Gun (2025),2D,7:20p,Prime,Adult,$17.21,N/A,N/A,N/A
+Regal UA Cottonwood,The Naked Gun (2025),2D,7:20p,Prime,Senior,$15.60,N/A,N/A,N/A
+Regal UA Cottonwood,The Naked Gun (2025),2D,7:20p,Prime,Child,$14.52,N/A,N/A,N/A
+Regal UA Cottonwood,The Naked Gun (2025),2D,9:45p,Late Night,Adult,$17.21,N/A,N/A,N/A
+Regal UA Cottonwood,The Naked Gun (2025),2D,9:45p,Late Night,Senior,$15.60,N/A,N/A,N/A
+Regal UA Cottonwood,The Naked Gun (2025),2D,9:45p,Late Night,Child,$14.52,N/A,N/A,N/A
+Regal UA Cottonwood,The Fantastic Four: First Steps (2025),2D,1:15p,Matinee,Adult,$15.05,N/A,N/A,N/A
+Regal UA Cottonwood,The Fantastic Four: First Steps (2025),2D,1:15p,Matinee,Child,$13.98,N/A,N/A,N/A
+Regal UA Cottonwood,The Fantastic Four: First Steps (2025),2D,1:15p,Matinee,Senior,$13.98,N/A,N/A,N/A
+Regal UA Cottonwood,The Fantastic Four: First Steps (2025),2D,4:10p,Twilight,Adult,$15.05,N/A,N/A,N/A
+Regal UA Cottonwood,The Fantastic Four: First Steps (2025),2D,4:10p,Twilight,Child,$13.98,N/A,N/A,N/A
+Regal UA Cottonwood,The Fantastic Four: First Steps (2025),2D,4:10p,Twilight,Senior,$13.98,N/A,N/A,N/A
+Regal UA Cottonwood,The Fantastic Four: First Steps (2025),2D,7:00p,Prime,Adult,$18.29,N/A,N/A,N/A
+Regal UA Cottonwood,The Fantastic Four: First Steps (2025),2D,7:00p,Prime,Senior,$16.68,N/A,N/A,N/A
+Regal UA Cottonwood,The Fantastic Four: First Steps (2025),2D,7:00p,Prime,Child,$15.60,N/A,N/A,N/A
+Regal UA Cottonwood,The Fantastic Four: First Steps (2025),2D,9:25p,Late Night,Adult,$18.29,N/A,N/A,N/A
+Regal UA Cottonwood,The Fantastic Four: First Steps (2025),2D,9:25p,Late Night,Senior,$16.68,N/A,N/A,N/A
+Regal UA Cottonwood,The Fantastic Four: First Steps (2025),2D,9:25p,Late Night,Child,$15.60,N/A,N/A,N/A
+Regal UA Cottonwood,Superman (2025),2D,12:50p,Matinee,Adult,$15.05,N/A,N/A,N/A
+Regal UA Cottonwood,Superman (2025),2D,12:50p,Matinee,Child,$13.98,N/A,N/A,N/A
+Regal UA Cottonwood,Superman (2025),2D,12:50p,Matinee,Senior,$13.98,N/A,N/A,N/A
+Regal UA Cottonwood,Superman (2025),2D,4:00p,Twilight,Adult,$15.05,N/A,N/A,N/A
+Regal UA Cottonwood,Superman (2025),2D,4:00p,Twilight,Child,$13.98,N/A,N/A,N/A
+Regal UA Cottonwood,Superman (2025),2D,4:00p,Twilight,Senior,$13.98,N/A,N/A,N/A
+Regal UA Cottonwood,Superman (2025),2D,7:30p,Prime,Adult,$18.29,N/A,N/A,N/A
+Regal UA Cottonwood,Superman (2025),2D,7:30p,Prime,Senior,$16.68,N/A,N/A,N/A
+Regal UA Cottonwood,Superman (2025),2D,7:30p,Prime,Child,$15.60,N/A,N/A,N/A
+Regal UA Cottonwood,Superman (2025),2D,10:15p,Late Night,Adult,$18.29,N/A,N/A,N/A
+Regal UA Cottonwood,Superman (2025),2D,10:15p,Late Night,Senior,$16.68,N/A,N/A,N/A
+Regal UA Cottonwood,Superman (2025),2D,10:15p,Late Night,Child,$15.60,N/A,N/A,N/A
+Regal UA Cottonwood,Jurassic World Rebirth (2025),2D,11:45a,Matinee,Adult,$15.05,N/A,N/A,N/A
+Regal UA Cottonwood,Jurassic World Rebirth (2025),2D,11:45a,Matinee,Child,$13.98,N/A,N/A,N/A
+Regal UA Cottonwood,Jurassic World Rebirth (2025),2D,11:45a,Matinee,Senior,$13.98,N/A,N/A,N/A
+Regal UA Cottonwood,Jurassic World Rebirth (2025),2D,2:55p,Matinee,Adult,$15.05,N/A,N/A,N/A
+Regal UA Cottonwood,Jurassic World Rebirth (2025),2D,2:55p,Matinee,Child,$13.98,N/A,N/A,N/A
+Regal UA Cottonwood,Jurassic World Rebirth (2025),2D,2:55p,Matinee,Senior,$13.98,N/A,N/A,N/A
+Regal UA Cottonwood,Jurassic World Rebirth (2025),2D,6:15p,Prime,Adult,$18.29,N/A,N/A,N/A
+Regal UA Cottonwood,Jurassic World Rebirth (2025),2D,6:15p,Prime,Senior,$16.68,N/A,N/A,N/A
+Regal UA Cottonwood,Jurassic World Rebirth (2025),2D,6:15p,Prime,Child,$15.60,N/A,N/A,N/A
+Regal UA Cottonwood,Jurassic World Rebirth (2025),2D,9:35p,Late Night,Adult,$18.29,N/A,N/A,N/A
+Regal UA Cottonwood,Jurassic World Rebirth (2025),2D,9:35p,Late Night,Senior,$16.68,N/A,N/A,N/A
+Regal UA Cottonwood,Jurassic World Rebirth (2025),2D,9:35p,Late Night,Child,$15.60,N/A,N/A,N/A
+Regal UA Cottonwood,F1 The Movie (2025),2D,11:40a,Matinee,Adult,$14.52,N/A,N/A,N/A
+Regal UA Cottonwood,F1 The Movie (2025),2D,11:40a,Matinee,Child,$13.44,N/A,N/A,N/A
+Regal UA Cottonwood,F1 The Movie (2025),2D,11:40a,Matinee,Senior,$13.44,N/A,N/A,N/A
+Regal UA Cottonwood,F1 The Movie (2025),2D,3:10p,Matinee,Adult,$14.52,N/A,N/A,N/A
+Regal UA Cottonwood,F1 The Movie (2025),2D,3:10p,Matinee,Child,$13.44,N/A,N/A,N/A
+Regal UA Cottonwood,F1 The Movie (2025),2D,3:10p,Matinee,Senior,$13.44,N/A,N/A,N/A
+Regal UA Cottonwood,F1 The Movie (2025),2D,6:40p,Prime,Adult,$17.74,N/A,N/A,N/A
+Regal UA Cottonwood,F1 The Movie (2025),2D,6:40p,Prime,Senior,$16.13,N/A,N/A,N/A
+Regal UA Cottonwood,F1 The Movie (2025),2D,6:40p,Prime,Child,$15.05,N/A,N/A,N/A

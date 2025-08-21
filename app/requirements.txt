@@ -6,4 +6,3 @@ pgeocode
 jinja2
 requests
 openpyxl
-streamlit-calendar
