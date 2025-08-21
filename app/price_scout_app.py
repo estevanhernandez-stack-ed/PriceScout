@@ -165,7 +165,7 @@ if check_password():
             
             df_to_save = df.copy()
             df_to_save['run_id'] = run_id
-            df_to_save['Price'] = df_to_save['Price'].replace({'\$': ''}, regex=True).astype(float)
+            df_to_save['Price'] = df_to_save['Price'].replace({r'\$': ''}, regex=True).astype(float)
             
             df_to_save = df_to_save.rename(columns={
                 'Theater Name': 'theater_name', 'Film Title': 'film_title',
