@@ -1,4 +1,4 @@
-# price_scout_app.py - The Streamlit User Interface & Scraping Engine (v26.2 - Complete Code with DB & UI Fixes)
+# price_scout_app.py - The Streamlit User Interface & Scraping Engine (v26.3 - Corrected Daypart Logic)
 
 import streamlit as st
 import pandas as pd
@@ -248,7 +248,7 @@ if check_password():
                 if t <= datetime.time(21,0): return "Prime"
                 return "Late Night"
             except Exception as e:
-                print(f"      [WARNING] Could not classify daypart for '{showtime_str}'. Error: {e}")
+                print(f"       [WARNING] Could not classify daypart for '{showtime_str}'. Error: {e}")
                 return "Unknown"
         async def _get_theaters_from_zip_page(self, page, zip_code):
             url = f"https://www.fandango.com/{zip_code}_movietimes"
@@ -564,9 +564,9 @@ if check_password():
             try:
                 with redirect_stdout(log_stream):
                     if len(args) == 1 and asyncio.iscoroutine(args[0]):
-                         result = asyncio.run(args[0])
+                        result = asyncio.run(args[0])
                     else:
-                         result = asyncio.run(target_func(*args))
+                        result = asyncio.run(target_func(*args))
                 duration = time.time() - start_time
                 status, value = 'success', result
             except Exception:
@@ -682,7 +682,8 @@ if check_password():
     if 'all_showings' not in st.session_state: st.session_state.all_showings = {}
     if 'selected_films' not in st.session_state: st.session_state.selected_films = []
     if 'selected_showtimes' not in st.session_state: st.session_state.selected_showtimes = {}
-    if 'daypart_selections' not in st.session_state: st.session_state.daypart_selections = []
+    # --- CHANGE: Initialize daypart_selections as a set ---
+    if 'daypart_selections' not in st.session_state: st.session_state.daypart_selections = set()
 
 
     # --- Load initial data & DB ---
@@ -747,7 +748,7 @@ if check_password():
             st.rerun()
 
     if st.session_state.report_running and st.session_state.get('run_diagnostic'):
-         with st.spinner("Running diagnostic scan... This will take a long time."):
+        with st.spinner("Running diagnostic scan... This will take a long time."):
             diag_date_str = (datetime.date.today() + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
             status, result, log, duration = run_async_in_thread(scout.run_diagnostic_scrape, markets_to_test, diag_date_str)
             st.session_state.last_run_log += log
@@ -820,41 +821,76 @@ if check_password():
                     st.toast(f"Saved to {filepath}")
     st.divider()
     
-    # --- This is the start of the full UI logic that was previously missing ---
-    # (The code from here is the complete and correct logic from v24.2)
-    def handle_daypart_click(daypart, all_showings, films_to_process, theaters_to_process):
-        current_selection = st.session_state.daypart_selections
-        if daypart == "All":
-            current_selection = ["All"] if "All" not in current_selection else []
+    # --- START: CORRECTED DAYPART SELECTION LOGIC ---
+
+    def handle_daypart_click(dp, all_showings, selected_films, selected_theaters):
+        """
+        Handles clicks on daypart buttons, correctly managing the selection state using a set.
+        """
+        if 'daypart_selections' not in st.session_state or not isinstance(st.session_state.daypart_selections, set):
+            st.session_state.daypart_selections = set()
+
+        selections = st.session_state.daypart_selections
+        other_dayparts = {"Matinee", "Twilight", "Prime", "Late Night"}
+
+        if dp == "All":
+            if "All" in selections or selections.issuperset(other_dayparts):
+                selections.clear()
+            else:
+                selections.update(other_dayparts)
+                selections.add("All")
         else:
-            if "All" in current_selection: current_selection.remove("All")
-            if daypart in current_selection: current_selection.remove(daypart)
-            else: current_selection.append(daypart)
-        st.session_state.daypart_selections = current_selection
-        apply_daypart_auto_selection(current_selection, all_showings, films_to_process, theaters_to_process)
+            if dp in selections:
+                selections.remove(dp)
+            else:
+                selections.add(dp)
+
+            if selections.issuperset(other_dayparts):
+                selections.add("All")
+            else:
+                selections.discard("All")
+
+        # Now, call the new apply function with the updated state
+        apply_daypart_auto_selection(selections, all_showings, selected_films, selected_theaters)
+
 
     def apply_daypart_auto_selection(daypart_selections, all_showings, films_to_process, theaters_to_process):
+        """
+        Clears and rebuilds selected_showtimes based on active dayparts.
+        - If "All" is selected, it selects ALL showtimes for each film.
+        - Otherwise, it selects the EARLIEST showtime for EACH selected daypart for each film.
+        """
         st.session_state.selected_showtimes = {}
-        if not daypart_selections: return
+        if not daypart_selections:
+            return
 
         for theater_name in theaters_to_process:
-            st.session_state.selected_showtimes[theater_name] = {}
             for film_title in films_to_process:
-                st.session_state.selected_showtimes[theater_name][film_title] = {}
                 showings_for_film = [s for s in all_showings.get(theater_name, []) if s['film_title'] == film_title]
-                if not showings_for_film: continue
-                selected_dayparts = set(daypart_selections)
-                sorted_showings = sorted(showings_for_film, key=lambda x: datetime.datetime.strptime(x['showtime'].replace('p', 'PM').replace('a', 'AM'), "%I:%M%p").time())
-                if "All" in selected_dayparts:
-                    st.session_state.selected_showtimes[theater_name][film_title][sorted_showings[0]['showtime']] = sorted_showings[0]
+                if not showings_for_film:
                     continue
-                found_showings_for_dayparts = {}
-                for showing in sorted_showings:
-                    daypart = showing['daypart']
-                    if daypart in selected_dayparts and daypart not in found_showings_for_dayparts:
-                        found_showings_for_dayparts[daypart] = showing
-                for showing in found_showings_for_dayparts.values():
-                     st.session_state.selected_showtimes[theater_name][film_title][showing['showtime']] = showing
+
+                # --- LOGIC BRANCH FOR "ALL" vs "INDIVIDUAL" ---
+                
+                if "All" in daypart_selections:
+                    # "All" Mode: Select every single showtime for the film.
+                    for showing in showings_for_film:
+                        st.session_state.selected_showtimes.setdefault(theater_name, {}).setdefault(film_title, {})[showing['showtime']] = showing
+                
+                else:
+                    # "Individual Daypart" Mode: Select only the first showtime found for each selected daypart.
+                    sorted_showings = sorted(showings_for_film, key=lambda x: datetime.datetime.strptime(x['showtime'].replace('p', 'PM').replace('a', 'AM'), "%I:%M%p").time())
+                    
+                    found_dayparts_for_film = set()
+                    for showing in sorted_showings:
+                        daypart = showing.get('daypart', 'Unknown')
+                        # If this showing's daypart is one we want AND we haven't found one for it yet for this film...
+                        if daypart in daypart_selections and daypart not in found_dayparts_for_film:
+                            # ...select it and mark this daypart as "found" so we don't select another.
+                            st.session_state.selected_showtimes.setdefault(theater_name, {}).setdefault(film_title, {})[showing['showtime']] = showing
+                            found_dayparts_for_film.add(daypart)
+
+    # --- END: CORRECTED DAYPART SELECTION LOGIC ---
     
     if st.session_state.search_mode == "Market Mode":
         if 'selected_region' not in st.session_state: st.session_state.selected_region = None
@@ -939,14 +975,15 @@ if check_password():
             st.divider()
 
             if st.session_state.selected_films:
-                 st.write("Auto-select showtimes by Daypart:")
-                 daypart_cols = st.columns(5)
-                 dayparts = ["All", "Matinee", "Twilight", "Prime", "Late Night"]
-                 for i, dp in enumerate(dayparts):
-                     is_selected = dp in st.session_state.daypart_selections
-                     if daypart_cols[i].button(dp, key=f"market_dp_{dp}", type="primary" if is_selected else "secondary", use_container_width=True, disabled=IS_DISABLED):
-                         handle_daypart_click(dp, st.session_state.all_showings, st.session_state.selected_films, st.session_state.selected_theaters)
-                         st.rerun()
+                st.write("Auto-select showtimes by Daypart:")
+                daypart_cols = st.columns(5)
+                dayparts = ["All", "Matinee", "Twilight", "Prime", "Late Night"]
+
+                for i, dp in enumerate(dayparts):
+                    is_selected = dp in st.session_state.daypart_selections
+                    if daypart_cols[i].button(dp, key=f"market_dp_{dp}", type="primary" if is_selected else "secondary", use_container_width=True, disabled=IS_DISABLED):
+                        handle_daypart_click(dp, st.session_state.all_showings, st.session_state.selected_films, st.session_state.selected_theaters)
+                        st.rerun()
 
             for theater_name in st.session_state.get('selected_theaters', []):
                 has_selections = any(st.session_state.selected_showtimes.get(theater_name, {}).values())
