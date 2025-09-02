@@ -5,6 +5,13 @@ from functools import reduce
 from utils import run_async_in_thread
 from ui_components import render_daypart_selector
 
+def get_all_theaters_for_region(markets_data, parent_company, region, cache_data):
+    theaters = []
+    markets = markets_data.get(parent_company, {}).get(region, {})
+    for market in markets:
+        theaters.extend(cache_data.get("markets", {}).get(market, {}).get("theaters", []))
+    return theaters
+
 def render(scout, markets_data, cache_data, IS_DISABLED):
     if 'selected_region' not in st.session_state: st.session_state.selected_region = None
     if 'selected_market' not in st.session_state: st.session_state.selected_market = None
@@ -25,9 +32,20 @@ def render(scout, markets_data, cache_data, IS_DISABLED):
         st.divider()
         markets = list(markets_data[parent_company][st.session_state.selected_region].keys())
         market_cols = st.columns(4)
+        
+        # Add the "All Marcus Locations" button
+        if market_cols[0].button("All Marcus Locations", key="all_marcus_locations", type="primary", use_container_width=True, disabled=IS_DISABLED):
+            st.session_state.selected_market = "All Marcus Locations"
+            theaters = get_all_theaters_for_region(markets_data, parent_company, st.session_state.selected_region, cache_data)
+            st.session_state.theaters = theaters
+            st.session_state.selected_theaters = [t['name'] for t in theaters]
+            st.session_state.stage = 'theaters_listed'
+            st.rerun()
+
         for i, market in enumerate(markets):
             is_selected = st.session_state.selected_market == market
-            if market_cols[i % 4].button(market, key=f"market_{market}", type="primary" if is_selected else "secondary", use_container_width=True, disabled=IS_DISABLED):
+            # Adjust the column index to account for the "All Marcus Locations" button
+            if market_cols[(i + 1) % 4].button(market, key=f"market_{market}", type="primary" if is_selected else "secondary", use_container_width=True, disabled=IS_DISABLED):
                 st.session_state.selected_market = market
                 st.session_state.theaters = cache_data.get("markets", {}).get(market, {}).get("theaters", [])
                 st.session_state.selected_theaters = [t['name'] for t in st.session_state.theaters]
