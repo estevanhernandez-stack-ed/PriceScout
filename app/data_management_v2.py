@@ -10,6 +10,7 @@ import traceback
 import copy
 import datetime
 import time
+import glob
 from scraper import Scraper # Assuming scraper.py is in the same directory
 from config import PROJECT_DIR
 
@@ -30,7 +31,7 @@ def _strip_common_terms(name):
     name_lower = name.lower()
     # List of terms to remove
     terms_to_strip = [
-        'amc', 'cinemark', 'marcus', 'regal', 'movie tavern', 'studio movie grill',
+        'amc', 'cinemark', 'marcus', 'regal', 'studio movie grill',
         'dine-in', 'imax', 'dolby', 'xd', 'ultrascreen', 'superscreen',
         'cinema', 'theatres', 'theaters', 'cine', 'movies'
     ]
@@ -74,28 +75,47 @@ async def process_market(market_name, market_theaters, progress_callback=None, t
             results.append({'Original Name': theater['name'], 'Matched Fandango Name': 'Permanently Closed', 'Match Score': 'N/A', 'Matched Fandango URL': 'N/A'})
             continue
 
-        found_match, highest_ratio = None, 0
-        original_name_stripped = _strip_common_terms(theater['name'])
-        for live_name, live_data in market_zip_cache.items():
-            live_name_stripped = _strip_common_terms(live_name)
-            ratio_original = fuzz.token_sort_ratio(theater['name'], live_name)
-            ratio_stripped = fuzz.token_sort_ratio(original_name_stripped, live_name_stripped)
-            current_ratio = max(ratio_original, ratio_stripped)
-            if current_ratio > highest_ratio:
-                highest_ratio = current_ratio
-                found_match = live_data
+        found_match, highest_ratio, match_type = None, 0, None
         
+        # --- New: Prioritize perfect and near-perfect matches first ---
+        for live_name, live_data in market_zip_cache.items():
+            perfect_ratio = fuzz.ratio(theater['name'].lower(), live_name.lower())
+            if perfect_ratio == 100:
+                found_match, highest_ratio, match_type = live_data, 100, "Perfect"
+                break # Found a perfect match, no need to search further
+        
+        if not found_match:
+            original_name_stripped = _strip_common_terms(theater['name'])
+            for live_name, live_data in market_zip_cache.items():
+                live_name_stripped = _strip_common_terms(live_name)
+                
+                ratio_original = fuzz.token_sort_ratio(theater['name'], live_name)
+                ratio_stripped = fuzz.token_sort_ratio(original_name_stripped, live_name_stripped)
+
+                # Apply a penalty to stripped match scores to prioritize full names
+                penalized_ratio_stripped = ratio_stripped * 0.9 
+
+                if ratio_original > highest_ratio:
+                    highest_ratio = ratio_original
+                    found_match = live_data
+                    match_type = "Original"
+                
+                if penalized_ratio_stripped > highest_ratio:
+                    highest_ratio = penalized_ratio_stripped
+                    found_match = live_data
+                    match_type = "Stripped"
+
         if found_match and highest_ratio > threshold:
-            results.append({'Original Name': theater['name'], 'Matched Fandango Name': found_match['name'], 'Match Score': f"{highest_ratio}%", 'Matched Fandango URL': found_match['url']})
+            results.append({'Original Name': theater['name'], 'Matched Fandango Name': found_match['name'], 'Match Score': f"{int(highest_ratio)}% ({match_type})", 'Matched Fandango URL': found_match['url']})
         else:
             theaters_to_find_in_fallback.append(theater)
+
 
     # --- Fallback 1: Search using individual theater ZIP codes ---
     if theaters_to_find_in_fallback:
         if progress_callback: progress_callback(0.5, "Fallback 1: Searching individual ZIPs...")
         
         individual_zips = {t.get('zip') for t in theaters_to_find_in_fallback if t.get('zip')}
-        # Only search zips we haven't already searched
         zips_to_search = individual_zips - {main_market_zip} 
         
         for zip_code in zips_to_search:
@@ -107,19 +127,34 @@ async def process_market(market_name, market_theaters, progress_callback=None, t
 
         still_unmatched = []
         for theater in theaters_to_find_in_fallback:
-            found_match, highest_ratio = None, 0
-            original_name_stripped = _strip_common_terms(theater['name'])
-            for live_name, live_data in market_zip_cache.items():
-                live_name_stripped = _strip_common_terms(live_name)
-                ratio_original = fuzz.token_sort_ratio(theater['name'], live_name)
-                ratio_stripped = fuzz.token_sort_ratio(original_name_stripped, live_name_stripped)
-                current_ratio = max(ratio_original, ratio_stripped)
-                if current_ratio > highest_ratio:
-                    highest_ratio = current_ratio
-                    found_match = live_data
+            found_match, highest_ratio, match_type = None, 0, None
             
+            for live_name, live_data in market_zip_cache.items():
+                perfect_ratio = fuzz.ratio(theater['name'].lower(), live_name.lower())
+                if perfect_ratio == 100:
+                    found_match, highest_ratio, match_type = live_data, 100, "Perfect"
+                    break
+            
+            if not found_match:
+                original_name_stripped = _strip_common_terms(theater['name'])
+                for live_name, live_data in market_zip_cache.items():
+                    live_name_stripped = _strip_common_terms(live_name)
+                    ratio_original = fuzz.token_sort_ratio(theater['name'], live_name)
+                    ratio_stripped = fuzz.token_sort_ratio(original_name_stripped, live_name_stripped)
+                    penalized_ratio_stripped = ratio_stripped * 0.9
+
+                    if ratio_original > highest_ratio:
+                        highest_ratio = ratio_original
+                        found_match = live_data
+                        match_type = "Original"
+                    
+                    if penalized_ratio_stripped > highest_ratio:
+                        highest_ratio = penalized_ratio_stripped
+                        found_match = live_data
+                        match_type = "Stripped"
+
             if found_match and highest_ratio > threshold:
-                results.append({'Original Name': theater['name'], 'Matched Fandango Name': found_match['name'], 'Match Score': f"{highest_ratio}%", 'Matched Fandango URL': found_match['url']})
+                results.append({'Original Name': theater['name'], 'Matched Fandango Name': found_match['name'], 'Match Score': f"{int(highest_ratio)}% ({match_type})", 'Matched Fandango URL': found_match['url']})
             else:
                 still_unmatched.append(theater)
         theaters_to_find_in_fallback = still_unmatched
@@ -131,33 +166,45 @@ async def process_market(market_name, market_theaters, progress_callback=None, t
             
             search_results = {}
             try:
-                # Attempt 1: Search with the full name
                 full_name_results = await scraper.live_search_by_name(theater['name'])
                 if full_name_results: search_results.update(full_name_results)
 
-                # Attempt 2: If full name search yields few results, try with a stripped name
                 stripped_search_term = _strip_common_terms(theater['name'])
                 if stripped_search_term and stripped_search_term.lower() != theater['name'].lower():
-                    # Avoid re-searching if the stripped name is what we already searched
                     if not any(stripped_search_term in name for name in search_results.keys()):
-                        print(f"    [INFO] Full name search produced few results. Retrying with stripped name: '{stripped_search_term}'")
+                        print(f"    [INFO] Retrying with stripped name: '{stripped_search_term}'")
                         stripped_name_results = await scraper.live_search_by_name(stripped_search_term)
                         if stripped_name_results: search_results.update(stripped_name_results)
 
                 if search_results:
-                    best_match_from_fallback, highest_ratio_fallback = None, 0
-                    original_name_stripped_fb = _strip_common_terms(theater['name'])
-                    for fandango_name, details in search_results.items():
-                        live_name_stripped_fb = _strip_common_terms(fandango_name)
-                        ratio_original_fb = fuzz.token_sort_ratio(theater['name'], fandango_name)
-                        ratio_stripped_fb = fuzz.token_sort_ratio(original_name_stripped_fb, live_name_stripped_fb)
-                        current_ratio_fb = max(ratio_original_fb, ratio_stripped_fb)
-                        if current_ratio_fb > highest_ratio_fallback:
-                            highest_ratio_fallback = current_ratio_fb
-                            best_match_from_fallback = details
+                    best_match_from_fallback, highest_ratio_fallback, match_type_fb = None, 0, None
                     
+                    for fandango_name, details in search_results.items():
+                        perfect_ratio = fuzz.ratio(theater['name'].lower(), fandango_name.lower())
+                        if perfect_ratio == 100:
+                            best_match_from_fallback, highest_ratio_fallback, match_type_fb = details, 100, "Perfect"
+                            break
+                    
+                    if not best_match_from_fallback:
+                        original_name_stripped_fb = _strip_common_terms(theater['name'])
+                        for fandango_name, details in search_results.items():
+                            live_name_stripped_fb = _strip_common_terms(fandango_name)
+                            ratio_original_fb = fuzz.token_sort_ratio(theater['name'], fandango_name)
+                            ratio_stripped_fb = fuzz.token_sort_ratio(original_name_stripped_fb, live_name_stripped_fb)
+                            penalized_ratio_stripped_fb = ratio_stripped_fb * 0.9
+
+                            if ratio_original_fb > highest_ratio_fallback:
+                                highest_ratio_fallback = ratio_original_fb
+                                best_match_from_fallback = details
+                                match_type_fb = "Original"
+                            
+                            if penalized_ratio_stripped_fb > highest_ratio_fallback:
+                                highest_ratio_fallback = penalized_ratio_stripped_fb
+                                best_match_from_fallback = details
+                                match_type_fb = "Stripped"
+
                     if best_match_from_fallback:
-                        results.append({'Original Name': theater['name'], 'Matched Fandango Name': best_match_from_fallback['name'], 'Match Score': f"{highest_ratio_fallback}%", 'Matched Fandango URL': best_match_from_fallback['url']})
+                        results.append({'Original Name': theater['name'], 'Matched Fandango Name': best_match_from_fallback['name'], 'Match Score': f"{int(highest_ratio_fallback)}% ({match_type_fb})", 'Matched Fandango URL': best_match_from_fallback['url']})
                     else: raise ValueError("No suitable match.")
                 else: raise ValueError("No results from name search.")
             except Exception:
@@ -321,8 +368,31 @@ def main():
     st.title("Theater Name Matching Tool")
     st.write("This tool helps you match theater names from your `markets.json` file with their official names on Fandango.")
 
-    uploaded_file = st.file_uploader("Choose your markets.json file", type="json")
-    
+    # Find the latest markets.json file
+    latest_markets_file = None
+    try:
+        search_path = os.path.join(PROJECT_DIR, "data", "**", "markets.json")
+        market_files = glob.glob(search_path, recursive=True)
+        if market_files:
+            latest_markets_file = max(market_files, key=os.path.getmtime)
+    except Exception as e:
+        st.warning(f"Could not search for latest markets.json file: {e}")
+
+
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        uploaded_file = st.file_uploader("Choose your markets.json file", type="json")
+    with col2:
+        st.write("") # for alignment
+        st.write("") # for alignment
+        if latest_markets_file:
+            if st.button("Load Latest markets.json", use_container_width=True):
+                with open(latest_markets_file, 'r') as f:
+                    string_data = f.read()
+                    st.session_state['markets_data'] = json.loads(string_data)
+                st.success(f"Loaded latest markets file: {latest_markets_file}")
+                st.rerun()
+
     if 'markets_data' not in st.session_state: st.session_state['markets_data'] = None
     if uploaded_file is not None: get_markets_data(uploaded_file)
 
@@ -559,7 +629,10 @@ def main():
             if st.button("Backup Old and Replace theater_cache.json"):
                 file_path = os.path.join(PROJECT_DIR, "app", "theater_cache.json")
                 if os.path.exists(file_path):
-                    os.rename(file_path, file_path + ".bak")
+                    backup_path = file_path + ".bak"
+                    if os.path.exists(backup_path):
+                        os.remove(backup_path)
+                    os.rename(file_path, backup_path)
                     st.info("Backed up existing theater_cache.json to theater_cache.json.bak")
                 with open(file_path, 'w') as f:
                     json.dump(st.session_state['theater_cache_data'], f, indent=2)
@@ -569,6 +642,8 @@ def main():
                 file_path = os.path.join(PROJECT_DIR, "app", "theater_cache.json")
                 backup_path = file_path + ".bak"
                 if os.path.exists(backup_path):
+                    if os.path.exists(file_path):
+                        os.remove(file_path)
                     os.rename(backup_path, file_path)
                     st.success("Restored theater_cache.json from backup.")
                 else:
@@ -579,7 +654,10 @@ def main():
                 selected_company = st.session_state.get('selected_company', 'Unknown')
                 file_path = os.path.join(PROJECT_DIR, "data", selected_company, "markets.json")
                 if os.path.exists(file_path):
-                    os.rename(file_path, file_path + ".bak")
+                    backup_path = file_path + ".bak"
+                    if os.path.exists(backup_path):
+                        os.remove(backup_path)
+                    os.rename(file_path, backup_path)
                     st.info(f"Backed up existing markets.json to markets.json.bak in {selected_company} folder")
                 os.makedirs(os.path.dirname(file_path), exist_ok=True)
                 with open(file_path, 'w') as f:
@@ -591,6 +669,8 @@ def main():
                 file_path = os.path.join(PROJECT_DIR, "data", selected_company, "markets.json")
                 backup_path = file_path + ".bak"
                 if os.path.exists(backup_path):
+                    if os.path.exists(file_path):
+                        os.remove(file_path)
                     os.rename(backup_path, file_path)
                     st.success("Restored markets.json from backup.")
                 else:

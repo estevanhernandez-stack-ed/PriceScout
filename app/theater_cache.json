@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "last_updated": "2025-09-01T19:14:06.962288"
+    "last_updated": "2025-09-02T09:31:05.825037"
   },
   "markets": {
     "Fort Worth 76107": {
@@ -10,8 +10,8 @@
           "url": "https://www.fandango.com/movie-tavern-west-7th-street-aavrw/theater-page"
         },
         {
-          "name": "AMC Hulen 10",
-          "url": "https://www.fandango.com/amc-hulen-10-aaugx/theater-page"
+          "name": "Movie Tavern Hulen",
+          "url": "https://www.fandango.com/movie-tavern-hulen-aaupp/theater-page"
         },
         {
           "name": "AMC DINE-IN Clearfork 8",
@@ -1014,8 +1014,8 @@
           "url": "https://www.fandango.com/amc-inver-grove-16-aaivd/theater-page"
         },
         {
-          "name": "AMC Inver Grove 16",
-          "url": "https://www.fandango.com/amc-inver-grove-16-aaivd/theater-page"
+          "name": "AMC Southdale 16",
+          "url": "https://www.fandango.com/amc-southdale-16-aaqcx/theater-page"
         },
         {
           "name": "Emagine Eagan",
