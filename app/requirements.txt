@@ -6,3 +6,5 @@ pgeocode
 jinja2
 requests
 openpyxl
+thefuzz
+python-Levenshtein

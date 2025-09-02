@@ -4,11 +4,11 @@
       "Fort Worth 76107": {
         "theaters": [
           {
-            "name": "Movie Tavern West 7th",
+            "name": "Movie Tavern West 7th Street",
             "zip": "76107"
           },
           {
-            "name": "Movie Tavern Hulen 10",
+            "name": "AMC Hulen 10",
             "zip": "76132"
           },
           {
@@ -16,7 +16,7 @@
             "zip": "76109"
           },
           {
-            "name": "AMC Lake Worth",
+            "name": "AMC Lake Worth 14",
             "zip": "76135"
           },
           {
@@ -28,7 +28,7 @@
             "zip": "76102"
           },
           {
-            "name": "Regal Fossil Creek Stadium 11",
+            "name": "Regal Fossil Creek",
             "zip": "76137"
           },
           {
@@ -60,7 +60,7 @@
             "zip": "76210"
           },
           {
-            "name": "AMC Highland Village",
+            "name": "AMC Highland Village 12",
             "zip": "75077"
           }
         ]
@@ -72,11 +72,11 @@
             "zip": "72223"
           },
           {
-            "name": "AMC Chenal",
+            "name": "AMC Chenal 9",
             "zip": "72223"
           },
           {
-            "name": "Cinemark Colonel Glenn",
+            "name": "Cinemark Colonel Glenn and XD",
             "zip": "72210"
           },
           {
@@ -88,15 +88,15 @@
       "Citiplace 70808": {
         "theaters": [
           {
-            "name": "Movie Tavern Citiplace",
+            "name": "Movie Tavern Citiplace Cinema",
             "zip": "70808"
           },
           {
-            "name": "AMC Mall of Louisiana",
+            "name": "AMC Mall of Louisiana 15",
             "zip": "70836"
           },
           {
-            "name": "Cinemark Perkins Rowe",
+            "name": "Cinemark Perkins Rowe and XD",
             "zip": "70810"
           }
         ]
@@ -108,7 +108,7 @@
             "zip": "70726"
           },
           {
-            "name": "AMC Baton Rouge",
+            "name": "AMC Baton Rouge 16",
             "zip": "70816"
           },
           {
@@ -136,7 +136,7 @@
             "zip": "30075"
           },
           {
-            "name": "AMC Dine-In North Point",
+            "name": "Studio Movie Grill North Point",
             "zip": "30022"
           },
           {
@@ -168,19 +168,19 @@
             "zip": "30024"
           },
           {
-            "name": "AMC Colonial",
+            "name": "AMC Colonial 18",
             "zip": "30043"
           },
           {
-            "name": "AMC Sugarloaf Mills",
+            "name": "AMC Sugarloaf Mills 18",
             "zip": "30043"
           },
           {
-            "name": "Regal Mall of Georgia",
+            "name": "Regal Mall of Georgia IMAX",
             "zip": "30519"
           },
           {
-            "name": "Studio Movie Grill Duluth",
+            "name": "Studio Movie Grill - Duluth",
             "zip": "30096"
           }
         ]
@@ -188,7 +188,7 @@
       "Tucker 30084": {
         "theaters": [
           {
-            "name": "Movie Tavern Tucker",
+            "name": "Movie Tavern Tucker Cinema",
             "zip": "30084"
           },
           {
@@ -206,11 +206,11 @@
             "zip": "80013"
           },
           {
-            "name": "AMC Arapahoe Crossing",
+            "name": "AMC Arapahoe Crossing 16",
             "zip": "80016"
           },
           {
-            "name": "AMC Dine-In Southlands",
+            "name": "AMC DINE-IN Southlands 16",
             "zip": "80016"
           },
           {
@@ -226,7 +226,7 @@
             "zip": "13204"
           },
           {
-            "name": "Regal Destiny",
+            "name": "Regal Destiny USA",
             "zip": "13204"
           }
         ]
@@ -238,7 +238,7 @@
             "zip": "23188"
           },
           {
-            "name": "Regal New Town Stadium",
+            "name": "Regal New Town",
             "zip": "23188"
           }
         ]
@@ -250,15 +250,15 @@
             "zip": "40356"
           },
           {
-            "name": "Cinemark Fayette Mall",
+            "name": "Cinemark Fayette Mall and XD",
             "zip": "40503"
           },
           {
-            "name": "Regal Hamburg",
+            "name": "Regal Hamburg Pavilion IMAX & RPX",
             "zip": "40509"
           },
           {
-            "name": "LexLive",
+            "name": "Krikorian Theatres at LexLive",
             "zip": "40511"
           }
         ]
@@ -270,15 +270,15 @@
             "zip": "19031"
           },
           {
-            "name": "AMC 309 Cinema 9",
+            "name": "AMC 309 Cinema 9 ",
             "zip": "19454"
           },
           {
-            "name": "Regal Warrington Crossing",
+            "name": "Regal Warrington Crossing ScreenX, 4DX & IMAX",
             "zip": "18976"
           },
           {
-            "name": "AMC Plymouth Meeting",
+            "name": "Regal Plymouth Meeting",
             "zip": "19462"
           },
           {
@@ -314,11 +314,11 @@
       "Collegeville 19426": {
         "theaters": [
           {
-            "name": "Movie Tavern Collegeville",
+            "name": "Movie Tavern Collegeville Cinema",
             "zip": "19426"
           },
           {
-            "name": "Regal UA King of Prussia",
+            "name": "Regal UA King Of Prussia 4DX & IMAX",
             "zip": "19406"
           }
         ]
@@ -330,11 +330,11 @@
             "zip": "18087"
           },
           {
-            "name": "AMC Tilghman Square",
+            "name": "AMC Tilghman Square 8",
             "zip": "18104"
           },
           {
-            "name": "AMC Center Valley",
+            "name": "AMC Center Valley 16",
             "zip": "18034"
           }
         ]
@@ -344,15 +344,15 @@
       "Addison Area 60101": {
         "theaters": [
           {
-            "name": "Marcus Addison Cinema 21 with UltraScreen",
+            "name": "Marcus Addison Cinema",
             "zip": "60101"
           },
           {
-            "name": "AMC DINE-IN Rosemont 12 with Dolby",
+            "name": "AMC DINE-IN Rosemont 12",
             "zip": "60018"
           },
           {
-            "name": "AMC DINE-IN Yorktown 18 with IMAX",
+            "name": "AMC DINE-IN Yorktown 18",
             "zip": "60148"
           },
           {
@@ -360,7 +360,7 @@
             "zip": "60706"
           },
           {
-            "name": "AMC Oakbrook Center 12 with IMAX, Dolby",
+            "name": "AMC Oakbrook Center 12",
             "zip": "60523"
           },
           {
@@ -368,7 +368,7 @@
             "zip": "60523"
           },
           {
-            "name": "AMC Streets of Woodfield 20",
+            "name": "AMC Loews Streets Of Woodfield 20",
             "zip": "60173"
           },
           {
@@ -380,7 +380,7 @@
             "zip": "60160"
           },
           {
-            "name": "Classic Cinemas Elk Grove + XQ",
+            "name": "Classic Cinemas Elk Grove XQ",
             "zip": "60007"
           }
         ]
@@ -388,7 +388,7 @@
       "Bloomington 61701": {
         "theaters": [
           {
-            "name": "AMC Bloomington 14",
+            "name": "Marcus Bloomington Cinema + IMAX",
             "zip": "61701"
           },
           {
@@ -400,23 +400,23 @@
       "Chicago Heights Area 60411": {
         "theaters": [
           {
-            "name": "Marcus Chicago Heights Cinema 14 with SuperScreen",
+            "name": "Marcus Chicago Heights Cinema",
             "zip": "60411"
           },
           {
-            "name": "Marcus Country Club Hills Cinema 16 with UltraScreen",
+            "name": "Marcus Country Club Hills Cinema",
             "zip": "60478"
           },
           {
-            "name": "AMC Chicago Ridge 6",
+            "name": "Marcus Chicago Heights Cinema",
             "zip": "60415"
           },
           {
-            "name": "AMC Crestwood 18 with Dolby",
+            "name": "AMC Crestwood 18",
             "zip": "60418"
           },
           {
-            "name": "AMC Ford City 14",
+            "name": "AMC Crestwood 18",
             "zip": "60652"
           },
           {
@@ -424,7 +424,7 @@
             "zip": "46375"
           },
           {
-            "name": "AMC Schererville 16 with IMAX",
+            "name": "AMC Schererville 16",
             "zip": "46375"
           }
         ]
@@ -432,11 +432,11 @@
       "Columbus 43147": {
         "theaters": [
           {
-            "name": "Marcus Pickerington Cinema 17 with UltraScreen",
+            "name": "Marcus Pickerington Cinema",
             "zip": "43147"
           },
           {
-            "name": "AMC Dine-IN Easton Town Center 30 with IMAX, Dolby, Prime",
+            "name": "AMC Dine-in Easton Town Center 30",
             "zip": "43219"
           },
           {
@@ -444,15 +444,15 @@
             "zip": "43123"
           },
           {
-            "name": "AMC Indian Mound 9",
+            "name": "AMC Dine-in Easton Town Center 30",
             "zip": "43056"
           },
           {
-            "name": "AMC Classic Starplex 10",
+            "name": "Cinemark Stoneridge Plaza Movies 16",
             "zip": "43228"
           },
           {
-            "name": "Lennox Town Center 24",
+            "name": "AMC Dine-in Easton Town Center 30",
             "zip": "43212"
           }
         ]
@@ -460,7 +460,7 @@
       "Crosswoods Complex 43235": {
         "theaters": [
           {
-            "name": "Marcus Crosswoods Cinema 17 with UltraScreen",
+            "name": "Marcus Crosswoods Cinema",
             "zip": "43235"
           },
           {
@@ -472,7 +472,7 @@
             "zip": "43240"
           },
           {
-            "name": "Stoneridge Plaza 16",
+            "name": "Cinemark Stoneridge Plaza Movies 16",
             "zip": "43230"
           }
         ]
@@ -480,7 +480,7 @@
       "Elgin Area 60123": {
         "theaters": [
           {
-            "name": "Marcus Elgin Cinema 15 with UltraScreen",
+            "name": "Marcus Elgin Cinema",
             "zip": "60123"
           },
           {
@@ -488,25 +488,24 @@
             "zip": "60156"
           },
           {
-            "name": "AMC South Barrington 24 with IMAX, Dolby, Prime",
+            "name": "AMC South Barrington 24",
             "zip": "60010"
           },
           {
-            "name": "Classic Cinemas Cinema 12",
+            "name": "Classic Cinemas Cinema 12 XQ",
             "zip": "60110"
           },
           {
-            "name": "Classic Cinemas Charlestowne 18",
+            "name": "Classic Cinemas Charlestowne XQ",
             "zip": "60174"
           },
           {
-            "name": "Emagine Batavia 12 + SuperEMX",
+            "name": "Emagine Batavia",
             "zip": "60510"
           },
           {
-            "name": "Cinemark West Dundee 8",
-            "zip": "60118",
-            "status": "Permanently Closed"
+            "name": "Cinemark Spring Hill Mall and XD",
+            "zip": "60118"
           }
         ]
       },
@@ -517,20 +516,19 @@
             "zip": "60031"
           },
           {
-            "name": "AMC Hawthorn 12 with Dolby",
+            "name": "AMC Hawthorn 12",
             "zip": "60061"
           },
           {
-            "name": "AMC Northbrook 14",
-            "zip": "60062",
-            "status": "Permanently Closed"
+            "name": "AMC DINE-IN Northbrook Court 14",
+            "zip": "60062"
           },
           {
-            "name": "AMC Randhurst 12",
+            "name": "AMC Hawthorn 12",
             "zip": "60056"
           },
           {
-            "name": "Regal Crystal Lake Showplace",
+            "name": "Classic Cinemas Fox Lake XQ",
             "zip": "60014"
           }
         ]
@@ -546,7 +544,7 @@
             "zip": "60418"
           },
           {
-            "name": "AMC New Lenox 14 with IMAX",
+            "name": "AMC New Lenox 14",
             "zip": "60451"
           },
           {
@@ -554,7 +552,7 @@
             "zip": "60415"
           },
           {
-            "name": "Emagine Frankfort 10 + EMX",
+            "name": "Emagine Frankfort ",
             "zip": "60423"
           }
         ]
@@ -562,39 +560,39 @@
       "Milwaukee Area 53092": {
         "theaters": [
           {
-            "name": "Marcus North Shore Cinema 11 with UltraScreen",
+            "name": "Marcus North Shore Cinema",
             "zip": "53092"
           },
           {
-            "name": "AMC DINE-IN Bayshore 10",
+            "name": "ACX Entertainment Bayshore",
             "zip": "53217"
           },
           {
-            "name": "Landmark Downer Theatre",
+            "name": " Downer Theatre",
             "zip": "53211"
           },
           {
-            "name": "Landmark's Oriental Theatre",
+            "name": "Oriental Theatre",
             "zip": "53211"
           },
           {
-            "name": "Marcus BistroPlex Southridge 8 with SuperScreen",
+            "name": "Marcus North Shore Cinema",
             "zip": "53129"
           },
           {
-            "name": "Marcus Hillside Cinema 14",
+            "name": "Marcus Menomonee Falls Cinema",
             "zip": "53018"
           },
           {
-            "name": "Marcus Ridge Cinema 19 with SuperScreen, Screen X",
+            "name": "Marcus North Shore Cinema",
             "zip": "53151"
           },
           {
-            "name": "Marcus Majestic Cinema of Brookfield 16 with UltraScreen",
+            "name": "Movie Tavern Brookfield",
             "zip": "53186"
           },
           {
-            "name": "Marcus Menomonee Falls Cinema 16 with SuperScreen",
+            "name": "Marcus Menomonee Falls Cinema",
             "zip": "53051"
           },
           {
@@ -610,7 +608,7 @@
       "Racine - Kenosha 53177": {
         "theaters": [
           {
-            "name": "Renaissance Cinema",
+            "name": "Marcus Cinema at the Renaissance",
             "zip": "53177"
           },
           {
@@ -618,9 +616,8 @@
             "zip": "53154"
           },
           {
-            "name": "Cinemark Tinseltown 14",
-            "zip": "53142",
-            "status": "Permanently Closed"
+            "name": "Cinemark Tinseltown USA Kenosha",
+            "zip": "53142"
           }
         ]
       },
@@ -631,7 +628,7 @@
             "zip": "53081"
           },
           {
-            "name": "AMC CLASSIC Manitowoc 10 with PLF",
+            "name": "AMC Classic Manitowoc 10",
             "zip": "54220"
           }
         ]
@@ -649,7 +646,7 @@
       "Cape Girardeau 63701": {
         "theaters": [
           {
-            "name": "Marcus Cape West Cine",
+            "name": "Marcus Cape West Cinema",
             "zip": "63701"
           }
         ]
@@ -657,11 +654,11 @@
       "Cedar Falls 50702": {
         "theaters": [
           {
-            "name": "Marcus College Square Cinema",
+            "name": "Marcus Crossroads Cinema",
             "zip": "50613"
           },
           {
-            "name": "Marcus Crossroads Cinema 12 with UltraScreen",
+            "name": "Marcus Crossroads Cinema",
             "zip": "50702"
           }
         ]
@@ -669,11 +666,11 @@
       "Cedar Rapids 52402": {
         "theaters": [
           {
-            "name": "Marcus Cedar Rapids Cinema 16 with Superscreen",
+            "name": "Marcus Cedar Rapids Cinema",
             "zip": "52402"
           },
           {
-            "name": "Collins Road Theatre",
+            "name": "Collins Road Theatres",
             "zip": "52302"
           }
         ]
@@ -681,19 +678,19 @@
       "Chesterfield 63005": {
         "theaters": [
           {
-            "name": "Marcus Chesterfield Cinemas",
+            "name": "Marcus Chesterfield Cinema",
             "zip": "63005"
           },
           {
-            "name": "B&B Theatres Wentzville",
+            "name": "B&B Theatres Wentzville Tower 12",
             "zip": "63385"
           },
           {
-            "name": "B&B Theatres Wildwood",
+            "name": "B&B Theatres Wildwood 10 & GS",
             "zip": "63040"
           },
           {
-            "name": "Marcus Town Square",
+            "name": "Marcus Town Square Cinema",
             "zip": "63368"
           }
         ]
@@ -705,9 +702,8 @@
             "zip": "63131"
           },
           {
-            "name": "AMC Creve Couer 12",
-            "zip": "63141",
-            "status": "Permanently Closed"
+            "name": "AMC Creve Coeur 12",
+            "zip": "63141"
           },
           {
             "name": "AMC Esquire 7",
@@ -718,7 +714,7 @@
             "zip": "63141"
           },
           {
-            "name": "Landmark's Plaza Frontenac Cinema",
+            "name": "Chase Park Plaza Cinemas",
             "zip": "63117"
           }
         ]
@@ -726,7 +722,7 @@
       "Iowa City 52241": {
         "theaters": [
           {
-            "name": "Marcus Coral Ridge Cinema 10",
+            "name": "Marcus Coral Ridge Cinema",
             "zip": "52241"
           },
           {
@@ -738,7 +734,7 @@
       "Lake Ozark 65049": {
         "theaters": [
           {
-            "name": "Marcus Eagles' Landing Cine",
+            "name": "Marcus Eagles Landing Cinema",
             "zip": "65049"
           },
           {
@@ -750,19 +746,19 @@
       "Lincoln 68505": {
         "theaters": [
           {
-            "name": "Marcus East Park Cinema",
+            "name": "Marcus East Park Cinemas",
             "zip": "68505"
           },
           {
-            "name": "Marcus Edgewood Cinema",
+            "name": "Marcus Edgewood Cinemas",
             "zip": "68516"
           },
           {
-            "name": "Marcus Lincoln Grand Cinema",
+            "name": "Marcus Lincoln Grand Cinemas",
             "zip": "68508"
           },
           {
-            "name": "Marcus South Pointe Cinema",
+            "name": "Marcus South Pointe Cinemas",
             "zip": "68516"
           }
         ]
@@ -774,11 +770,11 @@
             "zip": "62269"
           },
           {
-            "name": "AMC Edwardsville 12 with IMAX, Dolby",
+            "name": "AMC Edwardsville 12",
             "zip": "62025"
           },
           {
-            "name": "NCG Alton",
+            "name": "Marcus O'Fallon Cinema",
             "zip": "62002"
           }
         ]
@@ -802,19 +798,19 @@
             "zip": "68022"
           },
           {
-            "name": "ACX Aksarben Cinema 10",
+            "name": "ACX Aksarben Cinema",
             "zip": "68106"
           },
           {
-            "name": "Alamo Drafthouse Cinema - La Vista",
+            "name": "Alamo Drafthouse Cinema La Vista",
             "zip": "68138"
           },
           {
-            "name": "AMC Council Bluffs 17 with IMAX, Dolby",
+            "name": "AMC Council Bluffs 17",
             "zip": "51501"
           },
           {
-            "name": "AMC Westroads 14 with IMAX",
+            "name": "AMC Westroads 14",
             "zip": "68114"
           },
           {
@@ -826,7 +822,7 @@
       "Ronnie's (St. Louis) 63126": {
         "theaters": [
           {
-            "name": "MMarcus Ronnie's Cinema + IMAX",
+            "name": "Marcus Ronnie's Cinema + IMAX  ",
             "zip": "63126"
           },
           {
@@ -834,7 +830,7 @@
             "zip": "63110"
           },
           {
-            "name": "B&B Theatres Festus 8",
+            "name": "B&B Theatres Wildwood 10 & GS",
             "zip": "63028"
           }
         ]
@@ -842,7 +838,7 @@
       "St. Charles 63376": {
         "theaters": [
           {
-            "name": "Marcus Mid Rivers Cinema 14 with SuperScreen",
+            "name": "Marcus Mid Rivers Cinema",
             "zip": "63376"
           },
           {
@@ -854,7 +850,7 @@
             "zip": "63141"
           },
           {
-            "name": "AMC Streets of St. Charles 8 with Dolby",
+            "name": "AMC Streets of St. Charles 8",
             "zip": "63303"
           },
           {
@@ -868,7 +864,7 @@
       "Appleton 54914": {
         "theaters": [
           {
-            "name": "Marcus Hollywood Cinema",
+            "name": "Marcus Hollywood Cinemas",
             "zip": "54914"
           },
           {
@@ -876,11 +872,11 @@
             "zip": "54915"
           },
           {
-            "name": "Marcus Oshkosh Cinema 12",
+            "name": "Marcus Oshkosh Cinema",
             "zip": "54902"
           },
           {
-            "name": "Marcus Fond du Lac Cinema",
+            "name": "Marcus Hollywood Cinemas",
             "zip": "54937"
           }
         ]
@@ -888,7 +884,7 @@
       "Duluth 55802": {
         "theaters": [
           {
-            "name": "Marcus Duluth Cinema 11 with UltraScreen",
+            "name": "Marcus Duluth Cinema",
             "zip": "55802"
           },
           {
@@ -912,7 +908,7 @@
       "Fargo 58103": {
         "theaters": [
           {
-            "name": "Marcus Century Cinema 10 with UltraScreen",
+            "name": "Marcus Century Cinema",
             "zip": "58103"
           },
           {
@@ -920,7 +916,7 @@
             "zip": "58103"
           },
           {
-            "name": "Fargo Theatre",
+            "name": "Marcus West Acres Cinema",
             "zip": "58102",
             "status": "Not on Fandango"
           }
@@ -929,11 +925,11 @@
       "Green Bay 54304": {
         "theaters": [
           {
-            "name": "Marcus Bay Park Cinema",
+            "name": "Marcus Bay Park Cinemas",
             "zip": "54304"
           },
           {
-            "name": "Marcus Green Bay East Cinema 12",
+            "name": "Marcus Green Bay East Cinema",
             "zip": "54311"
           }
         ]
@@ -941,11 +937,11 @@
       "LaCrosse 54601": {
         "theaters": [
           {
-            "name": "Marcus La Crosse Cinema",
+            "name": "Marcus La Crosse Cinemas",
             "zip": "54601"
           },
           {
-            "name": "The Rivoli Theatre",
+            "name": "Winona 7 Theatre",
             "zip": "54601",
             "status": "Not on Fandango"
           }
@@ -954,19 +950,19 @@
       "Madison Area 53590": {
         "theaters": [
           {
-            "name": "Marcus Palace Cinema 14 with UltraScreen",
+            "name": "Marcus Palace Cinema",
             "zip": "53590"
           },
           {
-            "name": "Marcus Point Cinema",
+            "name": "Marcus Point Cinemas",
             "zip": "53719"
           },
           {
-            "name": "AMC Fitchburg 18 with IMAX",
+            "name": "AMC Fitchburg 18",
             "zip": "53719"
           },
           {
-            "name": "Marcus Johnson Creek Cinema",
+            "name": "AMC CLASSIC Johnson Creek 12",
             "zip": "53038"
           },
           {
@@ -978,19 +974,19 @@
       "Oakdale 55128": {
         "theaters": [
           {
-            "name": "Marcus Oakdale Cinema 17 with UltraScreen",
+            "name": "Marcus Oakdale Cinema",
             "zip": "55128"
           },
           {
-            "name": "Alamo Drafthouse Cinema - Woodbury",
+            "name": "Alamo Drafthouse Woodbury Lakes",
             "zip": "55125"
           },
           {
-            "name": "AMC Rosedale 14 with IMAX, Dolby",
+            "name": "AMC Rosedale 14",
             "zip": "55113"
           },
           {
-            "name": "Emagine White Bear 17 + EMX",
+            "name": "Emagine White Bear ",
             "zip": "55127"
           },
           {
@@ -1002,9 +998,8 @@
       "Ripon 54971": {
         "theaters": [
           {
-            "name": "Marcus Campus Ripon Cinema 1",
-            "zip": "54971",
-            "status": "Permanently Closed"
+            "name": "Marcus Campus Theatre",
+            "zip": "54971"
           }
         ]
       },
@@ -1019,7 +1014,7 @@
       "Rosemount 55068": {
         "theaters": [
           {
-            "name": "Marcus Rosemount Cinema 10 with UltraScreen",
+            "name": "Marcus Rosemount Cinema",
             "zip": "55068"
           },
           {
@@ -1027,11 +1022,11 @@
             "zip": "55076"
           },
           {
-            "name": "CMX Odyssey 15",
+            "name": "AMC Southdale 16",
             "zip": "55306"
           },
           {
-            "name": "Emagine Eagan 15",
+            "name": "Emagine Eagan",
             "zip": "55122"
           }
         ]
@@ -1043,7 +1038,7 @@
             "zip": "55379"
           },
           {
-            "name": "AMC Eden Prairie Mall 18 with IMAX, Prime",
+            "name": "AMC Eden Prairie Mall 18",
             "zip": "55344"
           },
           {
@@ -1051,11 +1046,11 @@
             "zip": "55435"
           },
           {
-            "name": "CMX Market Cinema Mall of America",
+            "name": "B&B Theatres Bloomington 13 at Mall of America",
             "zip": "55425"
           },
           {
-            "name": "Emagine Eagan 15 + EMX",
+            "name": "Emagine Eagan",
             "zip": "55122"
           }
         ]
@@ -1063,11 +1058,11 @@
       "St. Cloud 56387": {
         "theaters": [
           {
-            "name": "Marcus Parkwood Cinema 17 with SuperScreen",
+            "name": "Marcus Parkwood Cinema",
             "zip": "56387"
           },
           {
-            "name": "IND Quarry Cinema 5",
+            "name": "Quarry Cinema",
             "zip": "56320"
           }
         ]
@@ -1083,11 +1078,11 @@
             "zip": "55435"
           },
           {
-            "name": "Emagine Willow Creek",
+            "name": "Emagine Willow Creek ",
             "zip": "55441"
           },
           {
-            "name": "Imagine Theatre - Plymouth",
+            "name": "The Main Cinema",
             "zip": "55447"
           }
         ]
@@ -1095,13 +1090,12 @@
       "Wausau Area 54474": {
         "theaters": [
           {
-            "name": "Marcus Cedar Creek Cinema 10 with SuperScreen",
+            "name": "Marcus Cedar Creek Cinema",
             "zip": "54474"
           },
           {
             "name": "Rogers Cinema Stevens Point 7",
-            "zip": "",
-            "status": "Permanently Closed"
+            "zip": ""
           }
         ]
       }
