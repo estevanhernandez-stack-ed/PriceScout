@@ -1,681 +1,772 @@
 import streamlit as st
 import pandas as pd
 import json
-from thefuzz import fuzz
 import asyncio
-import os
 import sys
-import re
-import traceback
-import copy
+import os
 import datetime
-import time
 import glob
-from scraper import Scraper # Assuming scraper.py is in the same directory
-from config import PROJECT_DIR
+import tempfile
+from app.scraper import Scraper
+from app.utils import run_async_in_thread, get_error_message
+from app import database, config
+from app.box_office_mojo_scraper import BoxOfficeMojoScraper
+from app.omdb_client import OMDbClient
 
 # Initialize the scraper
 scraper = Scraper()
 
-def get_markets_data(uploaded_file):
-    """Loads and caches the markets.json data from an uploaded file."""
-    if uploaded_file is not None:
-        # To read file as string, decode it
-        string_data = uploaded_file.getvalue().decode("utf-8")
-        st.session_state['markets_data'] = json.loads(string_data)
-        return st.session_state['markets_data']
-    return None
+def render_failed_film_matcher(session_state_key):
+    """Renders an interactive form to manually correct and re-match failed film titles."""
+    st.header("Unmatched Film Review")
+    st.info("These films were found during scrapes but could not be automatically matched with OMDb. Review them here to improve your data quality.")
 
-def _strip_common_terms(name):
-    """Removes common cinema brand names and amenities to improve matching."""
-    name_lower = name.lower()
-    # List of terms to remove
-    terms_to_strip = [
-        'amc', 'cinemark', 'marcus', 'regal', 'studio movie grill',
-        'dine-in', 'imax', 'dolby', 'xd', 'ultrascreen', 'superscreen',
-        'cinema', 'theatres', 'theaters', 'cine', 'movies'
-    ]
-    # Create a regex pattern to find any of these whole words
-    pattern = r'\b(' + '|'.join(re.escape(term) for term in terms_to_strip) + r')\b'
-    stripped_name = re.sub(pattern, '', name_lower)
-    # Clean up extra spaces
-    return re.sub(r'\s+', ' ', stripped_name).strip()
+    failed_films_df = database.get_unmatched_films()
+    if failed_films_df.empty:
+        st.success("No unmatched films to review.")
+        return
 
-def _extract_zip_from_market_name(market_name):
-    """Extracts a 5-digit zip code from the end of a market name string."""
-    match = re.search(r'\b(\d{5})\b$', market_name)
-    return match.group(1) if match else None
+    for i, film_title in enumerate(failed_films_df['film_title'].tolist()):
+        st.markdown("---")
+        st.write(f"**Original Title:** `{film_title}`")
 
+        action = st.radio(
+            "Action:", 
+            ("Re-match with OMDb", "Search Fandango", "Enter Manually", "Accept as Special Event", "Mark as Mystery Movie"),
+            key=f"action_{session_state_key}_{i}",
+            horizontal=True
+        )
 
-async def process_market(market_name, market_theaters, progress_callback=None, threshold=55):
-    """
-    Processes a list of theaters in a market to find their best Fandango matches
-    using a more robust multi-phase matching strategy.
-    """
-    results = []
-    
-    tomorrow = datetime.date.today() + datetime.timedelta(days=1)
-    date_str = tomorrow.strftime('%Y-%m-%d')
-    market_zip_cache = {}
-
-    # --- OPTIMIZATION: Phase 1 - Start with the main market ZIP ---
-    if progress_callback: progress_callback(0.1, "Phase 1: Searching main market ZIP...")
-    main_market_zip = _extract_zip_from_market_name(market_name)
-    if main_market_zip:
-        try:
-            zip_results = await scraper.live_search_by_zip(main_market_zip, date_str)
-            market_zip_cache.update(zip_results)
-        except Exception:
-            st.warning(f"Could not process main market ZIP {main_market_zip}.")
-
-    # --- Attempt to match all theaters from the main market cache ---
-    theaters_to_find_in_fallback = []
-    for theater in market_theaters:
-        if theater.get('status') == 'Permanently Closed':
-            results.append({'Original Name': theater['name'], 'Matched Fandango Name': 'Permanently Closed', 'Match Score': 'N/A', 'Matched Fandango URL': 'N/A'})
-            continue
-
-        found_match, highest_ratio, match_type = None, 0, None
-        
-        # --- New: Prioritize perfect and near-perfect matches first ---
-        for live_name, live_data in market_zip_cache.items():
-            perfect_ratio = fuzz.ratio(theater['name'].lower(), live_name.lower())
-            if perfect_ratio == 100:
-                found_match, highest_ratio, match_type = live_data, 100, "Perfect"
-                break # Found a perfect match, no need to search further
-        
-        if not found_match:
-            original_name_stripped = _strip_common_terms(theater['name'])
-            for live_name, live_data in market_zip_cache.items():
-                live_name_stripped = _strip_common_terms(live_name)
-                
-                ratio_original = fuzz.token_sort_ratio(theater['name'], live_name)
-                ratio_stripped = fuzz.token_sort_ratio(original_name_stripped, live_name_stripped)
-
-                # Apply a penalty to stripped match scores to prioritize full names
-                penalized_ratio_stripped = ratio_stripped * 0.9 
-
-                if ratio_original > highest_ratio:
-                    highest_ratio = ratio_original
-                    found_match = live_data
-                    match_type = "Original"
-                
-                if penalized_ratio_stripped > highest_ratio:
-                    highest_ratio = penalized_ratio_stripped
-                    found_match = live_data
-                    match_type = "Stripped"
-
-        if found_match and highest_ratio > threshold:
-            results.append({'Original Name': theater['name'], 'Matched Fandango Name': found_match['name'], 'Match Score': f"{int(highest_ratio)}% ({match_type})", 'Matched Fandango URL': found_match['url']})
-        else:
-            theaters_to_find_in_fallback.append(theater)
-
-
-    # --- Fallback 1: Search using individual theater ZIP codes ---
-    if theaters_to_find_in_fallback:
-        if progress_callback: progress_callback(0.5, "Fallback 1: Searching individual ZIPs...")
-        
-        individual_zips = {t.get('zip') for t in theaters_to_find_in_fallback if t.get('zip')}
-        zips_to_search = individual_zips - {main_market_zip} 
-        
-        for zip_code in zips_to_search:
-            try:
-                zip_results = await scraper.live_search_by_zip(zip_code, date_str)
-                market_zip_cache.update(zip_results)
-            except Exception:
-                st.warning(f"Could not process ZIP {zip_code}.")
-
-        still_unmatched = []
-        for theater in theaters_to_find_in_fallback:
-            found_match, highest_ratio, match_type = None, 0, None
-            
-            for live_name, live_data in market_zip_cache.items():
-                perfect_ratio = fuzz.ratio(theater['name'].lower(), live_name.lower())
-                if perfect_ratio == 100:
-                    found_match, highest_ratio, match_type = live_data, 100, "Perfect"
-                    break
-            
-            if not found_match:
-                original_name_stripped = _strip_common_terms(theater['name'])
-                for live_name, live_data in market_zip_cache.items():
-                    live_name_stripped = _strip_common_terms(live_name)
-                    ratio_original = fuzz.token_sort_ratio(theater['name'], live_name)
-                    ratio_stripped = fuzz.token_sort_ratio(original_name_stripped, live_name_stripped)
-                    penalized_ratio_stripped = ratio_stripped * 0.9
-
-                    if ratio_original > highest_ratio:
-                        highest_ratio = ratio_original
-                        found_match = live_data
-                        match_type = "Original"
-                    
-                    if penalized_ratio_stripped > highest_ratio:
-                        highest_ratio = penalized_ratio_stripped
-                        found_match = live_data
-                        match_type = "Stripped"
-
-            if found_match and highest_ratio > threshold:
-                results.append({'Original Name': theater['name'], 'Matched Fandango Name': found_match['name'], 'Match Score': f"{int(highest_ratio)}% ({match_type})", 'Matched Fandango URL': found_match['url']})
-            else:
-                still_unmatched.append(theater)
-        theaters_to_find_in_fallback = still_unmatched
-
-    # --- Fallback 2: Targeted name search ---
-    if theaters_to_find_in_fallback:
-        for i, theater in enumerate(theaters_to_find_in_fallback):
-            if progress_callback: progress_callback(0.7 + (0.3 * (i + 1) / len(theaters_to_find_in_fallback)), f"Fallback 2: Targeted search for {theater['name']}...")
-            
-            search_results = {}
-            try:
-                full_name_results = await scraper.live_search_by_name(theater['name'])
-                if full_name_results: search_results.update(full_name_results)
-
-                stripped_search_term = _strip_common_terms(theater['name'])
-                if stripped_search_term and stripped_search_term.lower() != theater['name'].lower():
-                    if not any(stripped_search_term in name for name in search_results.keys()):
-                        print(f"    [INFO] Retrying with stripped name: '{stripped_search_term}'")
-                        stripped_name_results = await scraper.live_search_by_name(stripped_search_term)
-                        if stripped_name_results: search_results.update(stripped_name_results)
-
-                if search_results:
-                    best_match_from_fallback, highest_ratio_fallback, match_type_fb = None, 0, None
-                    
-                    for fandango_name, details in search_results.items():
-                        perfect_ratio = fuzz.ratio(theater['name'].lower(), fandango_name.lower())
-                        if perfect_ratio == 100:
-                            best_match_from_fallback, highest_ratio_fallback, match_type_fb = details, 100, "Perfect"
-                            break
-                    
-                    if not best_match_from_fallback:
-                        original_name_stripped_fb = _strip_common_terms(theater['name'])
-                        for fandango_name, details in search_results.items():
-                            live_name_stripped_fb = _strip_common_terms(fandango_name)
-                            ratio_original_fb = fuzz.token_sort_ratio(theater['name'], fandango_name)
-                            ratio_stripped_fb = fuzz.token_sort_ratio(original_name_stripped_fb, live_name_stripped_fb)
-                            penalized_ratio_stripped_fb = ratio_stripped_fb * 0.9
-
-                            if ratio_original_fb > highest_ratio_fallback:
-                                highest_ratio_fallback = ratio_original_fb
-                                best_match_from_fallback = details
-                                match_type_fb = "Original"
-                            
-                            if penalized_ratio_stripped_fb > highest_ratio_fallback:
-                                highest_ratio_fallback = penalized_ratio_stripped_fb
-                                best_match_from_fallback = details
-                                match_type_fb = "Stripped"
-
-                    if best_match_from_fallback:
-                        results.append({'Original Name': theater['name'], 'Matched Fandango Name': best_match_from_fallback['name'], 'Match Score': f"{int(highest_ratio_fallback)}% ({match_type_fb})", 'Matched Fandango URL': best_match_from_fallback['url']})
-                    else: raise ValueError("No suitable match.")
-                else: raise ValueError("No results from name search.")
-            except Exception:
-                results.append({'Original Name': theater['name'], 'Matched Fandango Name': 'No match found', 'Match Score': '0%', 'Matched Fandango URL': ''})
-
-    if progress_callback: progress_callback(1.0, "Complete!")
-    return results
-
-
-async def process_all_markets(markets_data, selected_company=None, selected_director=None, threshold=55):
-    """Iterates through selected scopes and processes them to build a theater_cache.json structure."""
-    theater_cache = {"metadata": {"last_updated": datetime.datetime.now().isoformat()}, "markets": {}}
-    updated_markets_data = copy.deepcopy(markets_data)
-    all_results = []
-    data_to_process = {}
-    if selected_company and selected_company in markets_data:
-        data_to_process[selected_company] = markets_data[selected_company]
-        if selected_director and selected_director != "All Directors" and selected_director in data_to_process[selected_company]:
-            data_to_process = {selected_company: {selected_director: markets_data[selected_company][selected_director]}}
-    else: 
-        data_to_process = markets_data
-
-    total_markets = sum(len(markets) for regions in data_to_process.values() for markets in regions.values())
-    if total_markets == 0:
-        st.warning("No markets found for the selected scope.")
-        return None, None, None
-
-    progress_bar = st.progress(0, text="Starting full scan...")
-    processed_markets = 0
-    for company, regions in data_to_process.items():
-        for region, markets in regions.items():
-            for market, market_info in markets.items():
-                processed_markets += 1
-                progress_text = f"Processing Market {processed_markets}/{total_markets}: {market}"
-                progress_bar.progress(processed_markets / total_markets, text=progress_text)
-                
-                theaters_in_market = market_info.get('theaters', [])
-                if not theaters_in_market: continue
-
-                matched_theaters_list = await process_market(market, theaters_in_market, threshold=threshold)
-
-                # Add original zip back for display
-                zip_map = {t['name']: t.get('zip', 'N/A') for t in theaters_in_market}
-                for r in matched_theaters_list: r['Zip Code'] = zip_map.get(r['Original Name'])
-
-                all_results.extend(matched_theaters_list)
-                match_map = {m['Original Name']: m for m in matched_theaters_list}
-
-                cache_theater_list = []
-                for theater in theaters_in_market:
-                    match = match_map.get(theater['name'])
-                    if match is not None:
-                        if match['Matched Fandango Name'] in ['Permanently Closed', 'Confirmed Closed']:
-                            cache_theater_list.append({"name": f"{theater['name']} (Permanently Closed)", "url": "N/A"})
-                        elif match['Matched Fandango Name'] in ['No match found', 'Not on Fandango']:
-                            pass # Exclude from theater_cache
+        if action == "Re-match with OMDb":
+            col1, col2 = st.columns([3, 1])
+            with col1:
+                new_title = st.text_input("Search Title", value=film_title, key=f"rematch_{session_state_key}_{i}", label_visibility="collapsed")
+            with col2:
+                if st.button("Re-match", key=f"rematch_btn_{session_state_key}_{i}", use_container_width=True):
+                    with st.spinner(f"Searching for '{new_title}'..."):
+                        omdb_client = OMDbClient()
+                        film_details = omdb_client.get_film_details(new_title)
+                        if film_details:
+                            film_details['film_title'] = film_title
+                            database.upsert_film_details(film_details)
+                            database.delete_unmatched_film(film_title)
+                            st.success(f"Successfully matched '{film_title}' as '{film_details.get('canonical_title', new_title)}'.")
+                            st.rerun()
                         else:
-                            cache_theater_list.append({"name": match['Matched Fandango Name'], "url": match['Matched Fandango URL']})
+                            st.error(f"Could not find details for '{new_title}'. Please try a different name.")
+        
+        elif action == "Enter Manually":
+            with st.form(key=f"manual_form_{session_state_key}_{i}"):
+                st.write("Enter film details manually:")
                 
-                theater_cache["markets"][market] = {"theaters": cache_theater_list}
+                c1, c2, c3 = st.columns(3)
+                mpaa_rating = c1.text_input("MPAA Rating (e.g., PG-13)", key=f"manual_rating_{i}")
+                runtime = c2.text_input("Runtime (e.g., 120 min)", key=f"manual_runtime_{i}")
+                genre = c3.text_input("Genre(s) (comma-separated)", key=f"manual_genre_{i}")
+                
+                poster_url = st.text_input("Poster URL", key=f"manual_poster_{i}")
+                plot = st.text_area("Plot Summary", key=f"manual_plot_{i}")
 
-                # Update the markets_data with the new names
-                for theater in updated_markets_data[company][region][market].get('theaters', []):
-                    original_name = theater['name']
-                    match = match_map.get(original_name)
-                    if match is not None and match['Matched Fandango Name'] not in ['No match found', 'Permanently Closed', 'Confirmed Closed', 'Not on Fandango']:
-                        theater['name'] = match['Matched Fandango Name']
+                submitted = st.form_submit_button("Save Manual Details")
+                if submitted:
+                    manual_details = {
+                        "film_title": film_title, "mpaa_rating": mpaa_rating, "runtime": runtime,
+                        "genre": genre, "poster_url": poster_url, "plot": plot,
+                        "imdb_id": None, "director": None, "actors": None,
+                        "metascore": None, "imdb_rating": None, "release_date": None, 
+                        "domestic_gross": None, "opening_weekend_domestic": None, 
+                        "last_omdb_update": datetime.datetime.now()
+                    }
+                    database.upsert_film_details(manual_details)
+                    database.delete_unmatched_film(film_title)
+                    st.success(f"Manually saved details for '{film_title}'.")
+                    st.rerun()
 
-    progress_bar.progress(1.0, text="Full scan complete!")
-    return theater_cache, updated_markets_data, all_results
+        elif action == "Search Fandango":
+            search_key = f"fandango_search_{i}"
+            results_key = f"fandango_results_{i}"
+            preview_key = f"fandango_preview_{i}"
 
+            fandango_search_term = st.text_input("Fandango Search Term", value=film_title, key=search_key)
+            if st.button("Search", key=f"fandango_search_btn_{i}"):
+                # --- NEW: Live log viewer ---
+                st.session_state[results_key] = None # Clear previous results
+                log_container = st.empty()
+                log_messages = []
 
-async def rematch_single_theater(theater_name, theater_zip, manual_url=None, new_manual_name=None, threshold=55):
-    """
-    Attempts to find a match for a single theater, with an option for a manual URL override.
-    """
-    if manual_url:
-        # If a new name is provided, use it. Otherwise, use the original name.
-        matched_name = new_manual_name if new_manual_name else theater_name
-        # Basic validation for the URL
-        if "fandango.com" in manual_url:
-            # To get a more official name, we could try to scrape the title from the URL,
-            # but for now, we'll just use the name provided.
-            return {
-                'Original Name': theater_name, 
-                'Matched Fandango Name': matched_name, # Or a placeholder like "Manual Entry"
-                'Match Score': '100%', 
-                'Matched Fandango URL': manual_url
-            }
-        else:
-            st.warning("Invalid manual URL provided. It must be a fandango.com URL.")
-            # Return a no-match so it remains in the unmatched list
-            return {
-                'Original Name': theater_name, 
-                'Matched Fandango Name': 'No match found', 
-                'Match Score': '0%', 
-                'Matched Fandango URL': ''
-            }
+                def log_to_streamlit(message):
+                    log_messages.append(message)
+                    log_container.code("\n".join(log_messages))
 
-    # If no manual URL, proceed with the standard matching process
-    theaters_to_process = [{'name': theater_name, 'zip': theater_zip}]
-    
-    # Use a dummy market name since it's not relevant for a single theater
-    # The progress callback is omitted for this single run.
-    results = await process_market("rematch_market", theaters_to_process, threshold=threshold)
-    
-    if results:
-        # process_market returns a list, we need the first element
-        return results[0]
+                with st.spinner(f"Searching Fandango for '{fandango_search_term}'... See log below."):
+                    search_results = asyncio.run(scraper.search_fandango_for_film_url(fandango_search_term, log_callback=log_to_streamlit))
+                    if search_results:
+                        st.session_state[results_key] = search_results
+                        log_container.empty() # Clear the log on success
+                    else:
+                        # The log container will show the final error messages from the scraper
+                        log_messages.append("\n[FAILURE] No matching films found.")
+                        log_messages.append(f"A debug screenshot may have been saved to the `{DEBUG_DIR}` folder.")
+                        log_container.code("\n".join(log_messages))
+
+                        # This is the key fix: ensure the key is deleted if the search fails
+                        if results_key in st.session_state: del st.session_state[results_key]
+                st.rerun()
+            
+            if results_key in st.session_state and st.session_state[results_key] is not None:
+                # Only show search results if we are not in the preview stage
+                if preview_key not in st.session_state:
+                    st.write("Select the correct film from the search results:")
+                    for result in st.session_state[results_key]:
+                        if st.button(result['title'], key=f"fandango_result_{i}_{result['url']}"):
+                            with st.spinner(f"Scraping details for '{result['title']}'..."):
+                                fandango_details = asyncio.run(scraper.get_film_details_from_fandango_url(result['url']))
+                                if fandango_details:
+                                    st.session_state[preview_key] = fandango_details
+                                    st.rerun()
+                                else:
+                                    st.error("Failed to scrape details from the selected Fandango page.")
+            
+            # --- NEW: Preview and Confirm Step ---
+            if preview_key in st.session_state:
+                st.subheader("Scraped Data Preview")
+                details = st.session_state[preview_key]
+                
+                col1, col2 = st.columns([1, 3])
+                with col1:
+                    if details.get('poster_url') and details['poster_url'] != 'N/A':
+                        st.image(details['poster_url'])
+                with col2:
+                    st.write(f"**Title:** {details.get('film_title', 'N/A')}")
+                    st.write(f"**Rating:** {details.get('mpaa_rating', 'N/A')}")
+                    st.write(f"**Runtime:** {details.get('runtime', 'N/A')}")
+                    st.write(f"**Genre:** {details.get('genre', 'N/A')}")
+                    st.caption(f"**Plot:** {details.get('plot', 'N/A')}")
+
+                btn_col1, btn_col2, _ = st.columns([1, 1, 4])
+                if btn_col1.button("Confirm and Save", key=f"confirm_save_{i}", type="primary"):
+                    details['film_title'] = film_title # Assign the original unmatched title as the primary key
+                    database.upsert_film_details(details)
+                    database.delete_unmatched_film(film_title)
+                    st.success(f"Successfully saved details for '{film_title}' from Fandango.")
+                    # Clean up session state
+                    for key in [results_key, preview_key]:
+                        if key in st.session_state: del st.session_state[key]
+                    st.rerun()
+                if btn_col2.button("Cancel", key=f"cancel_save_{i}"):
+                    del st.session_state[preview_key]
+                    st.rerun()
+        
+        elif action == "Mark as Mystery Movie":
+            st.write("This will categorize the film under a standard 'Mystery Movie' title.")
+            col1, col2 = st.columns([3, 1])
+            with col2:
+                if st.button("Mark as Mystery", key=f"mystery_btn_{session_state_key}_{i}", use_container_width=True):
+                    # Use the same helper function to get the canonical name
+                    canonical_name = database._get_canonical_mystery_movie_name(film_title) or "Mystery Movie"
+                    
+                    # Create a minimal record for the canonical name if it doesn't exist
+                    if not database.check_film_exists(canonical_name):
+                        minimal_details = {
+                            "film_title": canonical_name, "mpaa_rating": "N/A", "runtime": "N/A",
+                            "genre": "Special Event", "plot": "A special mystery screening event.",
+                            "imdb_id": None, "director": None, "actors": None, "poster_url": None,
+                            "metascore": None, "imdb_rating": None, "release_date": None,
+                            "domestic_gross": None, "opening_weekend_domestic": None,
+                            "last_omdb_update": datetime.datetime.now()
+                        }
+                        database.upsert_film_details(minimal_details)
+                    database.delete_unmatched_film(film_title)
+                    st.success(f"Categorized '{film_title}' as '{canonical_name}'.")
+                    st.rerun()
+
+        elif action == "Accept as Special Event":
+            st.write("This will create a basic entry for this title to prevent future OMDb lookups. Use this for generic titles like 'Private Event'.")
+            col1, col2 = st.columns([3, 1])
+            with col2:
+                if st.button("Accept", key=f"accept_btn_{session_state_key}_{i}", use_container_width=True):
+                    # Create a minimal record to prevent future lookups
+                    minimal_details = {
+                        "film_title": film_title, "mpaa_rating": "N/A", "runtime": "N/A",
+                        "genre": "Special Event", "plot": "No plot summary available.",
+                        "imdb_id": None, "director": None, "actors": None,
+                        "poster_url": None, "metascore": None, "imdb_rating": None,
+                        "release_date": None, "domestic_gross": None, "opening_weekend_domestic": None,
+                        "last_omdb_update": datetime.datetime.now()
+                    }
+                    database.upsert_film_details(minimal_details)
+                    database.delete_unmatched_film(film_title)
+                    st.success(f"Accepted '{film_title}' as a special event. It will not be checked against OMDb again.")
+                    st.rerun()
+
+def render_ticket_type_manager():
+    """Renders a UI for reviewing and categorizing unmatched ticket types."""
+    st.header("Ticket Type Management")
+
+    # Load current ticket types
+    ticket_types_path = os.path.join(config.SCRIPT_DIR, 'ticket_types.json')
+    try:
+        with open(ticket_types_path, 'r+') as f:
+            ticket_types_data = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        st.error("Could not load ticket_types.json.")
+        return
+
+    # --- NEW: Charting Section ---
+    st.subheader("Current Ticket Type Usage")
+    st.info("This chart shows how many times each defined 'Base Type' has been found in your scraped price data.")
+    usage_df = database.get_ticket_type_usage_counts()
+    if not usage_df.empty:
+        usage_df = usage_df.set_index('ticket_type').sort_values(by='count', ascending=False)
+        st.bar_chart(usage_df)
     else:
-        # If process_market returns nothing, it's a failed match
-        return {
-            'Original Name': theater_name, 
-            'Matched Fandango Name': 'No match found', 
-            'Match Score': '0%', 
-            'Matched Fandango URL': ''
-        }
-
-def regenerate_outputs_from_results(all_results_df, original_markets_data):
-    """
-    Re-generates the theater_cache and updated_markets data from an updated
-    results dataframe.
-    """
-    theater_cache = {"metadata": {"last_updated": datetime.datetime.now().isoformat()}, "markets": {}}
-    updated_markets_data = copy.deepcopy(original_markets_data)
+        st.info("No price data found in the database to analyze ticket type usage.")
     
-    match_map = {row['Original Name']: row for index, row in all_results_df.iterrows()}
+    with st.expander("View Defined Ticket Types & Amenities"):
+        col1, col2 = st.columns(2)
+        with col1:
+            st.write("**Defined Base Types**")
+            st.json(ticket_types_data.get('base_type_map', {}))
+        with col2:
+            st.write("**Defined Amenities**")
+            st.json(ticket_types_data.get('amenity_map', {}))
 
-    for company, regions in original_markets_data.items():
-        for region, markets in regions.items():
-            for market, market_info in markets.items():
-                theaters_in_market = market_info.get('theaters', [])
-                if not theaters_in_market: continue
+    st.divider()
 
-                cache_theater_list = []
-                for theater in theaters_in_market:
-                    match = match_map.get(theater['name'])
-                    if match is not None:
-                        if match['Matched Fandango Name'] in ['Permanently Closed', 'Confirmed Closed']:
-                            cache_theater_list.append({"name": f"{theater['name']} (Permanently Closed)", "url": "N/A"})
-                        elif match['Matched Fandango Name'] in ['No match found', 'Not on Fandango']:
-                            pass # Exclude from theater_cache
-                        else:
-                            cache_theater_list.append({"name": match['Matched Fandango Name'], "url": match['Matched Fandango URL']})
+    st.subheader("Unmatched Ticket Type Review")
+    st.info("Review and categorize ticket descriptions that were not automatically matched. This will improve future scrapes.")
+    unmatched_df = database.get_unmatched_ticket_types()
+
+    if unmatched_df.empty:
+        st.success("No unmatched ticket types to review.")
+        return
+
+    st.write(f"Found {len(unmatched_df)} unmatched ticket types to review.")
+
+    for index, row in unmatched_df.iterrows():
+        st.markdown("---")
+        unmatched_id = row['id']
+        unmatched_part = row['unmatched_part']
+        original_desc = row['original_description']
+
+        # --- NEW: Display more context ---
+        context_parts = [
+            f"**Theater:** {row.get('theater_name', 'N/A')}",
+            f"**Film:** {row.get('film_title', 'N/A')}",
+            f"**Date:** {row.get('play_date', 'N/A')}",
+            f"**Time:** {row.get('showtime', 'N/A')}",
+            f"**Format:** {row.get('format', 'N/A')}"
+        ]
+        
+        st.write(f"**Unmatched Part:** `{unmatched_part}` (from original: `{original_desc}`)")
+        st.caption(" | ".join(context_parts))
+        # ---
+
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            action = st.radio("Action:", ("Add as New Type", "Map to Existing", "Ignore"), key=f"action_{unmatched_id}")
+        
+        with col2:
+            if action == "Add as New Type":
+                new_type_category = st.selectbox("Category:", ["Base Type", "Amenity"], key=f"new_cat_{unmatched_id}")
+                new_type_name = st.text_input("Official Name:", value=unmatched_part.title(), key=f"new_name_{unmatched_id}")
+            elif action == "Map to Existing":
+                map_category = st.selectbox("Category:", ["Base Type", "Amenity"], key=f"map_cat_{unmatched_id}")
+                existing_options = list(ticket_types_data['base_type_map' if map_category == "Base Type" else 'amenity_map'].keys())
+                target_type = st.selectbox("Map to:", existing_options, key=f"map_target_{unmatched_id}")
+
+        with col3:
+            st.write("") # Spacer
+            if st.button("Submit Action", key=f"submit_{unmatched_id}", use_container_width=True):
+                if action == "Ignore":
+                    database.delete_unmatched_ticket_type(unmatched_id)
+                    st.toast(f"Ignored '{unmatched_part}'.")
+                else: # Handle Add and Map
+                    if action == "Add as New Type":
+                        map_key = 'base_type_map' if new_type_category == "Base Type" else 'amenity_map'
+                        ticket_types_data[map_key][new_type_name] = [unmatched_part.lower()]
+                    elif action == "Map to Existing":
+                        map_key = 'base_type_map' if map_category == "Base Type" else 'amenity_map'
+                        ticket_types_data[map_key][target_type].append(unmatched_part.lower())
+                    
+                    with open(ticket_types_path, 'w') as f:
+                        json.dump(ticket_types_data, f, indent=4, sort_keys=True)
+                    database.delete_unmatched_ticket_type(unmatched_id)
+                    st.success(f"Processed '{unmatched_part}'.")
+                st.rerun()
+
+def merge_external_db(uploaded_file):
+    """
+    Merges scrape data from an uploaded .db file into the current company's database.
+    This function does not touch user data.
+    """
+    with st.spinner("Merging database... This may take a moment."):
+        # Save uploaded file to a temporary path to be able to connect to it
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".db") as tmp:
+            tmp.write(uploaded_file.getvalue())
+            source_db_path = tmp.name
+        
+        st.info("Merging scrape data from the uploaded database. This will not affect user accounts.")
+
+        source_conn = None # Define here to ensure it's available in the finally block
+        try:
+            with database._get_db_connection() as master_conn:
+                master_cursor = master_conn.cursor()
+                source_conn = sqlite3.connect(source_db_path) # Connect to the source DB
                 
-                if cache_theater_list:
-                    theater_cache["markets"][market] = {"theaters": cache_theater_list}
+                # Get a list of tables in the source DB to handle different schema versions
+                source_cursor = source_conn.cursor()
+                source_cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+                source_tables = [row[0] for row in source_cursor.fetchall()]
+                
+                # 1. Merge all showings from source to master first.
+                if 'showings' in source_tables:
+                    showings_df = pd.read_sql_query("SELECT * FROM showings", source_conn)
+                    if not showings_df.empty:
+                        if 'showing_id' in showings_df.columns:
+                            showings_df = showings_df.drop(columns=['showing_id'])
+                        
+                        showings_to_insert = showings_df.to_records(index=False).tolist()
+                        master_cursor.executemany("""
+                            INSERT OR IGNORE INTO showings 
+                            (play_date, theater_name, film_title, showtime, format, daypart, ticket_url)
+                            VALUES (?, ?, ?, ?, ?, ?, ?)
+                        """, showings_to_insert)
+                        master_conn.commit()
+                        st.write(f"  - Upserted {master_cursor.rowcount} showings from source database.")
 
-                # Update the markets_data with the new names
-                for theater in updated_markets_data[company][region][market].get('theaters', []):
-                    original_name = theater['name']
-                    match = match_map.get(original_name)
-                    if match is not None and match['Matched Fandango Name'] not in ['No match found', 'Permanently Closed', 'Confirmed Closed', 'Not on Fandango']:
-                        theater['name'] = match['Matched Fandango Name']
+                # 2. Merge all films from source to master.
+                if 'films' in source_tables:
+                    films_df = pd.read_sql_query("SELECT * FROM films", source_conn)
+                    if not films_df.empty:
+                        for _, film_row in films_df.iterrows():
+                            database.upsert_film_details(film_row.to_dict())
+                        st.write(f"  - Upserted {len(films_df)} film metadata records.")
 
-    return theater_cache, updated_markets_data
+                # 3. Iterate through runs and merge their data.
+                runs_df = pd.read_sql_query("SELECT * FROM scrape_runs", source_conn)
+                if runs_df.empty:
+                    st.warning("No new runs to merge from the uploaded database.")
+                    return
 
+                # --- OPTIMIZATION: Fetch all existing runs once to avoid N+1 queries ---
+                master_cursor.execute("SELECT run_timestamp, run_context FROM scrape_runs")
+                existing_runs_set = set(master_cursor.fetchall())
+
+                runs_merged_count = 0
+                for index, run in runs_df.iterrows():
+                    old_run_id = run['run_id']
+                    
+                    # Check if this exact run already exists to avoid duplicates
+                    run_tuple = (run['run_timestamp'], run.get('run_context'))
+                    if run_tuple in existing_runs_set:
+                        st.write(f"  - Skipping run from {run['run_timestamp']} as it appears to already exist.")
+                        continue
+
+                    master_cursor.execute('INSERT INTO scrape_runs (run_timestamp, mode, run_context) VALUES (?, ?, ?)', (run['run_timestamp'], run['mode'], run.get('run_context')))
+                    new_run_id = master_cursor.lastrowid
+                    
+                    # For each run, get its prices joined with showing details
+                    if 'prices' in source_tables and 'showings' in source_tables:
+                        prices_with_details_query = """
+                            SELECT 
+                                s.play_date, s.theater_name AS "Theater Name", s.film_title AS "Film Title", 
+                                s.showtime AS "Showtime", s.format AS "Format", s.daypart AS "Daypart",
+                                p.ticket_type AS "Ticket Type", p.price AS "Price", p.capacity AS "Capacity",
+                                s.play_date
+                            FROM prices p
+                            JOIN showings s ON p.showing_id = s.showing_id
+                            WHERE p.run_id = ?
+                        """
+                        prices_df = pd.read_sql_query(prices_with_details_query, source_conn, params=(old_run_id,))
+                        
+                        if not prices_df.empty:
+                            prices_df['Price'] = prices_df['Price'].apply(lambda x: f"${x:.2f}")
+                            try:
+                                database.save_prices(new_run_id, prices_df)
+                            except Exception as e:
+                                print(f"Error in save_prices: {e}")
+                    
+                    if 'operating_hours' in source_tables:
+                        op_hours_df = pd.read_sql_query(f"SELECT * FROM operating_hours WHERE run_id = {old_run_id}", source_conn)
+                        if not op_hours_df.empty:
+                            op_hours_df['run_id'] = new_run_id
+                            if 'operating_hours_id' in op_hours_df.columns:
+                                op_hours_df = op_hours_df.drop(columns=['operating_hours_id'])
+                            op_hours_df.to_sql('operating_hours', master_conn, if_exists='append', index=False)
+
+                    runs_merged_count += 1
+                
+                master_conn.commit()
+                st.success(f"Successfully merged {runs_merged_count} new scrape runs and their associated data.")
+        except Exception as e:
+            st.error(f"An error occurred during the merge: {e}")
+        finally:
+            if source_conn:
+                source_conn.close() # Explicitly close the connection before deleting
+            os.remove(source_db_path)
+
+async def discover_and_add_new_films_from_fandango():
+    """Discovers new films from Fandango's main page and adds them to the database."""
+    omdb_client = OMDbClient()
+    discovered_titles = await scraper.discover_films_from_main_page()
+    new_films = []
+    existing_films = []
+    failed_films = []
+
+    for title in discovered_titles:
+        if database.check_film_exists(title):
+            existing_films.append(title)
+        else:
+            film_details = omdb_client.get_film_details(title)
+            if film_details:
+                film_details['film_title'] = title
+                database.upsert_film_details(film_details)
+                new_films.append(title)
+            else:
+                database.log_unmatched_film(title)
+                failed_films.append({"Title": title, "Error": "Could not find match on OMDb."})
+    return new_films, existing_films, failed_films
+
+def discover_and_add_new_films_from_bom(year):
+    """Discovers new films from Box Office Mojo for a given year and adds them."""
+    bom_scraper = BoxOfficeMojoScraper()
+    omdb_client = OMDbClient()
+    discovered_films = bom_scraper.discover_films_by_year(year)
+    new_films = []
+    existing_films = []
+    failed_films = []
+
+    for film_info in discovered_films:
+        title = film_info['title']
+        if database.check_film_exists(title):
+            existing_films.append(title)
+        else:
+            film_details = omdb_client.get_film_details(title)
+            if film_details:
+                film_details['film_title'] = title
+                database.upsert_film_details(film_details)
+                new_films.append(title)
+            else:
+                database.log_unmatched_film(title)
+                failed_films.append({"Title": title, "Error": "Could not find match on OMDb."})
+    return new_films, existing_films, failed_films
+
+def _add_unmatched_ticket_type_local(unmatched_part, original_description):
+    """
+    Local implementation to add an unmatched ticket type to the database for review.
+    This is a temporary fix until it can be moved to the central database module.
+    """
+    with database._get_db_connection() as conn:
+        cursor = conn.cursor()
+        # Insert a minimal record for review, ensuring NOT NULL constraints are met.
+        cursor.execute(
+            "INSERT INTO unmatched_ticket_types (unmatched_part, original_description, first_seen) VALUES (?, ?, ?)",
+            (unmatched_part, original_description, datetime.datetime.now())
+        )
+        conn.commit()
+
+def _render_ticket_type_editor():
+    """Renders the UI for managing ticket type normalization mappings."""
+    TICKET_TYPES_FILE = os.path.join(config.SCRIPT_DIR, 'ticket_types.json')
+
+    # --- Helper Functions ---
+    def load_ticket_types():
+        try:
+            with open(TICKET_TYPES_FILE, 'r') as f:
+                return json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            return {"ticket_type_mappings": {}, "plf_formats": []}
+
+    def save_ticket_types(data):
+        with open(TICKET_TYPES_FILE, 'w') as f:
+            json.dump(data, f, indent=4)
+        st.toast("✅ Ticket type mappings saved!")
+
+    ticket_types_data = load_ticket_types()
+    base_type_mappings = ticket_types_data.get("base_type_map", {})
+    amenity_mappings = ticket_types_data.get("amenity_map", {})
+
+    # --- Ticket Type Editor ---
+    st.info(
+        "Define how raw ticket types are normalized into standard categories (e.g., map 'children' to 'Child')."
+    )
+
+    with st.form("new_mapping_form"):
+        col1, col2 = st.columns(2)
+        canonical_name = col1.text_input("Standard Name (e.g., Child, Senior)")
+        raw_variation = col2.text_input("Raw Variation (e.g., kids, senior citizen)")
+        
+        if st.form_submit_button("Add Mapping", use_container_width=True):
+            if canonical_name and raw_variation:
+                canonical_name = canonical_name.strip()
+                raw_variation_lower = raw_variation.strip().lower()
+                if canonical_name not in base_type_mappings:
+                    base_type_mappings[canonical_name] = []
+                if raw_variation_lower not in base_type_mappings[canonical_name]:
+                    base_type_mappings[canonical_name].append(raw_variation_lower)
+                    base_type_mappings[canonical_name].sort()
+                    save_ticket_types(ticket_types_data)
+                    st.rerun()
+                else:
+                    st.warning(f"The variation '{raw_variation}' already exists for '{canonical_name}'.")
+            else:
+                st.error("Both fields must be filled out.")
+
+    st.markdown("##### Existing Mappings")
+    if not base_type_mappings:
+        st.info("No mappings defined yet.")
+    else:
+        sorted_canonical_names = sorted(base_type_mappings.keys())
+        for name in sorted_canonical_names:
+            with st.expander(f"**{name}** ({len(base_type_mappings[name])} variations)"):
+                for i, variation in enumerate(base_type_mappings[name]):
+                    cols = st.columns([0.7, 0.2, 0.1])
+                    cols[0].text(variation)
+                    if cols[1].button("Move to Amenities", key=f"move_base_{name}_{i}", help=f"Move '{variation}' to an amenity category."):
+                        base_type_mappings[name].remove(variation)
+                        if not base_type_mappings[name]:
+                            del base_type_mappings[name]
+                        _add_unmatched_ticket_type_local(unmatched_part=variation, original_description=f"Moved from Ticket Type '{name}'")
+                        save_ticket_types(ticket_types_data)
+                        st.toast(f"Moved '{variation}' to be re-categorized as an amenity.")
+                        st.rerun()
+                    if cols[2].button("❌", key=f"del_base_{name}_{i}", help=f"Remove '{variation}' and mark for rematching."):
+                        base_type_mappings[name].remove(variation)
+                        if not base_type_mappings[name]:
+                            del base_type_mappings[name]
+                        _add_unmatched_ticket_type_local(unmatched_part=variation, original_description=f"Removed from Ticket Type '{name}'")
+                        save_ticket_types(ticket_types_data)
+                        st.toast(f"Removed '{variation}' and marked for rematching.")
+                        st.rerun()
+
+def _render_amenity_editor():
+    """Renders the UI for managing amenity normalization mappings."""
+    TICKET_TYPES_FILE = os.path.join(config.SCRIPT_DIR, 'ticket_types.json')
+
+    # --- Helper Functions ---
+    def load_ticket_types():
+        try:
+            with open(TICKET_TYPES_FILE, 'r') as f:
+                return json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            return {"ticket_type_mappings": {}, "plf_formats": []}
+
+    def save_ticket_types(data):
+        with open(TICKET_TYPES_FILE, 'w') as f:
+            json.dump(data, f, indent=4)
+        st.toast("✅ Amenity mappings saved!")
+
+    ticket_types_data = load_ticket_types()
+    base_type_mappings = ticket_types_data.get("base_type_map", {})
+    amenity_mappings = ticket_types_data.get("amenity_map", {})
+    ignored_amenities = ticket_types_data.setdefault("ignored_amenities", [])
+
+    # --- Amenity Editor ---
+    st.info(
+        "Define how raw format/amenity tags are normalized (e.g., map 'd-box' to 'D-BOX')."
+    )
+
+    with st.form("new_amenity_form"):
+        col1, col2 = st.columns(2)
+        canonical_name = col1.text_input("Standard Name (e.g., IMAX, 3D)")
+        raw_variation = col2.text_input("Raw Variation (e.g., imax 2d, 3d format)")
+        
+        if st.form_submit_button("Add Amenity Mapping", use_container_width=True):
+            if canonical_name and raw_variation:
+                canonical_name = canonical_name.strip()
+                raw_variation_lower = raw_variation.strip().lower()
+                if canonical_name not in amenity_mappings:
+                    amenity_mappings[canonical_name] = []
+                if raw_variation_lower not in amenity_mappings[canonical_name]:
+                    amenity_mappings[canonical_name].append(raw_variation_lower)
+                    amenity_mappings[canonical_name].sort()
+                    save_ticket_types(ticket_types_data)
+                    st.rerun()
+                else:
+                    st.warning(f"The variation '{raw_variation}' already exists for '{canonical_name}'.")
+            else:
+                st.error("Both fields must be filled out.")
+
+    st.markdown("##### Existing Amenity Mappings")
+    if not amenity_mappings:
+        st.info("No amenity mappings defined yet.")
+    else:
+        sorted_canonical_names = sorted(amenity_mappings.keys())
+        for name in sorted_canonical_names:
+            with st.expander(f"**{name}** ({len(amenity_mappings[name])} variations)"):
+                for i, variation in enumerate(amenity_mappings[name]):
+                    cols = st.columns([0.6, 0.2, 0.1, 0.1])
+                    cols[0].text(variation)
+                    if cols[1].button("Move to Ticket Types", key=f"move_amenity_{name}_{i}", help=f"Move '{variation}' to a ticket type category for re-categorization."):
+                        amenity_mappings[name].remove(variation)
+                        if not amenity_mappings[name]:
+                            del amenity_mappings[name]
+                        _add_unmatched_ticket_type_local(unmatched_part=variation, original_description=f"Moved from Amenity '{name}'")
+                        save_ticket_types(ticket_types_data)
+                        st.toast(f"Moved '{variation}' to be re-categorized.")
+                        st.rerun()
+                    if cols[2].button("Ignore", key=f"ignore_amenity_{name}_{i}", help=f"Add '{variation}' to the ignore list."):
+                        amenity_mappings[name].remove(variation)
+                        if not amenity_mappings[name]:
+                            del amenity_mappings[name]
+                        if variation not in ignored_amenities:
+                            ignored_amenities.append(variation)
+                            ignored_amenities.sort()
+                        save_ticket_types(ticket_types_data)
+                        st.toast(f"Added '{variation}' to the ignore list.")
+                        st.rerun()
+                    if cols[3].button("❌", key=f"del_amenity_{name}_{i}", help=f"Remove '{variation}' and mark for rematching."):
+                        amenity_mappings[name].remove(variation)
+                        if not amenity_mappings[name]:
+                            del amenity_mappings[name]
+                        _add_unmatched_ticket_type_local(unmatched_part=variation, original_description=f"Removed from Amenity '{name}'")
+                        save_ticket_types(ticket_types_data)
+                        st.toast(f"Removed '{variation}' and marked for rematching.")
+                        st.rerun()
+
+    st.divider()
+    st.markdown("##### Ignored Amenities")
+    st.info("These variations will be completely ignored during ticket type parsing. To use one again, remove it from this list and it will reappear in the 'Unmatched' queue for re-categorization.")
+    if not ignored_amenities:
+        st.info("No amenities are currently being ignored.")
+    else:
+        # Display in columns for better layout
+        cols = st.columns(4)
+        for i, ignored_item in enumerate(ignored_amenities):
+            with cols[i % 4]:
+                col1, col2 = st.columns([0.8, 0.2])
+                col1.text(ignored_item)
+                if col2.button("🗑️", key=f"unignore_{i}", help=f"Stop ignoring '{ignored_item}' and mark for re-categorization."):
+                    ignored_amenities.remove(ignored_item)
+                    _add_unmatched_ticket_type_local(unmatched_part=ignored_item, original_description="Removed from ignore list")
+                    save_ticket_types(ticket_types_data)
+                    st.toast(f"'{ignored_item}' will now be re-categorized.")
+                    st.rerun()
+
+def _render_database_tools():
+    """Renders the UI for all database maintenance and enrichment tools."""
+    st.header("Database Tools")
+    
+    st.subheader("Export/Import Database")
+    st.info(f"This will prepare the database file for '{st.session_state.get('selected_company', 'the selected company')}' for download. This file can be merged into another Price Scout instance.")
+    
+    db_path = config.DB_FILE
+    if db_path and os.path.exists(db_path):
+        with open(db_path, "rb") as fp:
+            st.download_button(
+                label=f"Download {st.session_state.get('selected_company', 'current')} Database",
+                data=fp,
+                file_name=f"price_scout_{st.session_state.get('selected_company', 'export').replace(' ', '_')}.db",
+                mime="application/x-sqlite3",
+                use_container_width=True
+            )
+    else:
+        st.warning("No database file found for the current company to export.")
+
+    uploaded_db_file = st.file_uploader("Upload a .db file to merge into the current database", type="db", key="db_merger_uploader")
+    if uploaded_db_file is not None:
+        if st.button("Merge Uploaded Database", key="merge_db_button", use_container_width=True):
+            merge_external_db(uploaded_db_file)
+    st.divider()
+
+    with st.expander("Discover New Films"):
+        st.write("Discover new films from Fandango's main page or Box Office Mojo and add them to the database.")
+        
+        cols = st.columns(4)
+        if cols[0].button("Discover New Films from Fandango", use_container_width=True):
+            with st.spinner("Discovering new films from Fandango..."):
+                thread, result_func = run_async_in_thread(discover_and_add_new_films_from_fandango)
+                thread.join()
+                status, result, log, _ = result_func()
+                if status == 'success':
+                    new_films, existing_films, failed_films = result
+                    st.success(f"Discovery complete! Found {len(new_films)} new films, {len(existing_films)} existing, and {len(failed_films)} failed.")
+                    if new_films:
+                        st.write("New Films Added:")
+                        st.dataframe(pd.DataFrame(new_films, columns=["Title"]), use_container_width=True)
+                    if failed_films:
+                        st.write("Failed to Add:")
+                        st.dataframe(pd.DataFrame(failed_films, columns=["Title", "Error"]), use_container_width=True)
+                else:
+                    st.error(f"An error occurred: {get_error_message(result)}")
+                    st.code(log)
+
+        # --- FIX for UnboundLocalError ---
+        bom_year = None 
+        with cols[1]:
+            bom_year = st.selectbox("Select Year", [None] + list(range(datetime.date.today().year, 2010, -1)), key="bom_year_select")
+
+        if cols[2].button("Discover from Box Office Mojo", use_container_width=True, disabled=not bom_year):
+            if bom_year:
+                with st.spinner(f"Discovering films from {bom_year}..."):
+                    thread, result_func = run_async_in_thread(discover_and_add_new_films_from_bom, bom_year)
+                    thread.join()
+                    status, result, log, _ = result_func()
+                    if status == 'success':
+                        new_films, existing_films, failed_films = result
+                        st.success(f"Discovery complete! Found {len(new_films)} new films, {len(existing_films)} existing, and {len(failed_films)} failed.")
+                        if new_films:
+                            st.write("New Films Added:")
+                            st.dataframe(pd.DataFrame(new_films, columns=["Title"]), use_container_width=True)
+                        if failed_films:
+                            st.write("Failed to Add:")
+                            st.dataframe(pd.DataFrame(failed_films, columns=["Title", "Error"]), use_container_width=True)
+                    else:
+                        st.error(f"An error occurred: {get_error_message(result)}")
+                        st.code(log)
+
+    with st.expander("Manage Ticket Type Normalization"):
+        _render_ticket_type_editor()
+
+    with st.expander("Manage Amenity Normalization"):
+        _render_amenity_editor()
+
+    with st.expander("Consolidate Data"):
+        st.subheader("Ticket Type Consolidation")
+        st.info(
+            "This tool will scan your database for ticket types that can be mapped to a standard (canonical) name "
+            "based on the rules in `ticket_types.json`. For example, it will update all 'Children' entries to 'Child'."
+        )
+        if st.button("Consolidate All Ticket Types", use_container_width=True):
+            with st.spinner("Consolidating ticket types in the database..."):
+                updated_count = database.consolidate_ticket_types()
+                if updated_count > 0:
+                    st.success(f"Successfully consolidated {updated_count} ticket type records.")
+                    st.rerun()
+                else:
+                    st.info("No ticket types needed consolidation.")
+
+    with st.expander("Backfill Film Data"):
+        st.write("Run processes to fill in missing data for films already in the database.")
+        
+        cols = st.columns(4)
+        if cols[0].button("Backfill Missing Film Details", use_container_width=True):
+            with st.spinner("Backfilling film details (MPAA rating, runtime, poster)..."):
+                count = database.backfill_film_details_from_fandango()
+                st.success(f"Successfully backfilled details for {count} films.")
+
+        if cols[1].button("Backfill Missing IMDB IDs", use_container_width=True):
+            with st.spinner("Backfilling IMDB IDs..."):
+                count = database.backfill_imdb_ids_from_fandango()
+                st.success(f"Successfully backfilled IMDB IDs for {count} films.")
+
+        if cols[2].button("Backfill Missing Showtimes Data", use_container_width=True):
+            with st.spinner("Backfilling showtimes data..."):
+                count = database.backfill_showtimes_data_from_fandango()
+                st.success(f"Successfully backfilled showtimes data for {count} films.")
 
 def main():
     st.set_page_config(layout="wide")
-    st.title("Theater Name Matching Tool")
-    st.write("This tool helps you match theater names from your `markets.json` file with their official names on Fandango.")
+    st.title("Data Quality & Enrichment")
+    st.write("Manage data quality and perform database maintenance and enrichment.")
 
-    # Find the latest markets.json file
-    latest_markets_file = None
-    try:
-        search_path = os.path.join(PROJECT_DIR, "data", "**", "markets.json")
-        market_files = glob.glob(search_path, recursive=True)
-        if market_files:
-            latest_markets_file = max(market_files, key=os.path.getmtime)
-    except Exception as e:
-        st.warning(f"Could not search for latest markets.json file: {e}")
-
-
-    col1, col2 = st.columns([3, 1])
-    with col1:
-        uploaded_file = st.file_uploader("Choose your markets.json file", type="json")
-    with col2:
-        st.write("") # for alignment
-        st.write("") # for alignment
-        if latest_markets_file:
-            if st.button("Load Latest markets.json", use_container_width=True):
-                with open(latest_markets_file, 'r') as f:
-                    string_data = f.read()
-                    st.session_state['markets_data'] = json.loads(string_data)
-                st.success(f"Loaded latest markets file: {latest_markets_file}")
-                st.rerun()
-
-    if 'markets_data' not in st.session_state: st.session_state['markets_data'] = None
-    if uploaded_file is not None: get_markets_data(uploaded_file)
-
-    if st.session_state.get('markets_data'):
-        markets_data = st.session_state['markets_data']
-        st.sidebar.header("Configuration")
-        match_threshold = st.sidebar.slider("Match Score Threshold", min_value=0, max_value=100, value=55, step=5)
-
-        st.sidebar.header("Select Mode")
-        mode = st.sidebar.radio("Mode", ["Single Market Mode", "All Markets Mode"])
-
-        if mode == "Single Market Mode":
-            st.sidebar.header("Select a Market")
-            parent_company = st.sidebar.selectbox("Parent Company", list(markets_data.keys()))
-            if parent_company and markets_data.get(parent_company):
-                regions = markets_data[parent_company]
-                region_name = st.sidebar.selectbox("Director", list(regions.keys()))
-                if region_name and regions.get(region_name):
-                    markets = regions[region_name]
-                    market_name = st.sidebar.selectbox("Market", list(markets.keys()))
-                    if market_name and markets.get(market_name):
-                        theaters_in_market = markets[market_name].get('theaters', [])
-                        st.sidebar.info(f"Found {len(theaters_in_market)} theaters in {market_name}.")
-                        if st.sidebar.button("Start Matching"):
-                            st.session_state['market_name'] = market_name
-                            progress_bar = st.progress(0, text="Starting...")
-                            def update_progress(val, text): progress_bar.progress(val, text)
-                            results = asyncio.run(process_market(market_name, theaters_in_market, update_progress, threshold=match_threshold))
-                            
-                            # Add original zip back for display
-                            zip_map = {t['name']: t.get('zip', 'N/A') for t in theaters_in_market}
-                            for r in results: r['Zip Code'] = zip_map.get(r['Original Name'])
-
-                            results_df = pd.DataFrame(results)
-                            st.session_state['results_df'] = results_df
-        
-        elif mode == "All Markets Mode":
-            st.sidebar.info("This mode will scan all markets for a selected scope and generate a theater_cache.json file.")
-            selected_company = st.sidebar.selectbox("Parent Company", list(markets_data.keys()))
-            if selected_company and markets_data.get(selected_company):
-                director_options = ["All Directors"] + list(markets_data[selected_company].keys())
-                selected_director = st.sidebar.selectbox("Director", director_options)
-                if st.sidebar.button("Start Full Scan"):
-                    st.session_state.selected_company = selected_company
-                    theater_cache, updated_markets, all_results = asyncio.run(process_all_markets(markets_data, selected_company, selected_director, threshold=match_threshold))
-                    st.session_state['theater_cache_data'] = theater_cache
-                    if updated_markets:
-                        st.session_state['updated_markets_json_all'] = json.dumps(updated_markets, indent=2)
-                    if all_results:
-                        st.session_state['all_results_df'] = pd.DataFrame(all_results)
-        
-        with st.sidebar.expander("Add a Theater"):
-            with st.form("add_theater_form"):
-                st.write("Add a new theater to the current markets data.")
-                add_company = st.text_input("Parent Company")
-                add_region = st.text_input("Director")
-                add_market = st.text_input("Market")
-                add_name = st.text_input("New Theater Name")
-                add_zip = st.text_input("New Theater Zip Code")
-                submitted = st.form_submit_button("Add Theater")
-                if submitted and all([add_company, add_region, add_market, add_name, add_zip]):
-                    company_data = st.session_state['markets_data'].setdefault(add_company, {})
-                    region_data = company_data.setdefault(add_region, {})
-                    market_data = region_data.setdefault(add_market, {"theaters": []})
-                    market_data['theaters'].append({"name": add_name, "zip": add_zip})
-                    st.success(f"Added '{add_name}' to {add_market}.")
-                    st.rerun()
-                elif submitted:
-                    st.error("Please fill out all fields to add a theater.")
-
-    if 'results_df' in st.session_state:
-        st.header("Matching Results")
-        results_df = st.session_state['results_df'].copy()
-
-        # --- Charting Section ---
-        st.subheader("Results Overview")
-        
-        # Calculate stats
-        total_theaters = len(results_df)
-        unmatched_theaters = results_df[results_df['Matched Fandango Name'] == 'No match found']
-        num_unmatched = len(unmatched_theaters)
-        num_matched = total_theaters - num_unmatched
-        
-        col1, col2, col3 = st.columns(3)
-        col1.metric(label="Total Theaters Processed", value=total_theaters)
-        col2.metric(label="Theaters Matched", value=num_matched)
-        col3.metric(label="Theaters Unmatched", value=num_unmatched)
-
-        if num_matched > 0:
-            # Prepare data for chart
-            chart_df = results_df.copy()
-            chart_df['Match Score Int'] = pd.to_numeric(chart_df['Match Score'].str.replace('%', ''), errors='coerce').fillna(0)
-            st.subheader("Match Score Distribution")
-            
-            score_data = chart_df[chart_df['Match Score Int'] > 0]
-            if not score_data.empty:
-                st.bar_chart(score_data.set_index('Original Name')['Match Score Int'])
-
-        # --- End Charting Section ---
-
-        results_df['Manual Search'] = results_df['Zip Code'].apply(lambda z: f"https://www.fandango.com/{z}_movietimes" if z and z != 'N/A' else None)
-        edited_df = st.data_editor(results_df, column_config={"Matched Fandango URL": st.column_config.LinkColumn(), "Manual Search": st.column_config.LinkColumn(display_text="Open Search"), "Zip Code": None}, hide_index=True, use_container_width=True, column_order=["Original Name", "Matched Fandango Name", "Match Score", "Matched Fandango URL", "Manual Search"])
-        st.success("Matching complete. You can now review and edit the matches above.")
-
-        with st.expander("Theaters Requiring Attention", expanded=True):
-            unmatched_df = edited_df[edited_df['Matched Fandango Name'].isin(['No match found', 'Permanently Closed'])]
-            if unmatched_df.empty:
-                st.write("No theaters requiring attention.")
-            else:
-                st.write("The following theaters could not be matched or are marked as closed.")
-                for index, row in unmatched_df.iterrows():
-                    st.markdown("---")
-                    with st.form(key=f"form_{index}"):
-                        st.write(f"**Original Name:** {row['Original Name']}")
-                        new_name = st.text_input("Search Name", value=row['Original Name'], key=f"name_{index}")
-                        new_zip = st.text_input("ZIP Code", value=row['Zip Code'], key=f"zip_{index}")
-                        st.markdown("**Manual Override**")
-                        manual_url = st.text_input("Manual Fandango URL (Optional)", key=f"url_{index}")
-                        new_manual_name = st.text_input("New Theater Name (if renaming)", key=f"manual_name_{index}")
-                        
-                        action = st.radio("Action:", ("Re-run Match", "Mark as Not on Fandango", "Mark as Closed"), key=f"action_{index}")
-
-                        if st.form_submit_button("Submit"):
-                            if action == "Re-run Match":
-                                new_match_result = asyncio.run(rematch_single_theater(new_name, new_zip, manual_url, new_manual_name, threshold=match_threshold))
-                                st.session_state['results_df'].loc[index, 'Matched Fandango Name'] = new_match_result['Matched Fandango Name']
-                                st.session_state['results_df'].loc[index, 'Match Score'] = new_match_result['Match Score']
-                                st.session_state['results_df'].loc[index, 'Matched Fandango URL'] = new_match_result['Matched Fandango URL']
-                                if new_match_result['Matched Fandango Name'] != 'No match found':
-                                    st.success(f"Successfully re-matched '{new_match_result['Original Name']}' to '{new_match_result['Matched Fandango Name']}'.")
-                                    time.sleep(2)
-                            elif action == "Mark as Not on Fandango":
-                                st.session_state['results_df'].loc[index, 'Matched Fandango Name'] = 'Not on Fandango'
-                                st.success(f"'{row['Original Name']}' has been marked as Not on Fandango.")
-                                time.sleep(1)
-                            elif action == "Mark as Closed":
-                                st.session_state['results_df'].loc[index, 'Matched Fandango Name'] = 'Confirmed Closed'
-                                st.success(f"'{row['Original Name']}' has been confirmed as closed.")
-                                time.sleep(1)
-                            st.rerun()
-        
-        col1, col2 = st.columns(2)
-
-        with col1:
-            if st.button("Save Results as CSV"):
-                data_dir = "data"
-                os.makedirs(data_dir, exist_ok=True)
-                file_market_name = st.session_state.get('market_name', 'results').replace(" ", "_")
-                file_path = os.path.join(data_dir, f'{file_market_name}_fandango_matches.csv')
-                download_df = edited_df.drop(columns=['Manual Search'])
-                download_df.to_csv(file_path, index=False)
-                st.success(f"Results saved to `{file_path}`")
-
-        with col2:
-            if st.button("Generate and Save Updated markets.json"):
-                updated_markets_data = copy.deepcopy(st.session_state['markets_data'])
-                
-                match_map = edited_df.set_index('Original Name')['Matched Fandango Name'].to_dict()
-
-                for company, regions in updated_markets_data.items():
-                    for region, markets in regions.items():
-                        if st.session_state.get('market_name') in markets:
-                             for theater in markets[st.session_state.get('market_name')].get('theaters', []):
-                                original_name = theater['name']
-                                new_name = match_map.get(original_name)
-                                
-                                if new_name and new_name not in ['No match found', 'Permanently Closed', 'Confirmed Closed', 'Not on Fandango']:
-                                    theater['name'] = new_name
-
-                updated_json_str = json.dumps(updated_markets_data, indent=2)
-                
-                data_dir = "data"
-                os.makedirs(data_dir, exist_ok=True)
-                file_path = os.path.join(data_dir, "markets_updated.json")
-                with open(file_path, 'w') as f:
-                    f.write(updated_json_str)
-                st.success(f"Updated markets file saved to `{file_path}`")
-
-    if 'theater_cache_data' in st.session_state:
-        st.header("Full Scan Complete")
-        
-        if 'all_results_df' in st.session_state:
-            st.dataframe(st.session_state['all_results_df'])
-
-            with st.expander("Theaters Requiring Attention", expanded=True):
-                unmatched_df = st.session_state['all_results_df'][st.session_state['all_results_df']['Matched Fandango Name'].isin(['No match found', 'Permanently Closed'])]
-                if unmatched_df.empty:
-                    st.write("No theaters requiring attention.")
-                else:
-                    st.write("The following theaters could not be matched or are marked as closed.")
-                    for index, row in unmatched_df.iterrows():
-                        st.markdown("---")
-                        with st.form(key=f"form_all_{index}"):
-                            st.write(f"**Original Name:** {row['Original Name']}")
-                            new_name = st.text_input("Search Name", value=row['Original Name'], key=f"name_all_{index}")
-                            zip_value = row.get('Zip Code', '') 
-                            new_zip = st.text_input("ZIP Code", value=zip_value, key=f"zip_all_{index}")
-                            st.markdown("**Manual Override**")
-                            manual_url = st.text_input("Manual Fandango URL (Optional)", key=f"url_all_{index}")
-                            new_manual_name = st.text_input("New Theater Name (if renaming)", key=f"manual_name_all_{index}")
-                            
-                            action = st.radio("Action:", ("Re-run Match", "Mark as Not on Fandango", "Mark as Closed"), key=f"action_all_{index}")
-
-                            if st.form_submit_button("Submit"):
-                                if action == "Re-run Match":
-                                    new_match_result = asyncio.run(rematch_single_theater(new_name, new_zip, manual_url, new_manual_name))
-                                    st.session_state['all_results_df'].loc[index, 'Matched Fandango Name'] = new_match_result['Matched Fandango Name']
-                                    st.session_state['all_results_df'].loc[index, 'Match Score'] = new_match_result['Match Score']
-                                    st.session_state['all_results_df'].loc[index, 'Matched Fandango URL'] = new_match_result['Matched Fandango URL']
-                                    if new_match_result['Matched Fandango Name'] != 'No match found':
-                                        st.success(f"Successfully re-matched '{new_match_result['Original Name']}' to '{new_match_result['Matched Fandango Name']}'.")
-                                        time.sleep(2)
-                                elif action == "Mark as Not on Fandango":
-                                    st.session_state['all_results_df'].loc[index, 'Matched Fandango Name'] = 'Not on Fandango'
-                                    st.success(f"'{row['Original Name']}' has been marked as Not on Fandango.")
-                                    time.sleep(1)
-                                elif action == "Mark as Closed":
-                                    st.session_state['all_results_df'].loc[index, 'Matched Fandango Name'] = 'Confirmed Closed'
-                                    st.success(f"'{row['Original Name']}' has been confirmed as closed.")
-                                    time.sleep(1)
-                                st.rerun()
-
-        st.success("The new theater cache has been generated. You can download it below, or re-generate it after making corrections.")
-
-        if st.button("Re-generate and Save Output Files"):
-            theater_cache, updated_markets = regenerate_outputs_from_results(st.session_state['all_results_df'], st.session_state['markets_data'])
-            st.session_state['theater_cache_data'] = theater_cache
-            st.session_state['updated_markets_json_all'] = json.dumps(updated_markets, indent=2)
-            st.success("Output files have been re-generated with your corrections.")
-
-        col1, col2 = st.columns(2)
-
-        with col1:
-            if st.button("Backup Old and Replace theater_cache.json"):
-                file_path = os.path.join(PROJECT_DIR, "app", "theater_cache.json")
-                if os.path.exists(file_path):
-                    backup_path = file_path + ".bak"
-                    if os.path.exists(backup_path):
-                        os.remove(backup_path)
-                    os.rename(file_path, backup_path)
-                    st.info("Backed up existing theater_cache.json to theater_cache.json.bak")
-                with open(file_path, 'w') as f:
-                    json.dump(st.session_state['theater_cache_data'], f, indent=2)
-                st.success(f"Theater cache saved to `{file_path}`")
-
-            if st.button("Restore Old theater_cache.json"):
-                file_path = os.path.join(PROJECT_DIR, "app", "theater_cache.json")
-                backup_path = file_path + ".bak"
-                if os.path.exists(backup_path):
-                    if os.path.exists(file_path):
-                        os.remove(file_path)
-                    os.rename(backup_path, file_path)
-                    st.success("Restored theater_cache.json from backup.")
-                else:
-                    st.warning("No backup file found.")
-
-        with col2:
-            if st.button("Backup Old and Replace markets.json"):
-                selected_company = st.session_state.get('selected_company', 'Unknown')
-                file_path = os.path.join(PROJECT_DIR, "data", selected_company, "markets.json")
-                if os.path.exists(file_path):
-                    backup_path = file_path + ".bak"
-                    if os.path.exists(backup_path):
-                        os.remove(backup_path)
-                    os.rename(file_path, backup_path)
-                    st.info(f"Backed up existing markets.json to markets.json.bak in {selected_company} folder")
-                os.makedirs(os.path.dirname(file_path), exist_ok=True)
-                with open(file_path, 'w') as f:
-                    f.write(st.session_state['updated_markets_json_all'])
-                st.success(f"Updated markets file saved to `{file_path}`")
-
-            if st.button("Restore Old markets.json"):
-                selected_company = st.session_state.get('selected_company', 'Unknown')
-                file_path = os.path.join(PROJECT_DIR, "data", selected_company, "markets.json")
-                backup_path = file_path + ".bak"
-                if os.path.exists(backup_path):
-                    if os.path.exists(file_path):
-                        os.remove(file_path)
-                    os.rename(backup_path, file_path)
-                    st.success("Restored markets.json from backup.")
-                else:
-                    st.warning("No backup file found.")
-
+    st.header("Data Quality Tools")
+    render_ticket_type_manager()
+    st.divider()
+    render_failed_film_matcher("db_unmatched")
+    st.divider()
+    _render_database_tools()
 
 if __name__ == "__main__":
     if sys.platform == "win32":

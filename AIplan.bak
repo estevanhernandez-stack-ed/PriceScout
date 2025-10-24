@@ -1,0 +1,208 @@
+# Smol-Agents: A Crash Course
+
+`smol-agents` is a lightweight and powerful library from Hugging Face for building AI agents. Its key features include:
+
+*   **Simplicity:** The core logic is concise, making it easy to understand and extend.
+*   **Code-First Approach:** `smol-agents` primarily uses a `CodeAgent` that generates Python code to perform actions. This offers greater flexibility and control compared to JSON-based approaches.
+*   **Hugging Face Ecosystem Integration:** Seamlessly works with models and tools from the Hugging Face Hub.
+*   **Tool-Agnostic:** You can easily create and use your own custom tools (functions) for the agent to use.
+*   **Security:** Supports sandboxed environments for safe execution of the agent's generated code.
+
+## Enhanced File Structure
+
+Here is a more detailed breakdown of the proposed file structure, with the addition of a `prompts.py` file for better organization:
+
+```
+c:\Users\estev\Github\PriceScout\
+├───app\
+│   ├───ai_agent\
+│   │   ├───__init__.py
+│   │   ├───agent_core.py        # Main AI agent logic: instantiate and run the agent
+│   │   ├───web_tools.py         # Web scraping functions (the agent's "tools")
+│   │   ├───data_handlers.py     # Process and store scraped data in the database
+│   │   ├───prompts.py           # System prompts to guide the agent's behavior
+│   │   └───config.py            # Agent-specific configuration (target URLs, API keys)
+│   ├───config.py
+│   ├───database.py
+│   ├───price_scout_app.py       # Your main Streamlit app
+│   ├───scraper.py
+│   ├───utils.py
+│   └───...
+└───...
+```
+
+## Step-by-Step Implementation Plan
+
+Here is a 6-step plan to get your `smol-agent` up and running:
+
+### Step 1: Environment Setup & Dependencies
+
+First, install the necessary libraries. `smol-agents` can be installed with optional extras for different functionalities. For your use case, `[selenium, beautifulsoup4]` are recommended for web scraping.
+
+```bash
+pip install smol-agents[selenium,beautifulsoup4] google-generativeai pandas
+```
+
+### Step 2: Defining the Agent's Tools (`web_tools.py`)
+
+Create the Python functions that your agent will use to interact with the web. Remember, clear function names and detailed docstrings are crucial for the agent to understand how to use these tools.
+
+```python
+# app/ai_agent/web_tools.py
+
+from smolagents import tool
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from bs4 import BeautifulSoup
+
+@tool
+def navigate_to_url(url: str) -> str:
+    '''Navigates to a given URL and returns the page source.'''
+    driver = webdriver.Chrome()
+    driver.get(url)
+    page_source = driver.page_source
+    driver.quit()
+    return page_source
+
+@tool
+def find_and_click(url: str, selector: str) -> str:
+    '''Navigates to a URL, finds an element using a CSS selector, clicks it, and returns the new page source.'''
+    driver = webdriver.Chrome()
+    driver.get(url)
+    element = driver.find_element(By.CSS_SELECTOR, selector)
+    element.click()
+    page_source = driver.page_source
+    driver.quit()
+    return page_source
+
+@tool
+def extract_text_from_element(page_source: str, selector: str) -> str:
+    '''Extracts text from an element on a web page using a CSS selector.'''
+    soup = BeautifulSoup(page_source, 'html.parser')
+    element = soup.select_one(selector)
+    return element.get_text(strip=True) if element else "Element not found"
+
+@tool
+def extract_all_product_info(page_source: str, product_selector: str, name_selector: str, price_selector: str) -> list[dict]:
+    '''Extracts all product names and prices from a page.'''
+    soup = BeautifulSoup(page_source, 'html.parser')
+    products = soup.select(product_selector)
+    product_data = []
+    for product in products:
+        name = product.select_one(name_selector).get_text(strip=True)
+        price = product.select_one(price_selector).get_text(strip=True)
+        product_data.append({"name": name, "price": price})
+    return product_data
+```
+
+### Step 3: Crafting the Agent's "Brain" (`agent_core.py`)
+
+This is where you'll instantiate and run your `smol-agent`.
+
+```python
+# app/ai_agent/agent_core.py
+
+from smolagents import CodeAgent, GeminiModel
+from app.ai_agent import web_tools
+from app.ai_agent.prompts import PRICE_SCOUT_PROMPT
+from app.ai_agent.config import GOOGLE_API_KEY
+
+def run_price_scout_agent(task: str):
+    '''
+    Initializes and runs the Price Scout agent.
+    '''
+    model = GeminiModel(api_key=GOOGLE_API_KEY)
+    
+    tools = [
+        web_tools.navigate_to_url,
+        web_tools.find_and_click,
+        web_tools.extract_text_from_element,
+        web_tools.extract_all_product_info,
+    ]
+    
+    agent = CodeAgent(
+        tools=tools,
+        model=model,
+        system_prompt=PRICE_SCOUT_PROMPT,
+    )
+    
+    return agent.run(task)
+```
+
+### Step 4: Managing Prompts (`prompts.py`)
+
+Centralize your system prompts in a separate file. This makes it easier to manage and tweak the agent's behavior.
+
+```python
+# app/ai_agent/prompts.py
+
+PRICE_SCOUT_PROMPT = '''
+You are a specialized web scraping agent for PriceScout. Your primary mission is to analyze movie ticket prices and identify potential surcharges for specific showtimes.
+
+Your goals are:
+1.  **Navigate to theater websites:** Use the provided tools to go to the correct pages for specific movies and showtimes.
+2.  **Extract ticket prices:** Scrape all available ticket types and their corresponding prices for a given showtime.
+3.  **Identify base ticket price:** Determine the most common or standard ticket price for a regular adult ticket.
+4.  **Detect surcharges:** Compare other ticket prices (e.g., 3D, IMAX, VIP seating) to the base price to identify and calculate surcharges.
+5.  **Note new releases:** Pay special attention to new movie releases as they are more likely to have variable pricing.
+
+You have access to a set of tools to navigate web pages, extract information, and click on elements. Use these tools efficiently to complete the user's request.
+'''
+```
+
+### Step 5: Handling and Storing Data (`data_handlers.py`)
+
+Create a function to process the agent's output and store it in your SQLite database.
+
+```python
+# app/ai_agent/data_handlers.py
+
+import sqlite3
+
+def save_to_database(product_data: list[dict]):
+    '''Saves the scraped product data to the database.'''
+    conn = sqlite3.connect('price_scout.db')
+    c = conn.cursor()
+    for product in product_data:
+        c.execute("INSERT INTO products (name, price) VALUES (?, ?)", (product['name'], product['price']))
+    conn.commit()
+    conn.close()
+```
+
+### Step 6: Integrating with the Streamlit App (`price_scout_app.py`)
+
+Finally, add a UI element to your Streamlit app to trigger the agent and display the results.
+
+```python
+# app/price_scout_app.py
+
+import streamlit as st
+from app.ai_agent.agent_core import run_price_scout_agent
+from app.ai_agent.data_handlers import save_to_database
+
+st.title("PriceScout AI Agent")
+
+task = st.text_input("Enter the product and website to search (e.g., 'Find the price of the new iPhone on apple.com')")
+
+if st.button("Run Agent"):
+    with st.spinner("Agent is running..."):
+        result = run_price_scout_agent(task)
+        st.write("Agent's thought process:")
+        st.write(result)
+        
+        # You'll need to parse the agent's final output to get the product data
+        # For now, we'll assume the agent returns a list of dictionaries
+        # In a real-world scenario, you might have the agent call the save_to_database tool directly
+        if isinstance(result, list):
+            save_to_database(result)
+            st.success("Data saved to database!")
+```
+
+## Advanced Considerations & Next Steps
+
+*   **Error Handling and Retries:** Wrap your tool functions in `try...except` blocks to handle potential errors (e.g., element not found, network issues). You can also implement a retry mechanism for failed tool calls.
+*   **Logging and Debugging:** Use Python's `logging` module to log the agent's thoughts, actions, and observations. This is invaluable for debugging and understanding the agent's decision-making process. `smol-agents` also has a `verbose=True` parameter in the `run` method for more detailed output.
+*   **Multi-Agent Systems:** For more complex workflows, you could orchestrate multiple agents. For example, one agent could be responsible for finding product URLs, and another for extracting product details from those URLs.
+*   **Security:** Since the `CodeAgent` generates and executes code, it's highly recommended to run it in a sandboxed environment for production use cases. `smol-agents` has built-in support for E2B, a secure sandboxed environment.
+
+This comprehensive plan should provide you with a solid foundation for successfully integrating a powerful `smol-agent` into your PriceScout application.

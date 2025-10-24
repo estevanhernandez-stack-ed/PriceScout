@@ -1,377 +1,63 @@
 {
   "metadata": {
-    "last_updated": "2025-08-31T13:13:07.056373"
+    "last_updated": "2025-09-13T13:56:00.000000"
   },
   "markets": {
-    "Fort Worth 76107": {
-      "theaters": [
-        {
-          "name": "Movie Tavern West 7th Street",
-          "url": "https://www.fandango.com/movie-tavern-west-7th-street-aavrw/theater-page"
-        },
-        {
-          "name": "Movie Tavern Hulen",
-          "url": "https://www.fandango.com/movie-tavern-hulen-aaupp/theater-page"
-        },
-        {
-          "name": "AMC DINE-IN Clearfork 8",
-          "url": "https://www.fandango.com/amc-dine-in-clearfork-8-aayjv/theater-page"
-        },
-        {
-          "name": "AMC Lake Worth 14",
-          "url": "https://www.fandango.com/amc-lake-worth-14-aawev/theater-page"
-        },
-        {
-          "name": "AMC Hulen 10",
-          "url": "https://www.fandango.com/amc-hulen-10-aaugx/theater-page"
-        },
-        {
-          "name": "AMC Palace 9",
-          "url": "https://www.fandango.com/amc-palace-9-aadcs/theater-page"
-        },
-        {
-          "name": "Regal Fossil Creek",
-          "url": "https://www.fandango.com/regal-fossil-creek-aactx/theater-page"
-        },
-        {
-          "name": "America Cinemas Fort Worth",
-          "url": "https://www.fandango.com/america-cinemas-fort-worth-aaeaf/theater-page"
-        },
-        {
-          "name": "Studio Movie Grill Chisholm Trail Ranch",
-          "url": "https://www.fandango.com/studio-movie-grill-chisholm-trail-ranch-aaysw/theater-page"
-        },
-        {
-          "name": "Cinemark Rave Ridgmar 13 and XD",
-          "url": "https://www.fandango.com/cinemark-rave-ridgmar-13-and-xd-aarfi/theater-page"
-        }
-      ]
-    },
-    "Denton 76201": {
-      "theaters": [
-        {
-          "name": "Movie Tavern Denton",
-          "url": "https://www.fandango.com/movie-tavern-denton-aagzu/theater-page"
-        },
-        {
-          "name": "Alamo Drafthouse Denton",
-          "url": "https://www.fandango.com/alamo-drafthouse-denton-aayje/theater-page"
-        },
-        {
-          "name": "Cinemark Denton 14",
-          "url": "https://www.fandango.com/cinemark-denton-14-aatfb/theater-page"
-        },
-        {
-          "name": "AMC Highland Village 12",
-          "url": "https://www.fandango.com/amc-highland-village-12-aausf/theater-page"
-        }
-      ]
-    },
-    "Little Rock 72223": {
-      "theaters": [
-        {
-          "name": "Movie Tavern Little Rock",
-          "url": "https://www.fandango.com/movie-tavern-little-rock-aayie/theater-page"
-        },
-        {
-          "name": "AMC Chenal 9",
-          "url": "https://www.fandango.com/amc-chenal-9-aauyb/theater-page"
-        },
-        {
-          "name": "Cinemark Colonel Glenn and XD",
-          "url": "https://www.fandango.com/cinemark-colonel-glenn-and-xd-aaqsf/theater-page"
-        },
-        {
-          "name": "Riverdale 10 VIP Cinema",
-          "url": "https://www.fandango.com/riverdale-10-vip-cinema-aakfy/theater-page"
-        }
-      ]
-    },
-    "Citiplace 70808": {
-      "theaters": [
-        {
-          "name": "Movie Tavern Citiplace Cinema",
-          "url": "https://www.fandango.com/movie-tavern-citiplace-cinema-aaxqb/theater-page"
-        },
-        {
-          "name": "AMC Mall of Louisiana 15",
-          "url": "https://www.fandango.com/amc-mall-of-louisiana-15-aawwo/theater-page"
-        },
-        {
-          "name": "Cinemark Perkins Rowe and XD",
-          "url": "https://www.fandango.com/cinemark-perkins-rowe-and-xd-aauir/theater-page"
-        }
-      ]
-    },
-    "Juban 70726": {
-      "theaters": [
-        {
-          "name": "Movie Tavern Juban Crossing",
-          "url": "https://www.fandango.com/movie-tavern-juban-crossing-aaxur/theater-page"
-        },
-        {
-          "name": "AMC Baton Rouge 16",
-          "url": "https://www.fandango.com/amc-baton-rouge-16-aawwn/theater-page"
-        },
-        {
-          "name": "Celebrity Theatres Baton Rouge",
-          "url": "https://www.fandango.com/celebrity-theatres-baton-rouge-aaycz/theater-page"
-        }
-      ]
-    },
-    "Covington 70433": {
-      "theaters": [
-        {
-          "name": "Movie Tavern Covington",
-          "url": "https://www.fandango.com/movie-tavern-covington-aaxho/theater-page"
-        },
-        {
-          "name": "The Grand 16 - Slidell",
-          "url": "https://www.fandango.com/the-grand-16-slidell-aaugy/theater-page"
-        }
-      ]
-    },
-    "Roswell 30075": {
-      "theaters": [
-        {
-          "name": "Movie Tavern Roswell",
-          "url": "https://www.fandango.com/movie-tavern-roswell-aaxfo/theater-page"
-        },
-        {
-          "name": "AMC DINE-IN North Point Mall 12",
-          "url": "https://www.fandango.com/amc-dine-in-north-point-mall-12-aaxbw/theater-page"
-        },
-        {
-          "name": "Aurora Cineplex",
-          "url": "https://www.fandango.com/aurora-cineplex-aawea/theater-page"
-        },
-        {
-          "name": "Regal Avalon",
-          "url": "https://www.fandango.com/regal-avalon-aaxie/theater-page"
-        },
-        {
-          "name": "Regal Cherokee",
-          "url": "https://www.fandango.com/regal-cherokee-aaevw/theater-page"
-        },
-        {
-          "name": "Studio Movie Grill Marietta",
-          "url": "https://www.fandango.com/studio-movie-grill-marietta-aayfs/theater-page"
-        },
-        {
-          "name": "Studio Movie Grill North Point",
-          "url": "https://www.fandango.com/studio-movie-grill-north-point-aadcc/theater-page"
-        }
-      ]
-    },
-    "Horizon Village 30024": {
-      "theaters": [
-        {
-          "name": "Movie Tavern Horizon Village",
-          "url": "https://www.fandango.com/movie-tavern-horizon-village-aawqy/theater-page"
-        },
-        {
-          "name": "AMC Colonial 18",
-          "url": "https://www.fandango.com/amc-colonial-18-aadci/theater-page"
-        },
-        {
-          "name": "AMC Sugarloaf Mills 18",
-          "url": "https://www.fandango.com/amc-sugarloaf-mills-18-aarel/theater-page"
-        },
-        {
-          "name": "Regal Mall of Georgia IMAX",
-          "url": "https://www.fandango.com/regal-mall-of-georgia-imax-aankx/theater-page"
-        },
-        {
-          "name": "Studio Movie Grill - Duluth",
-          "url": "https://www.fandango.com/studio-movie-grill-duluth-aawvh/theater-page"
-        }
-      ]
-    },
-    "Tucker 30084": {
-      "theaters": [
-        {
-          "name": "Movie Tavern Tucker Cinema",
-          "url": "https://www.fandango.com/movie-tavern-tucker-cinema-aauvk/theater-page"
-        },
-        {
-          "name": "AMC North Dekalb 16",
-          "url": "https://www.fandango.com/amc-north-dekalb-16-aadcg/theater-page"
-        }
-      ]
-    },
-    "Aurora 80013": {
-      "theaters": [
-        {
-          "name": "Movie Tavern Aurora",
-          "url": "https://www.fandango.com/movie-tavern-aurora-aaufx/theater-page"
-        },
-        {
-          "name": "AMC Arapahoe Crossing 16",
-          "url": "https://www.fandango.com/amc-arapahoe-crossing-16-aaewn/theater-page"
-        },
-        {
-          "name": "AMC DINE-IN Southlands 16",
-          "url": "https://www.fandango.com/amc-dine-in-southlands-16-aatxu/theater-page"
-        },
-        {
-          "name": "Cinemark Century Aurora and XD",
-          "url": "https://www.fandango.com/cinemark-century-aurora-and-xd-aajni/theater-page"
-        }
-      ]
-    },
-    "Syracuse 13204": {
-      "theaters": [
-        {
-          "name": "Movie Tavern Syracuse",
-          "url": "https://www.fandango.com/movie-tavern-syracuse-aaxwo/theater-page"
-        },
-        {
-          "name": "Regal Destiny USA",
-          "url": "https://www.fandango.com/regal-destiny-usa-aajgh/theater-page"
-        }
-      ]
-    },
-    "Williamsburg 23188": {
-      "theaters": [
-        {
-          "name": "Movie Tavern Williamsburg",
-          "url": "https://www.fandango.com/movie-tavern-williamsburg-aaviz/theater-page"
-        },
-        {
-          "name": "Regal New Town",
-          "url": "https://www.fandango.com/regal-new-town-aatvd/theater-page"
-        }
-      ]
-    },
-    "Brannon Crossing 40356": {
-      "theaters": [
-        {
-          "name": "Movie Tavern Brannon Crossing",
-          "url": "https://www.fandango.com/movie-tavern-brannon-crossing-aaxqc/theater-page"
-        },
-        {
-          "name": "Cinemark Fayette Mall and XD",
-          "url": "https://www.fandango.com/cinemark-fayette-mall-and-xd-aauap/theater-page"
-        },
-        {
-          "name": "Regal Hamburg Pavilion IMAX & RPX",
-          "url": "https://www.fandango.com/regal-hamburg-pavilion-imax-and-rpx-aaogk/theater-page"
-        },
-        {
-          "name": "Krikorian Theatres at LexLive",
-          "url": "https://www.fandango.com/krikorian-theatres-at-lexlive-aayvf/theater-page"
-        }
-      ]
-    },
-    "Flourtown 19031": {
-      "theaters": [
-        {
-          "name": "Movie Tavern Flourtown",
-          "url": "https://www.fandango.com/movie-tavern-flourtown-aaxqa/theater-page"
-        },
-        {
-          "name": "AMC 309 Cinema 9 ",
-          "url": "https://www.fandango.com/amc-309-cinema-9-aadag/theater-page"
-        },
-        {
-          "name": "Regal Warrington Crossing ScreenX, 4DX & IMAX",
-          "url": "https://www.fandango.com/regal-warrington-crossing-screenx-4dx-and-imax-aanja/theater-page"
-        },
-        {
-          "name": "AMC Plymouth Meeting Mall 12",
-          "url": "https://www.fandango.com/amc-plymouth-meeting-mall-12-aalbh/theater-page"
-        },
-        {
-          "name": "Regal Plymouth Meeting",
-          "url": "https://www.fandango.com/regal-plymouth-meeting-aadhw/theater-page"
-        },
-        {
-          "name": "Regal UA Main Street Theatre",
-          "url": "https://www.fandango.com/regal-ua-main-street-theatre-aadhz/theater-page"
-        }
-      ]
-    },
-    "Exton 19341": {
-      "theaters": [
-        {
-          "name": "Movie Tavern Exton",
-          "url": "https://www.fandango.com/movie-tavern-exton-aaxrs/theater-page"
-        },
-        {
-          "name": "Regal Downingtown & IMAX",
-          "url": "https://www.fandango.com/regal-downingtown-and-imax-aamgg/theater-page"
-        },
-        {
-          "name": "Regal Edgmont Square",
-          "url": "https://www.fandango.com/regal-edgmont-square-aaebq/theater-page"
-        },
-        {
-          "name": "AMC DINE-IN Painters Crossing 9",
-          "url": "https://www.fandango.com/amc-dine-in-painters-crossing-9-aadai/theater-page"
-        }
-      ]
-    },
-    "Collegeville 19426": {
-      "theaters": [
-        {
-          "name": "Movie Tavern Collegeville Cinema",
-          "url": "https://www.fandango.com/movie-tavern-collegeville-cinema-aawkh/theater-page"
-        },
-        {
-          "name": "Regal UA King Of Prussia 4DX & IMAX",
-          "url": "https://www.fandango.com/regal-ua-king-of-prussia-4dx-and-imax-aaoqp/theater-page"
-        }
-      ]
-    },
-    "Trexlertown 18087": {
-      "theaters": [
-        {
-          "name": "Movie Tavern Trexlertown",
-          "url": "https://www.fandango.com/movie-tavern-trexlertown-aaylg/theater-page"
-        },
-        {
-          "name": "AMC Tilghman Square 8",
-          "url": "https://www.fandango.com/amc-tilghman-square-8-aabeh/theater-page"
-        },
-        {
-          "name": "AMC Center Valley 16",
-          "url": "https://www.fandango.com/amc-center-valley-16-aauhq/theater-page"
-        }
-      ]
-    },
     "Addison Area 60101": {
       "theaters": [
         {
           "name": "Marcus Addison Cinema",
-          "url": "https://www.fandango.com/marcus-addison-cinema-aafez/theater-page"
+          "url": "https://www.fandango.com/marcus-addison-cinema-aafez/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "AMC DINE-IN Rosemont 12",
+          "url": "https://www.fandango.com/amc-dine-in-rosemont-12-aaupj/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "AMC DINE-IN Yorktown 18",
+          "url": "https://www.fandango.com/amc-dine-in-yorktown-18-aabzg/theater-page",
+          "company": "AMC"
         },
         {
           "name": "AMC Norridge 6",
-          "url": "https://www.fandango.com/amc-norridge-6-aaaxu/theater-page"
+          "url": "https://www.fandango.com/amc-norridge-6-aaaxu/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "AMC Oakbrook Center 12",
+          "url": "https://www.fandango.com/amc-oakbrook-center-12-aaxzc/theater-page",
+          "company": "AMC"
         },
         {
           "name": "AMC Oakbrook Center 4",
-          "url": "https://www.fandango.com/amc-oakbrook-center-4-aaxoi/theater-page"
+          "url": "https://www.fandango.com/amc-oakbrook-center-4-aaxoi/theater-page",
+          "company": "AMC"
         },
         {
-          "name": "Cinemark Seven Bridges and IMAX",
-          "url": "https://www.fandango.com/cinemark-seven-bridges-and-imax-aaoon/theater-page"
-        },
-        {
-          "name": "Cinemark Melrose Park",
-          "url": "https://www.fandango.com/cinemark-melrose-park-aamia/theater-page"
+          "name": "AMC Loews Streets Of Woodfield 20",
+          "url": "https://www.fandango.com/amc-loews-streets-of-woodfield-20-aaogc/theater-page",
+          "company": "AMC"
         },
         {
           "name": "Classic Cinemas Elk Grove XQ",
-          "url": "https://www.fandango.com/classic-cinemas-elk-grove-xq-aafrv/theater-page"
+          "url": "https://www.fandango.com/classic-cinemas-elk-grove-xq-aafrv/theater-page",
+          "company": "Classic Cinemas"
         }
       ]
     },
     "Bloomington 61701": {
       "theaters": [
         {
+          "name": "Marcus Bloomington Cinema + IMAX",
+          "url": "https://www.fandango.com/marcus-bloomington-cinema-imax-aausa/theater-page",
+          "company": "Marcus"
+        },
+        {
           "name": "AMC CLASSIC Normal 14",
-          "url": "https://www.fandango.com/amc-classic-normal-14-aavfg/theater-page"
+          "url": "https://www.fandango.com/amc-classic-normal-14-aavfg/theater-page",
+          "company": "AMC"
         }
       ]
     },
@@ -379,23 +65,33 @@
       "theaters": [
         {
           "name": "Marcus Chicago Heights Cinema",
-          "url": "https://www.fandango.com/marcus-chicago-heights-cinema-aafff/theater-page"
+          "url": "https://www.fandango.com/marcus-chicago-heights-cinema-aafff/theater-page",
+          "company": "Marcus"
         },
         {
           "name": "Marcus Country Club Hills Cinema",
-          "url": "https://www.fandango.com/marcus-country-club-hills-cinema-aaxyd/theater-page"
+          "url": "https://www.fandango.com/marcus-country-club-hills-cinema-aaxyd/theater-page",
+          "company": "Marcus"
         },
         {
           "name": "AMC Chicago Ridge 6",
-          "url": "https://www.fandango.com/amc-chicago-ridge-6-aaarq/theater-page"
+          "url": "https://www.fandango.com/amc-chicago-ridge-6-aaarq/theater-page",
+          "company": "AMC"
         },
         {
-          "name": "AMC Ford City 14",
-          "url": "https://www.fandango.com/amc-ford-city-14-aabzf/theater-page"
+          "name": "AMC Crestwood 18",
+          "url": "https://www.fandango.com/amc-crestwood-18-aaaxl/theater-page",
+          "company": "AMC"
         },
         {
           "name": "AMC Schererville 12",
-          "url": "https://www.fandango.com/amc-schererville-12-aarmn/theater-page"
+          "url": "https://www.fandango.com/amc-schererville-12-aarmn/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "AMC Schererville 16",
+          "url": "https://www.fandango.com/amc-schererville-16-aaisc/theater-page",
+          "company": "AMC"
         }
       ]
     },
@@ -403,19 +99,33 @@
       "theaters": [
         {
           "name": "Marcus Pickerington Cinema",
-          "url": "https://www.fandango.com/marcus-pickerington-cinema-aagnz/theater-page"
+          "url": "https://www.fandango.com/marcus-pickerington-cinema-aagnz/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "AMC Dine-in Easton Town Center 30",
+          "url": "https://www.fandango.com/amc-dine-in-easton-town-center-30-aanit/theater-page",
+          "company": "AMC"
         },
         {
           "name": "AMC Grove City 14",
-          "url": "https://www.fandango.com/amc-grove-city-14-aawws/theater-page"
+          "url": "https://www.fandango.com/amc-grove-city-14-aawws/theater-page",
+          "company": "AMC"
         },
         {
           "name": "AMC Indian Mound 9",
-          "url": "https://www.fandango.com/amc-indian-mound-9-aaklg/theater-page"
+          "url": "https://www.fandango.com/amc-indian-mound-9-aaklg/theater-page",
+          "company": "AMC"
         },
         {
           "name": "Lennox Town Center 24",
-          "url": "https://www.fandango.com/lennox-town-center-24-aackf/theater-page"
+          "url": "https://www.fandango.com/lennox-town-center-24-aackf/theater-page",
+          "company": "Unknown"
+        },
+        {
+          "name": "Cinemark Stoneridge Plaza Movies 16",
+          "url": "https://www.fandango.com/cinemark-stoneridge-plaza-movies-16-aaglu/theater-page",
+          "company": "Cinemark"
         }
       ]
     },
@@ -423,15 +133,18 @@
       "theaters": [
         {
           "name": "Marcus Crosswoods Cinema",
-          "url": "https://www.fandango.com/marcus-crosswoods-cinema-aaizu/theater-page"
+          "url": "https://www.fandango.com/marcus-crosswoods-cinema-aaizu/theater-page",
+          "company": "Marcus"
         },
         {
           "name": "AMC Dublin Village 18",
-          "url": "https://www.fandango.com/amc-dublin-village-18-aabyg/theater-page"
+          "url": "https://www.fandango.com/amc-dublin-village-18-aabyg/theater-page",
+          "company": "AMC"
         },
         {
           "name": "Cinemark Polaris 18 and XD",
-          "url": "https://www.fandango.com/cinemark-polaris-18-and-xd-aatvf/theater-page"
+          "url": "https://www.fandango.com/cinemark-polaris-18-and-xd-aatvf/theater-page",
+          "company": "Cinemark"
         }
       ]
     },
@@ -439,15 +152,38 @@
       "theaters": [
         {
           "name": "Marcus Elgin Cinema",
-          "url": "https://www.fandango.com/marcus-elgin-cinema-aahvg/theater-page"
+          "url": "https://www.fandango.com/marcus-elgin-cinema-aahvg/theater-page",
+          "company": "Marcus"
         },
         {
           "name": "AMC Lake In The Hills 12",
-          "url": "https://www.fandango.com/amc-lake-in-the-hills-12-aahvb/theater-page"
+          "url": "https://www.fandango.com/amc-lake-in-the-hills-12-aahvb/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "AMC South Barrington 24",
+          "url": "https://www.fandango.com/amc-south-barrington-24-aadqg/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "Cinemark Spring Hill Mall and XD",
+          "url": "https://www.fandango.com/cinemark-spring-hill-mall-and-xd-aayan/theater-page",
+          "company": "Cinemark"
+        },
+        {
+          "name": "Classic Cinemas Charlestowne XQ",
+          "url": "https://www.fandango.com/classic-cinemas-charlestowne-xq-aaqaw/theater-page",
+          "company": "Classic Cinemas"
         },
         {
           "name": "Emagine Batavia",
-          "url": "https://www.fandango.com/emagine-batavia-aaiwm/theater-page"
+          "url": "https://www.fandango.com/emagine-batavia-aaiwm/theater-page",
+          "company": "Emagine"
+        },
+        {
+          "name": "Star Cinema Grill South Barrington",
+          "url": "https://www.fandango.com/star-cinema-grill-south-barrington-aavdl/theater-page",
+          "company": "Unknown"
         }
       ]
     },
@@ -455,35 +191,13 @@
       "theaters": [
         {
           "name": "Marcus Gurnee Mills Cinema",
-          "url": "https://www.fandango.com/marcus-gurnee-mills-cinema-aaffg/theater-page"
+          "url": "https://www.fandango.com/marcus-gurnee-mills-cinema-aaffg/theater-page",
+          "company": "Marcus"
         },
         {
-          "name": "AMC Randhurst 12",
-          "url": "https://www.fandango.com/amc-randhurst-12-aawis/theater-page"
-        },
-        {
-          "name": "Regal Crystal Lake Showplace",
-          "url": "https://www.fandango.com/regal-crystal-lake-showplace-aakhi/theater-page"
-        }
-      ]
-    },
-    "Orland Park Area 60467": {
-      "theaters": [
-        {
-          "name": "Marcus Orland Park Cinemas",
-          "url": "https://www.fandango.com/marcus-orland-park-cinemas-aanfr/theater-page"
-        },
-        {
-          "name": "AMC Crestwood 18",
-          "url": "https://www.fandango.com/amc-crestwood-18-aaaxl/theater-page"
-        },
-        {
-          "name": "AMC Chicago Ridge 6",
-          "url": "https://www.fandango.com/amc-chicago-ridge-6-aaarq/theater-page"
-        },
-        {
-          "name": "Emagine Frankfort ",
-          "url": "https://www.fandango.com/emagine-frankfort-aayag/theater-page"
+          "name": "AMC Hawthorn 12",
+          "url": "https://www.fandango.com/amc-hawthorn-12-aaxoa/theater-page",
+          "company": "AMC"
         }
       ]
     },
@@ -491,51 +205,106 @@
       "theaters": [
         {
           "name": "Marcus North Shore Cinema",
-          "url": "https://www.fandango.com/marcus-north-shore-cinema-aaglz/theater-page"
+          "url": "https://www.fandango.com/marcus-north-shore-cinema-aaglz/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "ACX Entertainment Bayshore",
+          "url": "https://www.fandango.com/acx-entertainment-bayshore-aautd/theater-page",
+          "company": "ACX"
         },
         {
           "name": " Downer Theatre",
-          "url": "https://www.fandango.com/downer-theatre-aaddi/theater-page"
+          "url": "https://www.fandango.com/downer-theatre-aaddi/theater-page",
+          "company": "Unknown"
         },
         {
           "name": "Oriental Theatre",
-          "url": "https://www.fandango.com/oriental-theatre-aaddt/theater-page"
+          "url": "https://www.fandango.com/oriental-theatre-aaddt/theater-page",
+          "company": "Unknown"
         },
         {
           "name": "Marcus BistroPlex Southridge",
-          "url": "https://www.fandango.com/marcus-bistroplex-southridge-aaydw/theater-page"
+          "url": "https://www.fandango.com/marcus-bistroplex-southridge-aaydw/theater-page",
+          "company": "Marcus"
         },
         {
           "name": "Marcus Hillside Cinema",
-          "url": "https://www.fandango.com/marcus-hillside-cinema-aaglw/theater-page"
+          "url": "https://www.fandango.com/marcus-hillside-cinema-aaglw/theater-page",
+          "company": "Marcus"
         },
         {
           "name": "Marcus Ridge Cinema",
-          "url": "https://www.fandango.com/marcus-ridge-cinema-aagme/theater-page"
+          "url": "https://www.fandango.com/marcus-ridge-cinema-aagly/theater-page",
+          "company": "Marcus"
         },
         {
           "name": "Marcus Majestic Cinema of Brookfield",
-          "url": "https://www.fandango.com/marcus-majestic-cinema-of-brookfield-aauml/theater-page"
+          "url": "https://www.fandango.com/marcus-majestic-cinema-of-brookfield-aauml/theater-page",
+          "company": "Marcus"
         },
         {
           "name": "Marcus Menomonee Falls Cinema",
-          "url": "https://www.fandango.com/marcus-menomonee-falls-cinema-aaglx/theater-page"
+          "url": "https://www.fandango.com/marcus-menomonee-falls-cinema-aaglx/theater-page",
+          "company": "Marcus"
         },
         {
           "name": "Movie Tavern Brookfield",
-          "url": "https://www.fandango.com/movie-tavern-brookfield-aayqm/theater-page"
+          "url": "https://www.fandango.com/movie-tavern-brookfield-aayqm/theater-page",
+          "company": "Marcus"
         },
         {
           "name": "AMC Mayfair Mall 18",
-          "url": "https://www.fandango.com/amc-mayfair-mall-18-aancu/theater-page"
+          "url": "https://www.fandango.com/amc-mayfair-mall-18-aancu/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "Silverspot @ The Corners 9 (Permanently Closed)",
+          "url": "N/A",
+          "company": "Unknown"
+        }
+      ]
+    },
+    "Orland Park Area 60467": {
+      "theaters": [
+        {
+          "name": "Marcus Orland Park Cinemas",
+          "url": "https://www.fandango.com/marcus-orland-park-cinemas-aanfr/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "AMC New Lenox 14",
+          "url": "https://www.fandango.com/amc-new-lenox-14-aarmo/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "AMC Quarry Cinemas 14",
+          "url": "https://www.fandango.com/amc-quarry-cinemas-14-aaeta/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "Emagine Frankfort ",
+          "url": "https://www.fandango.com/emagine-frankfort-aayag/theater-page",
+          "company": "Emagine"
         }
       ]
     },
     "Racine - Kenosha 53177": {
       "theaters": [
         {
+          "name": "Marcus Cinema at the Renaissance",
+          "url": "https://www.fandango.com/marcus-cinema-at-the-renaissance-aaugc/theater-page",
+          "company": "Marcus"
+        },
+        {
           "name": "Marcus South Shore Cinema",
-          "url": "https://www.fandango.com/marcus-south-shore-cinema-aagmj/theater-page"
+          "url": "https://www.fandango.com/marcus-south-shore-cinema-aagmj/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "Cinemark Tinseltown USA Kenosha",
+          "url": "https://www.fandango.com/cinemark-tinseltown-usa-kenosha-aaiqh/theater-page",
+          "company": "Cinemark"
         }
       ]
     },
@@ -543,199 +312,13 @@
       "theaters": [
         {
           "name": "Marcus Sheboygan Cinema",
-          "url": "https://www.fandango.com/marcus-sheboygan-cinema-aaizy/theater-page"
-        }
-      ]
-    },
-    "Arnold 63010": {
-      "theaters": [
-        {
-          "name": "Marcus Arnold Cinemas",
-          "url": "https://www.fandango.com/marcus-arnold-cinemas-aamtf/theater-page"
-        }
-      ]
-    },
-    "Cape Girardeau 63701": {
-      "theaters": [
-        {
-          "name": "Marcus Cape West Cinema",
-          "url": "https://www.fandango.com/marcus-cape-west-cinema-aajbi/theater-page"
-        }
-      ]
-    },
-    "Cedar Falls 50702": {
-      "theaters": [
-        {
-          "name": "Marcus Crossroads Cinema",
-          "url": "https://www.fandango.com/marcus-crossroads-cinema-aauln/theater-page"
-        }
-      ]
-    },
-    "Cedar Rapids 52402": {
-      "theaters": [
-        {
-          "name": "Marcus Cedar Rapids Cinema",
-          "url": "https://www.fandango.com/marcus-cedar-rapids-cinema-aatlq/theater-page"
+          "url": "https://www.fandango.com/marcus-sheboygan-cinema-aaizy/theater-page",
+          "company": "Marcus"
         },
         {
-          "name": "Collins Road Theatres",
-          "url": "https://www.fandango.com/collins-road-theatres-aalpi/theater-page"
-        }
-      ]
-    },
-    "Chesterfield 63005": {
-      "theaters": [
-        {
-          "name": "Marcus Chesterfield Cinema",
-          "url": "https://www.fandango.com/marcus-chesterfield-cinema-aathv/theater-page"
-        },
-        {
-          "name": "B&B Theatres Wentzville Tower 12",
-          "url": "https://www.fandango.com/bandb-theatres-wentzville-tower-12-aaxsr/theater-page"
-        },
-        {
-          "name": "B&B Theatres Wildwood 10 & GS",
-          "url": "https://www.fandango.com/bandb-theatres-wildwood-10-and-gs-aawho/theater-page"
-        },
-        {
-          "name": "Marcus Town Square Cinema",
-          "url": "https://www.fandango.com/marcus-town-square-cinema-aaueu/theater-page"
-        }
-      ]
-    },
-    "Des Peres 63131": {
-      "theaters": [
-        {
-          "name": "Marcus Des Peres Cinema",
-          "url": "https://www.fandango.com/marcus-des-peres-cinema-aagsg/theater-page"
-        },
-        {
-          "name": "AMC Esquire 7",
-          "url": "https://www.fandango.com/amc-esquire-7-aabab/theater-page"
-        },
-        {
-          "name": "B&B Theatres Creve Coeur West Olive 10",
-          "url": "https://www.fandango.com/bandb-theatres-creve-coeur-west-olive-10-aacvy/theater-page"
-        }
-      ]
-    },
-    "Iowa City 52241": {
-      "theaters": [
-        {
-          "name": "Marcus Coral Ridge Cinema",
-          "url": "https://www.fandango.com/marcus-coral-ridge-cinema-aajtd/theater-page"
-        },
-        {
-          "name": "Marcus Sycamore Cinema",
-          "url": "https://www.fandango.com/marcus-sycamore-cinema-aaobg/theater-page"
-        }
-      ]
-    },
-    "Lake Ozark 65049": {
-      "theaters": [
-        {
-          "name": "Marcus Eagles Landing Cinema",
-          "url": "https://www.fandango.com/marcus-eagles-landing-cinema-aaxbs/theater-page"
-        },
-        {
-          "name": "VIP Lake West Cinemas",
-          "url": "https://www.fandango.com/vip-lake-west-cinemas-aapwa/theater-page"
-        }
-      ]
-    },
-    "Lincoln 68505": {
-      "theaters": [
-        {
-          "name": "Marcus East Park Cinemas",
-          "url": "https://www.fandango.com/marcus-east-park-cinemas-aakch/theater-page"
-        },
-        {
-          "name": "Marcus Edgewood Cinemas",
-          "url": "https://www.fandango.com/marcus-edgewood-cinemas-aalmn/theater-page"
-        },
-        {
-          "name": "Marcus Lincoln Grand Cinemas",
-          "url": "https://www.fandango.com/marcus-lincoln-grand-cinemas-aauuu/theater-page"
-        },
-        {
-          "name": "Marcus South Pointe Cinemas",
-          "url": "https://www.fandango.com/marcus-south-pointe-cinemas-aanzx/theater-page"
-        }
-      ]
-    },
-    "O'Fallon 62269": {
-      "theaters": [
-        {
-          "name": "Marcus O'Fallon Cinema",
-          "url": "https://www.fandango.com/marcus-ofallon-cinema-aaiet/theater-page"
-        },
-        {
-          "name": "NCG Alton",
-          "url": "https://www.fandango.com/ncg-alton-aayuu/theater-page"
-        }
-      ]
-    },
-    "Omaha 68164": {
-      "theaters": [
-        {
-          "name": "Marcus Majestic Cinema of Omaha",
-          "url": "https://www.fandango.com/marcus-majestic-cinema-of-omaha-aaigv/theater-page"
-        },
-        {
-          "name": "Marcus Twin Creek Cinema",
-          "url": "https://www.fandango.com/marcus-twin-creek-cinema-aapcz/theater-page"
-        },
-        {
-          "name": "Marcus Village Pointe Cinema",
-          "url": "https://www.fandango.com/marcus-village-pointe-cinema-aarow/theater-page"
-        },
-        {
-          "name": "ACX Cinema 12+",
-          "url": "https://www.fandango.com/acx-cinema-12-aaytk/theater-page"
-        },
-        {
-          "name": "ACX Aksarben Cinema",
-          "url": "https://www.fandango.com/acx-aksarben-cinema-aawhe/theater-page"
-        },
-        {
-          "name": "Alamo Drafthouse Cinema La Vista",
-          "url": "https://www.fandango.com/alamo-drafthouse-cinema-la-vista-aaxmn/theater-page"
-        },
-        {
-          "name": "B&B Theatres Omaha Oakview Plaza 14",
-          "url": "https://www.fandango.com/bandb-theatres-omaha-oakview-plaza-14-aaeab/theater-page"
-        }
-      ]
-    },
-    "Ronnie's (St. Louis) 63126": {
-      "theaters": [
-        {
-          "name": "Marcus Ronnie's Cinema + IMAX  ",
-          "url": "https://www.fandango.com/marcus-ronnies-cinema-imax-aagqt/theater-page"
-        },
-        {
-          "name": "Alamo Drafthouse City Foundry",
-          "url": "https://www.fandango.com/alamo-drafthouse-city-foundry-aayww/theater-page"
-        }
-      ]
-    },
-    "St. Charles 63376": {
-      "theaters": [
-        {
-          "name": "Marcus Mid Rivers Cinema",
-          "url": "https://www.fandango.com/marcus-mid-rivers-cinema-aaojf/theater-page"
-        },
-        {
-          "name": "Marcus St. Charles Cinema",
-          "url": "https://www.fandango.com/marcus-st-charles-cinema-aagso/theater-page"
-        },
-        {
-          "name": "AMC Creve Coeur 12",
-          "url": "https://www.fandango.com/amc-creve-coeur-12-aanqo/theater-page"
-        },
-        {
-          "name": "B&B Theatres Wentzville Tower 12",
-          "url": "https://www.fandango.com/bandb-theatres-wentzville-tower-12-aaxsr/theater-page"
+          "name": "AMC Classic Manitowoc 10",
+          "url": "https://www.fandango.com/amc-classic-manitowoc-10-aaxgr/theater-page",
+          "company": "AMC"
         }
       ]
     },
@@ -743,15 +326,18 @@
       "theaters": [
         {
           "name": "Marcus Hollywood Cinemas",
-          "url": "https://www.fandango.com/marcus-hollywood-cinemas-aaizv/theater-page"
+          "url": "https://www.fandango.com/marcus-hollywood-cinemas-aaizv/theater-page",
+          "company": "Marcus"
         },
         {
           "name": "Marcus Valley Grand Cinema",
-          "url": "https://www.fandango.com/marcus-valley-grand-cinema-aawej/theater-page"
+          "url": "https://www.fandango.com/marcus-valley-grand-cinema-aawej/theater-page",
+          "company": "Marcus"
         },
         {
           "name": "Marcus Oshkosh Cinema",
-          "url": "https://www.fandango.com/marcus-oshkosh-cinema-aaizs/theater-page"
+          "url": "https://www.fandango.com/marcus-oshkosh-cinema-aaizs/theater-page",
+          "company": "Marcus"
         }
       ]
     },
@@ -759,23 +345,23 @@
       "theaters": [
         {
           "name": "Marcus Duluth Cinema",
-          "url": "https://www.fandango.com/marcus-duluth-cinema-aakpf/theater-page"
+          "url": "https://www.fandango.com/marcus-duluth-cinema-aakpf/theater-page",
+          "company": "Marcus"
         },
         {
           "name": "Marcus Lakes Cinema",
-          "url": "https://www.fandango.com/marcus-lakes-cinema-aakpe/theater-page"
-        },
-        {
-          "name": "Premiere Theatres",
-          "url": "https://www.fandango.com/premiere-theatres-aamyb/theater-page"
+          "url": "https://www.fandango.com/marcus-lakes-cinema-aakpe/theater-page",
+          "company": "Marcus"
         },
         {
           "name": "The West Theatre",
-          "url": "https://www.fandango.com/the-west-theatre-aayqi/theater-page"
+          "url": "https://www.fandango.com/the-west-theatre-aayqi/theater-page",
+          "company": "Unknown"
         },
         {
           "name": "Zinema 2",
-          "url": "https://www.fandango.com/zinema-2-aavou/theater-page"
+          "url": "https://www.fandango.com/zinema-2-aavou/theater-page",
+          "company": "Unknown"
         }
       ]
     },
@@ -783,11 +369,13 @@
       "theaters": [
         {
           "name": "Marcus Century Cinema",
-          "url": "https://www.fandango.com/marcus-century-cinema-aaknx/theater-page"
+          "url": "https://www.fandango.com/marcus-century-cinema-aaknx/theater-page",
+          "company": "Marcus"
         },
         {
           "name": "Marcus West Acres Cinema",
-          "url": "https://www.fandango.com/marcus-west-acres-cinema-aakpd/theater-page"
+          "url": "https://www.fandango.com/marcus-west-acres-cinema-aakpd/theater-page",
+          "company": "Marcus"
         }
       ]
     },
@@ -795,11 +383,13 @@
       "theaters": [
         {
           "name": "Marcus Bay Park Cinemas",
-          "url": "https://www.fandango.com/marcus-bay-park-cinemas-aajch/theater-page"
+          "url": "https://www.fandango.com/marcus-bay-park-cinemas-aajch/theater-page",
+          "company": "Marcus"
         },
         {
           "name": "Marcus Green Bay East Cinema",
-          "url": "https://www.fandango.com/marcus-green-bay-east-cinema-aaugd/theater-page"
+          "url": "https://www.fandango.com/marcus-green-bay-east-cinema-aaugd/theater-page",
+          "company": "Marcus"
         }
       ]
     },
@@ -807,7 +397,8 @@
       "theaters": [
         {
           "name": "Marcus La Crosse Cinemas",
-          "url": "https://www.fandango.com/marcus-la-crosse-cinemas-aajci/theater-page"
+          "url": "https://www.fandango.com/marcus-la-crosse-cinemas-aajci/theater-page",
+          "company": "Marcus"
         }
       ]
     },
@@ -815,15 +406,23 @@
       "theaters": [
         {
           "name": "Marcus Palace Cinema",
-          "url": "https://www.fandango.com/marcus-palace-cinema-aaxot/theater-page"
+          "url": "https://www.fandango.com/marcus-palace-cinema-aaxot/theater-page",
+          "company": "Marcus"
         },
         {
           "name": "Marcus Point Cinemas",
-          "url": "https://www.fandango.com/marcus-point-cinemas-aaizz/theater-page"
+          "url": "https://www.fandango.com/marcus-point-cinemas-aaizz/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "AMC Fitchburg 18",
+          "url": "https://www.fandango.com/amc-fitchburg-18-aaomj/theater-page",
+          "company": "AMC"
         },
         {
           "name": "Flix Brewhouse Madison",
-          "url": "https://www.fandango.com/flix-brewhouse-madison-aayiz/theater-page"
+          "url": "https://www.fandango.com/flix-brewhouse-madison-aayiz/theater-page",
+          "company": "Flix Brewhouse"
         }
       ]
     },
@@ -831,26 +430,56 @@
       "theaters": [
         {
           "name": "Marcus Oakdale Cinema",
-          "url": "https://www.fandango.com/marcus-oakdale-cinema-aaoqw/theater-page"
+          "url": "https://www.fandango.com/marcus-oakdale-cinema-aaoqw/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "Alamo Drafthouse Woodbury Lakes",
+          "url": "https://www.fandango.com/alamo-drafthouse-woodbury-lakes-aayjs/theater-page",
+          "company": "Alamo Drafthouse"
+        },
+        {
+          "name": "AMC Rosedale 14",
+          "url": "https://www.fandango.com/amc-rosedale-14-aaufj/theater-page",
+          "company": "AMC"
         },
         {
           "name": "Emagine White Bear ",
-          "url": "https://www.fandango.com/emagine-white-bear-aaivl/theater-page"
+          "url": "https://www.fandango.com/emagine-white-bear-aaivl/theater-page",
+          "company": "Emagine"
         },
         {
           "name": "Woodbury Theatre 10",
-          "url": "https://www.fandango.com/woodbury-theatre-10-aaeyo/theater-page"
+          "url": "https://www.fandango.com/woodbury-theatre-10-aaeyo/theater-page",
+          "company": "Unknown"
         }
       ]
     },
     "Ripon 54971": {
-      "theaters": []
+      "theaters": [
+        {
+          "name": "Marcus Campus Theatre",
+          "url": "https://www.fandango.com/marcus-campus-theatre-aaizr/theater-page",
+          "company": "Marcus"
+        }
+      ]
     },
     "Rochester 55904": {
       "theaters": [
         {
           "name": "Marcus Rochester Cinema + IMAX",
-          "url": "https://www.fandango.com/marcus-rochester-cinema-imax-aauqk/theater-page"
+          "url": "https://www.fandango.com/marcus-rochester-cinema-imax-aauqk/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "Cinemagic Stadium 12",
+          "url": "https://www.fandango.com/cinemagic-stadium-12-aakfs/theater-page",
+          "company": "Unknown"
+        },
+        {
+          "name": "CMX Chateau 14 (Permanently Closed)",
+          "url": "N/A",
+          "company": "Unknown"
         }
       ]
     },
@@ -858,15 +487,18 @@
       "theaters": [
         {
           "name": "Marcus Rosemount Cinema",
-          "url": "https://www.fandango.com/marcus-rosemount-cinema-aafuf/theater-page"
+          "url": "https://www.fandango.com/marcus-rosemount-cinema-aafuf/theater-page",
+          "company": "Marcus"
         },
         {
           "name": "AMC Inver Grove 16",
-          "url": "https://www.fandango.com/amc-inver-grove-16-aaivd/theater-page"
+          "url": "https://www.fandango.com/amc-inver-grove-16-aaivd/theater-page",
+          "company": "AMC"
         },
         {
-          "name": "Emagine Eagan",
-          "url": "https://www.fandango.com/emagine-eagan-aamnz/theater-page"
+          "name": "CMX Odyssey 15 (Permanently Closed)",
+          "url": "N/A",
+          "company": "Unknown"
         }
       ]
     },
@@ -874,15 +506,28 @@
       "theaters": [
         {
           "name": "Marcus Southbridge Crossing Cinema",
-          "url": "https://www.fandango.com/marcus-southbridge-crossing-cinema-aaybw/theater-page"
+          "url": "https://www.fandango.com/marcus-southbridge-crossing-cinema-aaybw/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "AMC Eden Prairie Mall 18",
+          "url": "https://www.fandango.com/amc-eden-prairie-mall-18-aaqiu/theater-page",
+          "company": "AMC"
         },
         {
           "name": "AMC Southdale 16",
-          "url": "https://www.fandango.com/amc-southdale-16-aaqcx/theater-page"
+          "url": "https://www.fandango.com/amc-southdale-16-aaqcx/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "B&B Theatres Bloomington 13 at Mall of America",
+          "url": "https://www.fandango.com/bandb-theatres-bloomington-13-at-mall-of-america-aavai/theater-page",
+          "company": "B&B Theatres"
         },
         {
           "name": "Emagine Eagan",
-          "url": "https://www.fandango.com/emagine-eagan-aamnz/theater-page"
+          "url": "https://www.fandango.com/emagine-eagan-aamnz/theater-page",
+          "company": "Emagine"
         }
       ]
     },
@@ -890,27 +535,8 @@
       "theaters": [
         {
           "name": "Marcus Parkwood Cinema",
-          "url": "https://www.fandango.com/marcus-parkwood-cinema-aakob/theater-page"
-        },
-        {
-          "name": "Quarry Cinema",
-          "url": "https://www.fandango.com/quarry-cinema-aawil/theater-page"
-        }
-      ]
-    },
-    "St. Louis Park 55416": {
-      "theaters": [
-        {
-          "name": "Marcus West End Cinema",
-          "url": "https://www.fandango.com/marcus-west-end-cinema-aavnh/theater-page"
-        },
-        {
-          "name": "AMC Southdale 16",
-          "url": "https://www.fandango.com/amc-southdale-16-aaqcx/theater-page"
-        },
-        {
-          "name": "Emagine Willow Creek ",
-          "url": "https://www.fandango.com/emagine-willow-creek-aadfb/theater-page"
+          "url": "https://www.fandango.com/marcus-parkwood-cinema-aakob/theater-page",
+          "company": "Marcus"
         }
       ]
     },
@@ -918,9 +544,979 @@
       "theaters": [
         {
           "name": "Marcus Cedar Creek Cinema",
-          "url": "https://www.fandango.com/marcus-cedar-creek-cinema-aakje/theater-page"
+          "url": "https://www.fandango.com/marcus-cedar-creek-cinema-aakje/theater-page",
+          "company": "Marcus"
+        }
+      ]
+    },
+    "St. Louis Park 55416": {
+      "theaters": [
+        {
+          "name": "Marcus West End Cinema",
+          "url": "https://www.fandango.com/marcus-west-end-cinema-aavnh/theater-page",
+          "company": "Marcus"
+        }
+      ]
+    },
+    "Cedar Falls 50702": {
+      "theaters": [
+        {
+          "name": "Marcus Crossroads Cinema",
+          "url": "https://www.fandango.com/marcus-crossroads-cinema-aauln/theater-page",
+          "company": "Marcus"
+        }
+      ]
+    },
+    "Cedar Rapids 52402": {
+      "theaters": [
+        {
+          "name": "Marcus Cedar Rapids Cinema",
+          "url": "https://www.fandango.com/marcus-cedar-rapids-cinema-aatlq/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "Bijou Movie Theater",
+          "url": "https://www.fandango.com/bijou-movie-theater-aavam/theater-page",
+          "company": "Unknown"
+        },
+        {
+          "name": "Collins Road Theatres",
+          "url": "https://www.fandango.com/collins-road-theatres-aalpi/theater-page",
+          "company": "Unknown"
+        }
+      ]
+    },
+    "Chesterfield 63005": {
+      "theaters": [
+        {
+          "name": "Marcus Chesterfield Cinema",
+          "url": "https://www.fandango.com/marcus-chesterfield-cinema-aathv/theater-page",
+          "company": "Marcus"
+        }
+      ]
+    },
+    "Des Peres 63131": {
+      "theaters": [
+        {
+          "name": "Marcus Des Peres Cinema",
+          "url": "https://www.fandango.com/marcus-des-peres-cinema-aagsg/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "AMC Esquire 7",
+          "url": "https://www.fandango.com/amc-esquire-7-aabab/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "B&B Theatres Creve Coeur West Olive 10",
+          "url": "https://www.fandango.com/bandb-theatres-creve-coeur-west-olive-10-aacvy/theater-page",
+          "company": "B&B Theatres"
+        },
+        {
+          "name": "Galleria 6 Cinemas",
+          "url": "https://www.fandango.com/galleria-6-cinemas-aaqey/theater-page",
+          "company": "Unknown"
+        }
+      ]
+    },
+    "Iowa City 52241": {
+      "theaters": [
+        {
+          "name": "Marcus Coral Ridge Cinema",
+          "url": "https://www.fandango.com/marcus-coral-ridge-cinema-aajtd/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "Marcus Sycamore Cinema",
+          "url": "https://www.fandango.com/marcus-sycamore-cinema-aaobg/theater-page",
+          "company": "Marcus"
+        }
+      ]
+    },
+    "Lincoln 68505": {
+      "theaters": [
+        {
+          "name": "Marcus East Park Cinemas",
+          "url": "https://www.fandango.com/marcus-east-park-cinemas-aakch/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "Marcus Edgewood Cinemas",
+          "url": "https://www.fandango.com/marcus-edgewood-cinemas-aalmn/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "Marcus Lincoln Grand Cinemas",
+          "url": "https://www.fandango.com/marcus-lincoln-grand-cinemas-aauuu/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "Marcus South Pointe Cinemas",
+          "url": "https://www.fandango.com/marcus-south-pointe-cinemas-aanzx/theater-page",
+          "company": "Marcus"
+        }
+      ]
+    },
+    "O'Fallon 62269": {
+      "theaters": [
+        {
+          "name": "Marcus O'Fallon Cinema",
+          "url": "https://www.fandango.com/marcus-ofallon-cinema-aaiet/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "AMC Edwardsville 12",
+          "url": "https://www.fandango.com/amc-edwardsville-12-aailm/theater-page",
+          "company": "AMC"
+        }
+      ]
+    },
+    "Omaha 68164": {
+      "theaters": [
+        {
+          "name": "Marcus Majestic Cinema of Omaha",
+          "url": "https://www.fandango.com/marcus-majestic-cinema-of-omaha-aaigv/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "Marcus Twin Creek Cinema",
+          "url": "https://www.fandango.com/marcus-twin-creek-cinema-aapcz/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "Marcus Village Pointe Cinema",
+          "url": "https://www.fandango.com/marcus-village-pointe-cinema-aarow/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "ACX Cinema 12+",
+          "url": "https://www.fandango.com/acx-cinema-12-aaytk/theater-page",
+          "company": "ACX"
+        },
+        {
+          "name": "ACX Aksarben Cinema",
+          "url": "https://www.fandango.com/acx-aksarben-cinema-aawhe/theater-page",
+          "company": "ACX"
+        },
+        {
+          "name": "Alamo Drafthouse Cinema La Vista",
+          "url": "https://www.fandango.com/alamo-drafthouse-cinema-la-vista-aaxmn/theater-page",
+          "company": "Alamo Drafthouse"
+        },
+        {
+          "name": "AMC Council Bluffs 17",
+          "url": "https://www.fandango.com/amc-council-bluffs-17-aaqwh/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "AMC Westroads 14",
+          "url": "https://www.fandango.com/amc-westroads-14-aawwt/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "B&B Theatres Omaha Oakview Plaza 14",
+          "url": "https://www.fandango.com/bandb-theatres-omaha-oakview-plaza-14-aaeab/theater-page",
+          "company": "B&B Theatres"
+        },
+        {
+          "name": "Film Streams @ Ruth Sokolof Thr",
+          "url": "https://www.fandango.com/film-streams-ruth-sokolof-thr-aatvo/theater-page",
+          "company": "Unknown"
+        }
+      ]
+    },
+    "Ronnie's (St. Louis) 63126": {
+      "theaters": [
+        {
+          "name": "Marcus Arnold Cinemas",
+          "url": "https://www.fandango.com/marcus-arnold-cinemas-aamtf/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "Marcus Ronnie's Cinema + IMAX  ",
+          "url": "https://www.fandango.com/marcus-ronnies-cinema-imax-aagqt/theater-page",
+          "company": "Marcus"
+        }
+      ]
+    },
+    "St. Charles 63376": {
+      "theaters": [
+        {
+          "name": "Marcus Mid Rivers Cinema",
+          "url": "https://www.fandango.com/marcus-mid-rivers-cinema-aaojf/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "Marcus St. Charles Cinema",
+          "url": "https://www.fandango.com/marcus-st-charles-cinema-aagso/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "AMC Creve Coeur 12",
+          "url": "https://www.fandango.com/amc-creve-coeur-12-aanqo/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "AMC Streets of St. Charles 8",
+          "url": "https://www.fandango.com/amc-streets-of-st-charles-8-aaxjv/theater-page",
+          "company": "AMC"
+        }
+      ]
+    },
+    "Town Square": {
+      "theaters": [
+        {
+          "name": "Marcus Town Square Cinema",
+          "url": "https://www.fandango.com/marcus-town-square-cinema-aaueu/theater-page",
+          "company": "Marcus"
+        }
+      ]
+    },
+    "Cape Girardeau 63701": {
+      "theaters": [
+        {
+          "name": "Marcus Cape West Cinema",
+          "url": "https://www.fandango.com/marcus-cape-west-cinema-aajbi/theater-page",
+          "company": "Marcus"
+        }
+      ]
+    },
+    "Lake Ozark 65049": {
+      "theaters": [
+        {
+          "name": "Marcus Eagles Landing Cinema",
+          "url": "https://www.fandango.com/marcus-eagles-landing-cinema-aaxbs/theater-page",
+          "company": "Marcus"
+        }
+      ]
+    },
+    "Horizon Village 30024": {
+      "theaters": [
+        {
+          "name": "Movie Tavern Horizon Village",
+          "url": "https://www.fandango.com/movie-tavern-horizon-village-aawqy/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "AMC Colonial 18",
+          "url": "https://www.fandango.com/amc-colonial-18-aadci/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "AMC Sugarloaf Mills 18",
+          "url": "https://www.fandango.com/amc-sugarloaf-mills-18-aarel/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "Regal Mall of Georgia IMAX",
+          "url": "https://www.fandango.com/regal-mall-of-georgia-imax-aankx/theater-page",
+          "company": "Regal"
+        },
+        {
+          "name": "Studio Movie Grill - Duluth",
+          "url": "https://www.fandango.com/studio-movie-grill-duluth-aawvh/theater-page",
+          "company": "Studio Movie Grill"
+        }
+      ]
+    },
+    "Tucker 30084": {
+      "theaters": [
+        {
+          "name": "Movie Tavern Tucker Cinema",
+          "url": "https://www.fandango.com/movie-tavern-tucker-cinema-aauvk/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "AMC North Dekalb 16",
+          "url": "https://www.fandango.com/amc-north-dekalb-16-aadcg/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "LOOK Dine-In Cinemas Brookhaven",
+          "url": "https://www.fandango.com/look-dine-in-cinemas-brookhaven-aawle/theater-page",
+          "company": "Unknown"
+        },
+        {
+          "name": "Regal Hollywood @ North I-85 (Permanently Closed)",
+          "url": "N/A",
+          "company": "Regal"
+        }
+      ]
+    },
+    "Roswell 30075": {
+      "theaters": [
+        {
+          "name": "Movie Tavern Roswell",
+          "url": "https://www.fandango.com/movie-tavern-roswell-aaxfo/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "AMC DINE-IN North Point Mall 12",
+          "url": "https://www.fandango.com/amc-dine-in-north-point-mall-12-aaxbw/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "Aurora Cineplex",
+          "url": "https://www.fandango.com/aurora-cineplex-aawea/theater-page",
+          "company": "Unknown"
+        },
+        {
+          "name": "CMX CinéBistro Halcyon",
+          "url": "https://www.fandango.com/cmx-cinebistro-halcyon-aayrc/theater-page",
+          "company": "Unknown"
+        },
+        {
+          "name": "Regal Avalon",
+          "url": "https://www.fandango.com/regal-avalon-aaxie/theater-page",
+          "company": "Regal"
+        },
+        {
+          "name": "Regal Cherokee",
+          "url": "https://www.fandango.com/regal-cherokee-aaevw/theater-page",
+          "company": "Regal"
+        },
+        {
+          "name": "Studio Movie Grill Marietta",
+          "url": "https://www.fandango.com/studio-movie-grill-marietta-aayfs/theater-page",
+          "company": "Studio Movie Grill"
+        },
+        {
+          "name": "Studio Movie Grill North Point",
+          "url": "https://www.fandango.com/studio-movie-grill-north-point-aadcc/theater-page",
+          "company": "Studio Movie Grill"
+        }
+      ]
+    },
+    "Citiplace 70808": {
+      "theaters": [
+        {
+          "name": "Movie Tavern Citiplace Cinema",
+          "url": "https://www.fandango.com/movie-tavern-citiplace-cinema-aaxqb/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "AMC Mall of Louisiana 15",
+          "url": "https://www.fandango.com/amc-mall-of-louisiana-15-aawwo/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "Cinemark Perkins Rowe and XD",
+          "url": "https://www.fandango.com/cinemark-perkins-rowe-and-xd-aauir/theater-page",
+          "company": "Cinemark"
+        }
+      ]
+    },
+    "Covington 70433": {
+      "theaters": [
+        {
+          "name": "Movie Tavern Covington",
+          "url": "https://www.fandango.com/movie-tavern-covington-aaxho/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "Regal Covington (Permanently Closed)",
+          "url": "N/A",
+          "company": "Regal"
+        },
+        {
+          "name": "The Grand 16 - Slidell",
+          "url": "https://www.fandango.com/the-grand-16-slidell-aaugy/theater-page",
+          "company": "Unknown"
+        }
+      ]
+    },
+    "Denton 76201": {
+      "theaters": [
+        {
+          "name": "Movie Tavern Denton",
+          "url": "https://www.fandango.com/movie-tavern-denton-aagzu/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "Alamo Drafthouse Denton",
+          "url": "https://www.fandango.com/alamo-drafthouse-denton-aayje/theater-page",
+          "company": "Alamo Drafthouse"
+        },
+        {
+          "name": "Cinemark Denton 14",
+          "url": "https://www.fandango.com/cinemark-denton-14-aatfb/theater-page",
+          "company": "Cinemark"
+        }
+      ]
+    },
+    "Fort Worth 76107": {
+      "theaters": [
+        {
+          "name": "Movie Tavern West 7th Street",
+          "url": "https://www.fandango.com/movie-tavern-west-7th-street-aavrw/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "AMC Palace 9",
+          "url": "https://www.fandango.com/amc-palace-9-aadcs/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "America Cinemas Fort Worth",
+          "url": "https://www.fandango.com/america-cinemas-fort-worth-aaeaf/theater-page",
+          "company": "Unknown"
+        },
+        {
+          "name": "Coyote DI Fort Worth",
+          "url": "https://www.fandango.com/coyote-di-fort-worth-aaxjk/theater-page",
+          "company": "Unknown"
+        },
+        {
+          "name": "Regal Fossil Creek",
+          "url": "https://www.fandango.com/regal-fossil-creek-aactx/theater-page",
+          "company": "Regal"
+        },
+        {
+          "name": "Cinemark Rave Ridgmar 13 and XD",
+          "url": "https://www.fandango.com/cinemark-rave-ridgmar-13-and-xd-aarfi/theater-page",
+          "company": "Cinemark"
+        },
+        {
+          "name": "Studio Movie Grill Chisholm Trail Ranch",
+          "url": "https://www.fandango.com/studio-movie-grill-chisholm-trail-ranch-aaysw/theater-page",
+          "company": "Studio Movie Grill"
+        },
+        {
+          "name": "Movie Tavern Hulen",
+          "url": "https://www.fandango.com/movie-tavern-hulen-aaupp/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "AMC DINE-IN Clearfork 8",
+          "url": "https://www.fandango.com/amc-dine-in-clearfork-8-aayjv/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "AMC Hulen 10",
+          "url": "https://www.fandango.com/amc-hulen-10-aaugx/theater-page",
+          "company": "AMC"
+        }
+      ]
+    },
+    "Juban 70726": {
+      "theaters": [
+        {
+          "name": "Movie Tavern Juban Crossing",
+          "url": "https://www.fandango.com/movie-tavern-juban-crossing-aaxur/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "AMC Baton Rouge 16",
+          "url": "https://www.fandango.com/amc-baton-rouge-16-aawwn/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "Celebrity Theatres Baton Rouge",
+          "url": "https://www.fandango.com/celebrity-theatres-baton-rouge-aaycz/theater-page",
+          "company": "Unknown"
+        }
+      ]
+    },
+    "Little Rock 72223": {
+      "theaters": [
+        {
+          "name": "Movie Tavern Little Rock",
+          "url": "https://www.fandango.com/movie-tavern-little-rock-aayie/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "AMC Chenal 9",
+          "url": "https://www.fandango.com/amc-chenal-9-aauyb/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "Cinemark Colonel Glenn and XD",
+          "url": "https://www.fandango.com/cinemark-colonel-glenn-and-xd-aaqsf/theater-page",
+          "company": "Cinemark"
+        },
+        {
+          "name": "Riverdale 10 VIP Cinema",
+          "url": "https://www.fandango.com/riverdale-10-vip-cinema-aakfy/theater-page",
+          "company": "Unknown"
+        }
+      ]
+    },
+    "Aurora 80013": {
+      "theaters": [
+        {
+          "name": "Movie Tavern Aurora",
+          "url": "https://www.fandango.com/movie-tavern-aurora-aaufx/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "AMC Arapahoe Crossing 16",
+          "url": "https://www.fandango.com/amc-arapahoe-crossing-16-aaewn/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "AMC DINE-IN Southlands 16",
+          "url": "https://www.fandango.com/amc-dine-in-southlands-16-aatxu/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "Cinemark Century Aurora and XD",
+          "url": "https://www.fandango.com/cinemark-century-aurora-and-xd-aajni/theater-page",
+          "company": "Cinemark"
+        }
+      ]
+    },
+    "Collegeville 19426": {
+      "theaters": [
+        {
+          "name": "Movie Tavern Collegeville Cinema",
+          "url": "https://www.fandango.com/movie-tavern-collegeville-cinema-aawkh/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "AMC Pottsgrove 12",
+          "url": "https://www.fandango.com/amc-pottsgrove-12-aawoc/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "Flagship Premium Cinemas 8",
+          "url": "https://www.fandango.com/flagship-premium-cinemas-8-aawof/theater-page",
+          "company": "Unknown"
+        },
+        {
+          "name": "Oaks Center Cinema",
+          "url": "https://www.fandango.com/oaks-center-cinema-aajav/theater-page",
+          "company": "Unknown"
+        },
+        {
+          "name": "Regal UA King Of Prussia 4DX & IMAX",
+          "url": "https://www.fandango.com/regal-ua-king-of-prussia-4dx-and-imax-aaoqp/theater-page",
+          "company": "Regal"
+        }
+      ]
+    },
+    "Exton 19341": {
+      "theaters": [
+        {
+          "name": "Movie Tavern Exton",
+          "url": "https://www.fandango.com/movie-tavern-exton-aaxrs/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "AMC DINE-IN Painters Crossing 9",
+          "url": "https://www.fandango.com/amc-dine-in-painters-crossing-9-aadai/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "Regal Downingtown & IMAX",
+          "url": "https://www.fandango.com/regal-downingtown-and-imax-aamgg/theater-page",
+          "company": "Regal"
+        }
+      ]
+    },
+    "Flourtown 19031": {
+      "theaters": [
+        {
+          "name": "Movie Tavern Flourtown",
+          "url": "https://www.fandango.com/movie-tavern-flourtown-aaxqa/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "AMC 309 Cinema 9 ",
+          "url": "https://www.fandango.com/amc-309-cinema-9-aadag/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "AMC Plymouth Meeting Mall 12",
+          "url": "https://www.fandango.com/amc-plymouth-meeting-mall-12-aalbh/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "Regal Plymouth Meeting",
+          "url": "https://www.fandango.com/regal-plymouth-meeting-aadhw/theater-page",
+          "company": "Regal"
+        },
+        {
+          "name": "Regal UA Main Street Theatre",
+          "url": "https://www.fandango.com/regal-ua-main-street-theatre-aadhz/theater-page",
+          "company": "Regal"
+        },
+        {
+          "name": "Regal Warrington Crossing ScreenX, 4DX & IMAX",
+          "url": "https://www.fandango.com/regal-warrington-crossing-screenx-4dx-and-imax-aanja/theater-page",
+          "company": "Regal"
+        }
+      ]
+    },
+    "Brannon Crossing 40356": {
+      "theaters": [
+        {
+          "name": "Movie Tavern Brannon Crossing",
+          "url": "https://www.fandango.com/movie-tavern-brannon-crossing-aaxqc/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "Cinemark Fayette Mall and XD",
+          "url": "https://www.fandango.com/cinemark-fayette-mall-and-xd-aauap/theater-page",
+          "company": "Cinemark"
+        },
+        {
+          "name": "Krikorian Theatres at LexLive",
+          "url": "https://www.fandango.com/krikorian-theatres-at-lexlive-aayvf/theater-page",
+          "company": "Unknown"
+        },
+        {
+          "name": "Regal Hamburg Pavilion IMAX & RPX",
+          "url": "https://www.fandango.com/regal-hamburg-pavilion-imax-and-rpx-aaogk/theater-page",
+          "company": "Regal"
+        }
+      ]
+    },
+    "Syracuse 13204": {
+      "theaters": [
+        {
+          "name": "Movie Tavern Syracuse",
+          "url": "https://www.fandango.com/movie-tavern-syracuse-aaxwo/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "Regal Destiny USA",
+          "url": "https://www.fandango.com/regal-destiny-usa-aajgh/theater-page",
+          "company": "Regal"
+        }
+      ]
+    },
+    "Trexlertown 18087": {
+      "theaters": [
+        {
+          "name": "Movie Tavern Trexlertown",
+          "url": "https://www.fandango.com/movie-tavern-trexlertown-aaylg/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "AMC Center Valley 16",
+          "url": "https://www.fandango.com/amc-center-valley-16-aauhq/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "AMC CLASSIC Allentown 16 (Permanently Closed)",
+          "url": "N/A",
+          "company": "AMC"
+        },
+        {
+          "name": "AMC Tilghman Square 8",
+          "url": "https://www.fandango.com/amc-tilghman-square-8-aabeh/theater-page",
+          "company": "AMC"
+        }
+      ]
+    },
+    "Williamsburg 23188": {
+      "theaters": [
+        {
+          "name": "Movie Tavern Williamsburg",
+          "url": "https://www.fandango.com/movie-tavern-williamsburg-aaviz/theater-page",
+          "company": "Marcus"
+        },
+        {
+          "name": "Regal New Town",
+          "url": "https://www.fandango.com/regal-new-town-aatvd/theater-page",
+          "company": "Regal"
+        }
+      ]
+    },
+    "Chicago - Other": {
+      "theaters": [
+        {
+          "name": "AMC River East 21",
+          "url": "https://www.fandango.com/amc-river-east-21-aaqow/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "Cinemark Cantera Warrenville (Permanently Closed)",
+          "url": "N/A",
+          "company": "Cinemark"
+        }
+      ]
+    },
+    "Elk River Area": {
+      "theaters": [
+        {
+          "name": "Emagine Rogers Theatre",
+          "url": "https://www.fandango.com/emagine-rogers-theatre-aauhr/theater-page",
+          "company": "Emagine"
+        },
+        {
+          "name": "St. Michael Cinema",
+          "url": "https://www.fandango.com/st-michael-cinema-aaxpn/theater-page",
+          "company": "Unknown"
+        }
+      ]
+    },
+    "Los Angeles Metro": {
+      "theaters": [
+        {
+          "name": "AMC Burbank 16",
+          "url": "https://www.fandango.com/amc-burbank-16-aaqzz/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "AMC Century City 15",
+          "url": "https://www.fandango.com/amc-century-city-15-aaaoz/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "AMC The Grove 14",
+          "url": "https://www.fandango.com/amc-the-grove-14-aaqgt/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "Universal Cinema AMC at CityWalk Hollywood",
+          "url": "https://www.fandango.com/universal-cinema-amc-at-citywalk-hollywood-aaawx/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "Regal LA Live & 4DX",
+          "url": "https://www.fandango.com/regal-la-live-and-4dx-aavpa/theater-page",
+          "company": "Regal"
+        },
+        {
+          "name": "Cinemark Playa Vista and XD",
+          "url": "https://www.fandango.com/cinemark-playa-vista-and-xd-aaxlr/theater-page",
+          "company": "Cinemark"
+        },
+        {
+          "name": "TCL Chinese Theatres + IMAX",
+          "url": "https://www.fandango.com/tcl-chinese-theatres-imax-aaacd/theater-page",
+          "company": "Unknown"
+        }
+      ]
+    },
+    "San Diego Metro": {
+      "theaters": [
+        {
+          "name": "AMC Mission Valley 20",
+          "url": "https://www.fandango.com/amc-mission-valley-20-aabnh/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "AMC La Jolla 12",
+          "url": "https://www.fandango.com/amc-la-jolla-12-aabam/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "AMC Plaza Bonita 14",
+          "url": "https://www.fandango.com/amc-plaza-bonita-14-aauvu/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "Regal Edwards Mira Mesa 4DX, IMAX & RPX",
+          "url": "https://www.fandango.com/regal-edwards-mira-mesa-4dx-imax-and-rpx-aaove/theater-page",
+          "company": "Regal"
+        },
+        {
+          "name": "Cinemark Grossmont Center (Permanently Closed)",
+          "url": "N/A",
+          "company": "Cinemark"
+        }
+      ]
+    },
+    "Orange County": {
+      "theaters": [
+        {
+          "name": "AMC DINE-IN Fullerton 20",
+          "url": "https://www.fandango.com/amc-dine-in-fullerton-20-aaaox/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "AMC Tustin 14 @ The District",
+          "url": "https://www.fandango.com/amc-tustin-14-the-district-aaunu/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "AMC Anaheim GardenWalk 6  ",
+          "url": "https://www.fandango.com/amc-anaheim-gardenwalk-6-aaypw/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "Regal Irvine Spectrum ScreenX, 4DX, IMAX & RPX",
+          "url": "https://www.fandango.com/regal-irvine-spectrum-screenx-4dx-imax-and-rpx-aabtb/theater-page",
+          "company": "Regal"
+        },
+        {
+          "name": "Cinemark Century Orange and XD",
+          "url": "https://www.fandango.com/cinemark-century-orange-and-xd-aaegj/theater-page",
+          "company": "Cinemark"
+        }
+      ]
+    },
+    "San Francisco Bay Area": {
+      "theaters": [
+        {
+          "name": "AMC Metreon 16",
+          "url": "https://www.fandango.com/amc-metreon-16-aanem/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "AMC Bay Street 16",
+          "url": "https://www.fandango.com/amc-bay-street-16-aaqqa/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "AMC Sunnyvale 12",
+          "url": "https://www.fandango.com/amc-sunnyvale-12-aaytc/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "AMC Kabuki 8",
+          "url": "https://www.fandango.com/amc-kabuki-8-aadas/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "Cinemark Century San Mateo 12",
+          "url": "https://www.fandango.com/cinemark-century-san-mateo-12-aaqsg/theater-page",
+          "company": "Cinemark"
+        },
+        {
+          "name": "Alamo Drafthouse Cinema New Mission",
+          "url": "https://www.fandango.com/alamo-drafthouse-cinema-new-mission-aaxpv/theater-page",
+          "company": "Alamo Drafthouse"
+        }
+      ]
+    },
+    "Sacramento Metro": {
+      "theaters": [
+        {
+          "name": "Cinemark Century Laguna 16 and XD",
+          "url": "https://www.fandango.com/cinemark-century-laguna-16-and-xd-aacfa/theater-page",
+          "company": "Cinemark"
+        },
+        {
+          "name": "Esquire IMAX Theatre",
+          "url": "https://www.fandango.com/esquire-imax-theatre-aanjx/theater-page",
+          "company": "Unknown"
+        },
+        {
+          "name": "Cinemark Century Folsom 14",
+          "url": "https://www.fandango.com/cinemark-century-folsom-14-aacfc/theater-page",
+          "company": "Cinemark"
+        },
+        {
+          "name": "Regal Delta Shores & IMAX",
+          "url": "https://www.fandango.com/regal-delta-shores-and-imax-aayii/theater-page",
+          "company": "Regal"
+        },
+        {
+          "name": "Cinemark Century Arden 14 and XD",
+          "url": "https://www.fandango.com/cinemark-century-arden-14-and-xd-aaxzv/theater-page",
+          "company": "Cinemark"
+        }
+      ]
+    },
+    "Central Valley": {
+      "theaters": [
+        {
+          "name": "Regal Modesto",
+          "url": "https://www.fandango.com/regal-modesto-aapiy/theater-page",
+          "company": "Regal"
+        },
+        {
+          "name": "AMC Stockton 16 (Permanently Closed)",
+          "url": "N/A",
+          "company": "AMC"
+        },
+        {
+          "name": "Brenden Modesto 18 & JBX",
+          "url": "https://www.fandango.com/brenden-modesto-18-and-jbx-aauhd/theater-page",
+          "company": "Unknown"
+        }
+      ]
+    },
+    "Seattle Metro": {
+      "theaters": [
+        {
+          "name": "AMC Pacific Place 11",
+          "url": "https://www.fandango.com/amc-pacific-place-11-aaiya/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "AMC Seattle 10 (Permanently Closed)",
+          "url": "N/A",
+          "company": "AMC"
+        },
+        {
+          "name": "AMC Oak Tree 6",
+          "url": "https://www.fandango.com/amc-oak-tree-6-aaayz/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "Regal Meridian & 4DX",
+          "url": "https://www.fandango.com/regal-meridian-and-4dx-aabfy/theater-page",
+          "company": "Regal"
+        },
+        {
+          "name": "Cinemark Lincoln Square",
+          "url": "https://www.fandango.com/cinemark-lincoln-square-aatvl/theater-page",
+          "company": "Cinemark"
+        },
+        {
+          "name": "SIFF Cinema Egyptian (Permanently Closed)",
+          "url": "N/A",
+          "company": "Unknown"
+        }
+      ]
+    },
+    "Portland Metro": {
+      "theaters": [
+        {
+          "name": "AMC Vancouver Mall 23",
+          "url": "https://www.fandango.com/amc-vancouver-mall-23-aawru/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "AMC Progress Ridge 13",
+          "url": "https://www.fandango.com/amc-progress-ridge-13-aawjt/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "Regal Fox Tower",
+          "url": "https://www.fandango.com/regal-fox-tower-aaozw/theater-page",
+          "company": "Regal"
+        },
+        {
+          "name": "Hollywood Theatre",
+          "url": "https://www.fandango.com/hollywood-theatre-aanvp/theater-page",
+          "company": "Unknown"
+        }
+      ]
+    },
+    "Puget Sound South": {
+      "theaters": [
+        {
+          "name": "AMC Lakewood Mall 12",
+          "url": "https://www.fandango.com/amc-lakewood-mall-12-aaayn/theater-page",
+          "company": "AMC"
+        },
+        {
+          "name": "Regal South Hill Cinema",
+          "url": "https://www.fandango.com/regal-south-hill-cinema-aacdg/theater-page",
+          "company": "Regal"
+        },
+        {
+          "name": "AMC CLASSIC Lacey 8 (Permanently Closed)",
+          "url": "N/A",
+          "company": "AMC"
+        },
+        {
+          "name": "Regal Lakewood & RPX",
+          "url": "https://www.fandango.com/regal-lakewood-and-rpx-aajmo/theater-page",
+          "company": "Regal"
+        },
+        {
+          "name": "Cinemark Century Point Ruston and XD",
+          "url": "https://www.fandango.com/cinemark-century-point-ruston-and-xd-aaxsd/theater-page",
+          "company": "Cinemark"
         }
       ]
     }
   }
 }
+

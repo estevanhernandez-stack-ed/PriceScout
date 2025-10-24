@@ -2,8 +2,11 @@ streamlit
 pandas
 playwright
 beautifulsoup4
-pgeocode
-jinja2
-requests
+httpx
+thefuzz[speedup]
+bcrypt
+pytz
 openpyxl
-streamlit-calendar
+xlsxwriter
+pytest
+APScheduler

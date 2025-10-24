@@ -1,0 +1,234 @@
+{
+  "AMC Theatres": {
+    "Quentin Tarantino": {
+      "Los Angeles Metro": {
+        "theaters": [
+          {
+            "name": "AMC Burbank 16",
+            "zip": "91502"
+          },
+          {
+            "name": "AMC Century City 15",
+            "zip": "90067"
+          },
+          {
+            "name": "AMC The Grove 14",
+            "zip": "90036"
+          },
+          {
+            "name": "AMC Universal CityWalk 19",
+            "zip": "91608"
+          },
+          {
+            "name": "Regal LA Live & 4DX",
+            "zip": "90015"
+          },
+          {
+            "name": "Cinemark Playa Vista and XD",
+            "zip": "90094"
+          },
+          {
+            "name": "TCL Chinese Theatre",
+            "zip": "90028"
+          }
+        ]
+      },
+      "San Diego Metro": {
+        "theaters": [
+          {
+            "name": "AMC Mission Valley 20",
+            "zip": "92108"
+          },
+          {
+            "name": "AMC La Jolla 12",
+            "zip": "92037"
+          },
+          {
+            "name": "AMC Plaza Bonita 14",
+            "zip": "91950"
+          },
+          {
+            "name": "Regal Edwards Mira Mesa",
+            "zip": "92126"
+          },
+          {
+            "name": "Cinemark Grossmont Center",
+            "zip": "91942"
+          }
+        ]
+      },
+      "Orange County": {
+        "theaters": [
+          {
+            "name": "AMC DINE-IN Fullerton 20",
+            "zip": "92832"
+          },
+          {
+            "name": "AMC Tustin 14 at The District",
+            "zip": "92782"
+          },
+          {
+            "name": "AMC Anaheim GardenWalk 6",
+            "zip": "92802"
+          },
+          {
+            "name": "Regal Irvine Spectrum ScreenX, 4DX, IMAX, RPX & VIP",
+            "zip": "92618"
+          },
+          {
+            "name": "Cinemark Century Stadium 25 and XD",
+            "zip": "92868"
+          }
+        ]
+      }
+    },
+    "Christopher Nolan": {
+      "San Francisco Bay Area": {
+        "theaters": [
+          {
+            "name": "AMC Metreon 16",
+            "zip": "94103"
+          },
+          {
+            "name": "AMC Bay Street 16",
+            "zip": "94608"
+          },
+          {
+            "name": "AMC DINE-IN Sunnyvale 12",
+            "zip": "94086"
+          },
+          {
+            "name": "AMC Kabuki 8",
+            "zip": "94115"
+          },
+          {
+            "name": "Cinemark Century San Francisco Centre 9",
+            "zip": "94103"
+          },
+          {
+            "name": "Alamo Drafthouse Cinema New Mission",
+            "zip": "94110"
+          }
+        ]
+      },
+      "Sacramento Metro": {
+        "theaters": [
+          {
+            "name": "AMC Laguna 16",
+            "zip": "95758"
+          },
+          {
+            "name": "Esquire IMAX Theatre",
+            "zip": "95814"
+          },
+          {
+            "name": "AMC Folsom 14",
+            "zip": "95630"
+          },
+          {
+            "name": "Regal Delta Shores & IMAX",
+            "zip": "95832"
+          },
+          {
+            "name": "Century Arden 14 and XD",
+            "zip": "95815"
+          }
+        ]
+      },
+      "Central Valley": {
+        "theaters": [
+          {
+            "name": "AMC CLASSIC Modesto 10",
+            "zip": "95351"
+          },
+          {
+            "name": "AMC Stockton 16",
+            "zip": "95207"
+          },
+          {
+            "name": "Regal Modesto",
+            "zip": "95356"
+          },
+          {
+            "name": "Brendan Theatres Modesto 18",
+            "zip": "95350"
+          }
+        ]
+      }
+    },
+    "Greta Gerwig": {
+      "Seattle Metro": {
+        "theaters": [
+          {
+            "name": "AMC Pacific Place 11",
+            "zip": "98101"
+          },
+          {
+            "name": "AMC Seattle 10",
+            "zip": "98109"
+          },
+          {
+            "name": "AMC Oak Tree 6",
+            "zip": "98125"
+          },
+          {
+            "name": "Regal Meridian & 4DX",
+            "zip": "98101"
+          },
+          {
+            "name": "Cinemark Lincoln Square Cinemas",
+            "zip": "98004"
+          },
+          {
+            "name": "SIFF Cinema Egyptian",
+            "zip": "98122"
+          }
+        ]
+      },
+      "Portland Metro": {
+        "theaters": [
+          {
+            "name": "AMC Vancouver Mall 23",
+            "zip": "98662"
+          },
+          {
+            "name": "AMC DINE-IN Progress Ridge 13",
+            "zip": "97007"
+          },
+          {
+            "name": "Regal Fox Tower",
+            "zip": "97205"
+          },
+          {
+            "name": "Hollywood Theatre",
+            "zip": "97212"
+          }
+        ]
+      },
+      "Puget Sound South": {
+        "theaters": [
+          {
+            "name": "AMC Lakewood Mall 12",
+            "zip": "98499"
+          },
+          {
+            "name": "AMC CLASSIC South Hill 9",
+            "zip": "98373"
+          },
+          {
+            "name": "AMC CLASSIC Lacey 8",
+            "zip": "98503"
+          },
+          {
+            "name": "Regal Lakewood",
+            "zip": "98499"
+          },
+          {
+            "name": "Century Point Ruston and XD",
+            "zip": "98407"
+          }
+        ]
+      }
+    }
+  }
+}

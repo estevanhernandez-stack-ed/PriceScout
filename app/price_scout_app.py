@@ -1,31 +1,39 @@
 # price_scout_app.py - The Streamlit User Interface & Scraping Engine (v27.0 - Enhanced Data Management)
 
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from app.utils import format_time_to_human_readable
 import streamlit as st
 import pandas as pd
-import os
 import datetime
-import time
 import asyncio
-import traceback
-import sys
-import threading
-import urllib.parse
-from playwright.async_api import async_playwright
-from bs4 import BeautifulSoup
-import re
+import time
 import json
-from functools import reduce
-import io
-from contextlib import redirect_stdout
-import requests # Using requests for fast static page scraping
-import random
 import sqlite3
-from thefuzz import fuzz
+import glob
+import pytz
+from app import theming
+from app import config
 
-from config import SCRIPT_DIR, PROJECT_DIR, DEBUG_DIR, DATA_DIR, CACHE_FILE, MARKETS_FILE, CACHE_EXPIRATION_DAYS, REPORTS_DIR, RUNTIME_LOG_FILE, DB_FILE, SCHEDULED_TASKS_DIR
-import database
-from utils import run_async_in_thread, format_price_change, style_price_change_v2, check_cache_status, get_report_path, log_runtime, clear_workflow_state, reset_session, style_price_change, to_excel, to_csv, get_error_message
-from ui_components import render_daypart_selector
+from app.config import SCRIPT_DIR, PROJECT_DIR, DEBUG_DIR, DATA_DIR, CACHE_FILE, CACHE_EXPIRATION_DAYS
+from app import database
+from app import users
+from app.utils import run_async_in_thread, format_price_change, style_price_change_v2, check_cache_status, get_report_path, log_runtime, clear_workflow_state, reset_session, style_price_change, to_excel, to_csv, get_error_message, estimate_scrape_time, generate_human_readable_summary
+from app.ui_components import render_daypart_selector, apply_daypart_auto_selection, render_film_and_showtime_selection
+from app.modes.market_mode import render_market_mode
+from app.modes.operating_hours_mode import render_operating_hours_mode
+from app.modes.compsnipe_mode import render_compsnipe_mode
+from app.utils import process_and_save_operating_hours, save_operating_hours_from_all_showings
+from app.modes.analysis_mode import render_analysis_mode
+from app.modes.poster_mode import render_poster_mode
+from app.admin import admin_page
+
+def load_ui_config():
+    with open(os.path.join(SCRIPT_DIR, 'ui_config.json'), 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+ui_config = load_ui_config()
 
 # --- Windows asyncio policy fix ---
 if sys.platform == "win32":
@@ -44,178 +52,675 @@ st.set_page_config(
 )
 
 # --- Custom CSS ---
-st.markdown("""
-<style>
-    /* --- Base Button Style --- */
-    button {
-        border-radius: 5px !important;
-        font-weight: bold !important;
-        transition: background-color 0.2s, color 0.2s, border-color 0.2s;
-    }
-    /* --- Unselected Button --- */
-    button.st-emotion-cache-1anq8dj.e7nj0r42 {
-        border: 2px solid #A21E25 !important;
-        color: #A21E25 !important;
-        background-color: transparent !important;
-    }
-    /* --- Selected Button --- */
-    button.st-emotion-cache-1krtkoa.e7nj0r41 {
-        background-color: #8B0F05 !important;
-        color: white !important;
-        border: 1px solid #8B0F05 !important;
-    }
-    /* --- Hover for All Buttons (Corrected) --- */
-    button.st-emotion-cache-1anq8dj.e7nj0r42:hover,
-    button.st-emotion-cache-1krtkoa.e7nj0r41:hover {
-        background-color: #A21E25 !important;
-        color: white !important;
-        border-color: #A21E25 !important;
-    }
-    /* --- Focus Style (Corrected per Option 2) --- */
-    button:focus {
-        background-color: #8B0F05 !important; /* Dark Red */
-        color: white !important;
-        border-color: #8B0F05 !important;
-        box-shadow: 0 0 0 0.2rem rgba(139, 15, 5, 0.5) !important;
-    }
 
-    /* --- Toggle Switch (Final) --- */
-    /* Track of the toggle in the OFF state */
-    label.st-emotion-cache-1t3w24c input[type="checkbox"] + div.st-emotion-cache-7oyrr6 {
-        background-color: #f0f2f6 !important;
-        border-color: #A21E25 !important;
-    }
-    /* Track of the toggle in the ON state */
-    label.st-emotion-cache-1t3w24c input[type="checkbox"]:checked + div.st-emotion-cache-7oyrr6 {
-        background-color: #A21E25 !important;
-        border-color: #A21E25 !important;
-    }
-    /* Focus style for accessibility */
-    label.st-emotion-cache-1t3w24c input[type="checkbox"]:focus + div.st-emotion-cache-7oyrr6 {
-        box-shadow: 0 0 0 0.2rem rgba(139, 15, 5, 0.5) !important;
-    }
-</style>
-""", unsafe_allow_html=True)
+def login():
+    users.init_database() # Ensure the database is initialized
 
-
-def check_password():
-    """Returns `True` if the user has the correct password."""
-    if "password" not in st.secrets:
+    if st.session_state.get("logged_in"):
         return True
-    def password_entered():
-        if st.session_state["password"] == st.secrets["password"]:
-            st.session_state["password_correct"] = True
-            del st.session_state["password"]
-        else:
-            st.session_state["password_correct"] = False
-    if st.session_state.get("password_correct", False):
-        return True
-    st.text_input("Password", type="password", on_change=password_entered, key="password")
-    if "password_correct" in st.session_state:
-        st.error("😕 Password incorrect")
+
+    st.image(os.path.join(SCRIPT_DIR, 'PriceScoutLogo.png'), width=300)
+    
+    with st.form("login_form"):
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
+        
+        # --- NEW: Caps Lock Warning ---
+        caps_lock_warning_script = """
+        <div id="caps-lock-warning" style="color: orange; display: none; font-size: 0.9rem; margin-top: -10px; margin-bottom: 10px;">Warning: Caps Lock is on.</div>
+        <script>
+            const passwordInput = document.querySelector("input[type='password']");
+            const warningDiv = document.getElementById("caps-lock-warning");
+
+            if (passwordInput) {
+                // Function to check and display warning
+                const checkCapsLock = (event) => {
+                    if (event.getModifierState("CapsLock")) {
+                        warningDiv.style.display = "block";
+                    } else {
+                        warningDiv.style.display = "none";
+                    }
+                };
+
+                // Add listeners to check on keyup and when the field is focused
+                passwordInput.addEventListener("keyup", checkCapsLock);
+                passwordInput.addEventListener("focus", checkCapsLock);
+            }
+        </script>
+        """
+        st.markdown(caps_lock_warning_script, unsafe_allow_html=True)
+
+        submitted = st.form_submit_button("Login")
+        
+        if submitted:
+            user = users.verify_user(username, password)
+            if user:
+                st.session_state.logged_in = True
+                st.session_state.user_name = user['username']
+                st.session_state.is_admin = user['is_admin']
+                st.session_state.company = user['company']
+                st.session_state.default_company = user['default_company'] # --- FIX: sqlite3.Row uses key access, not .get() ---
+                st.rerun()
+            else:
+                st.error("Incorrect username or password")
     return False
 
-# --- Main Application Logic ---
-if check_password():
-    st.title('📊 PriceScout: Competitive Pricing Tool')
-
+def render_scheduled_tasks_list():
+    """Renders a list of existing scheduled tasks with their status and controls."""
+    st.subheader("Existing Scheduled Tasks")
     
-        # --- Session State Initialization ---
-    if 'stage' not in st.session_state: st.session_state.stage = 'initial'
-    if 'search_mode' not in st.session_state: st.session_state.search_mode = "Market Mode"
-    if 'last_run_log' not in st.session_state: st.session_state.last_run_log = ""
-    if 'dev_mode' not in st.session_state: st.session_state.dev_mode = False
-    if 'capture_html' not in st.session_state: st.session_state.capture_html = False
-    if 'confirm_scrape' not in st.session_state: st.session_state.confirm_scrape = False
-    if 'live_search_results' not in st.session_state: st.session_state.live_search_results = {}
-    if 'report_running' not in st.session_state: st.session_state.report_running = False # <-- ADD THIS LINE
-    if 'all_showings' not in st.session_state: st.session_state.all_showings = {}
-    if 'selected_films' not in st.session_state: st.session_state.selected_films = []
-    if 'selected_showtimes' not in st.session_state: st.session_state.selected_showtimes = {}
-    if 'daypart_selections' not in st.session_state: st.session_state.daypart_selections = set()
-    if 'dm_stage' not in st.session_state: st.session_state.dm_stage = 'initial'
+    tasks_dir = config.SCHEDULED_TASKS_DIR
+    if not os.path.exists(tasks_dir) or not os.listdir(tasks_dir):
+        st.info("No scheduled tasks found for this company.")
+        return
 
-
-    from scraper import Scraper
-    scout = Scraper()
-
+    task_files = sorted(glob.glob(os.path.join(tasks_dir, '*.json')))
     
+    # Header for the list
+    c1, c2, c3, c4 = st.columns([4, 5, 3, 2])
+    c1.write("**Task Name & Schedule**")
+    c2.write("**Details**")
+    c3.write("**Last Run (UTC)**")
+    c4.write("**Controls**")
+    st.divider()
 
-    # --- Load initial data & DB ---
+    for task_file in task_files:
+        try:
+            with open(task_file, 'r+') as f:
+                task_config = json.load(f)
+                
+                task_name = task_config.get('task_name', os.path.basename(task_file))
+                task_type = task_config.get('task_type', 'market_scrape')
+                is_enabled = task_config.get('enabled', False)
+                last_run = task_config.get('last_run')
+                
+                last_run_str = "Never"
+                if last_run:
+                    last_run_dt = datetime.datetime.fromisoformat(last_run.replace('Z', '+00:00')).astimezone(pytz.utc)
+                    last_run_str = last_run_dt.strftime('%Y-%m-%d %H:%M')
+
+                if task_type == "weekly_op_hours_report":
+                    schedule_info = f"on {task_config.get('day_of_week', 'N/A')} at {task_config.get('schedule_time_utc', 'N/A')} UTC"
+                    details = "Weekly Operating Hours Report"
+                else:
+                    schedule_info = f"at {task_config.get('schedule_time_utc', 'N/A')} UTC"
+                    details = f"Markets: {', '.join(task_config.get('markets', []))}"
+
+                c1, c2, c3, c4 = st.columns([4, 5, 3, 2])
+                c1.write(f"**{task_name}**")
+                c1.caption(f"Schedule: {schedule_info}")
+                c2.caption(details)
+                c3.write(last_run_str)
+                
+                c4_1, c4_2 = c4.columns(2)
+                new_enabled_state = c4_1.toggle("On", value=is_enabled, key=f"enable_{task_name}", help="Enable/Disable Task")
+                if c4_2.button("🗑️", key=f"delete_{task_name}", help="Delete this task"):
+                    os.remove(task_file)
+                    st.toast(f"Deleted task '{task_name}'")
+                    st.rerun()
+                
+                if new_enabled_state != is_enabled:
+                    task_config['enabled'] = new_enabled_state
+                    f.seek(0)
+                    json.dump(task_config, f, indent=4)
+                    f.truncate()
+                    st.rerun()
+        except Exception as e:
+            st.error(f"Error loading task file {os.path.basename(task_file)}: {e}")
+
+from app.state import initialize_session_state
+
+def setup_application(markets_data):
+    """Handles company selection, dynamic path setup, and database initialization."""
+    # Ensure st.session_state.selected_company is valid after initialization or reload
+    all_available_companies = list(markets_data.keys())
+    if not all_available_companies:
+        st.warning("No markets data loaded. Please upload a markets.json file in Data Management mode.")
+        return False
+
+    # If selected_company is not set, or is no longer in available companies, default it
+    if 'selected_company' not in st.session_state or st.session_state.selected_company not in all_available_companies:
+        # --- NEW: Prioritize the user's default company setting ---
+        if st.session_state.get('default_company') and st.session_state.default_company in all_available_companies:
+            st.session_state.selected_company = st.session_state.default_company
+        elif st.session_state.is_admin:
+            st.session_state.selected_company = all_available_companies[0] # Fallback for admin
+        elif st.session_state.company and st.session_state.company in all_available_companies:
+            st.session_state.selected_company = st.session_state.company
+        else:
+            st.session_state.selected_company = all_available_companies[0]
+
+    # --- Company Selection ---
+    if st.session_state.is_admin:
+        st.sidebar.subheader("Company Selection")
+        # --- FIX: Detect company change and reset dependent state ---
+        previous_company = st.session_state.get('selected_company')
+        selected_company = st.sidebar.selectbox(
+            "Select Company",
+            options=all_available_companies,
+            index=all_available_companies.index(st.session_state.selected_company),
+            key="company_selector"
+        )
+        if selected_company != previous_company:
+            st.session_state.selected_company = selected_company
+            # A different company was selected, so clear the workflow state to avoid errors
+            clear_workflow_state()
+            st.rerun()
+
+    if not st.session_state.selected_company:
+        st.warning("No valid company selected. Please contact an admin.")
+        return False
+
+    st.sidebar.info(f"User: **{st.session_state.user_name}**\n\nCompany: **{st.session_state.selected_company}**")
+
+    # --- Set Dynamic Paths ---
+    selected_company_path = os.path.join(DATA_DIR, st.session_state.selected_company)
+
+    config.DB_FILE = os.path.join(selected_company_path, 'price_scout.db')
+    config.REPORTS_DIR = os.path.join(selected_company_path, 'reports')
+    config.RUNTIME_LOG_FILE = os.path.join(config.REPORTS_DIR, 'runtime_log.csv')
+    config.SCHEDULED_TASKS_DIR = os.path.join(selected_company_path, 'scheduled_tasks')
+
+    os.makedirs(config.REPORTS_DIR, exist_ok=True)
+    os.makedirs(config.SCHEDULED_TASKS_DIR, exist_ok=True)
+
     database.init_database()
     database.update_database_schema()
+    return True
+
+def render_sidebar_modes(is_disabled, dev_mode_enabled):
+    """Renders the mode selection buttons in the sidebar."""
+    st.sidebar.subheader(ui_config['sidebar']['select_mode_subheader'])
+    
+    # --- NEW: Dynamically build modes from ui_config.json ---
+    cache_available = os.path.exists(CACHE_FILE)
+    
+    # Get the ordered list of modes from the config
+    sidebar_modes = ui_config.get('sidebar_modes', [])
+    current_mode = st.session_state.get('search_mode', "Market Mode")
+
+    for mode_config in sidebar_modes:
+        mode = mode_config.get("name")
+        if not mode: continue
+
+        # Determine if the mode should be shown or disabled
+        is_admin_only = mode_config.get("admin_only", False)
+        is_dev_only = mode_config.get("dev_only", False)
+        requires_cache = mode_config.get("requires_cache", False)
+
+        if (is_admin_only and not st.session_state.get("is_admin")) or \
+           (is_dev_only and not dev_mode_enabled):
+            continue # Don't render the button at all
+
+        disabled = (requires_cache and not cache_available) or is_disabled
+
+        if st.sidebar.button(mode, use_container_width=True, type="primary" if current_mode == mode else "secondary", disabled=disabled or is_disabled):
+            if st.session_state.search_mode != mode:
+                st.session_state.search_mode = mode
+                clear_workflow_state() 
+                st.rerun()
+
+def render_main_content(scout, markets_data, cache_data, all_theaters_list_unique, is_disabled):
+    """Dispatches to the correct mode's rendering function."""
+    mode = st.session_state.search_mode
+    if mode == "Market Mode":
+        render_market_mode(scout, markets_data, cache_data, is_disabled, st.session_state.selected_company)
+    elif mode == "Poster Board":
+        render_poster_mode(scout, markets_data, cache_data, is_disabled, st.session_state.selected_company)
+    elif mode == "Operating Hours Mode":
+        render_operating_hours_mode(scout, markets_data, cache_data, is_disabled, process_and_save_operating_hours)
+    elif mode == "CompSnipe Mode":
+        render_compsnipe_mode(scout, all_theaters_list_unique, is_disabled, save_operating_hours_from_all_showings, markets_data, cache_data)
+    elif mode == "Historical Data and Analysis":
+        render_analysis_mode(markets_data, cache_data)
+    elif mode == "Data Management":
+        from app.data_management_v2 import main as data_management_main
+        data_management_main()
+    elif mode == "Theater Matching":
+        from app.theater_matching_tool import main as theater_matching_main
+        theater_matching_main()
+    elif mode == "Admin":
+        admin_page(markets_data)
+
+def handle_scrape_confirmation():
+    """Renders the confirmation dialog for long scrapes."""
+    showtime_count = 0
+    # --- FIX: Correctly count the total number of individual showings, not just unique times ---
+    selected_showtimes = st.session_state.get('selected_showtimes', {})
+    for daily_selections in selected_showtimes.values():
+        for theater_selections in daily_selections.values():
+            for film_selections in theater_selections.values():
+                for showings_at_time in film_selections.values():
+                    showtime_count += len(showings_at_time)
+
+    estimated_time = estimate_scrape_time(showtime_count, mode_filter='price')
+
+    if estimated_time != -1 and estimated_time < 30:
+        st.session_state.report_running = True
+        st.session_state.confirm_scrape = False
+    else:
+        if estimated_time != -1:
+            confirm_message = f"This scrape involves {showtime_count} showings and is estimated to take about {format_time_to_human_readable(estimated_time)}. Do you want to proceed?"
+        else:
+            confirm_message = ui_config['scraper']['confirm_message']
+        
+        st.info(confirm_message)
+        if st.button(ui_config['scraper']['proceed_button'], use_container_width=True, type="primary"):
+            st.session_state.report_running = True
+            st.session_state.confirm_scrape = False
+            st.rerun() # Rerun immediately after setting the state
+    # Do not rerun here, let the button click handle it.
+
+def _render_sidebar_footer():
+    """Renders the cache status and application footer at the bottom of the sidebar."""
+    st.sidebar.divider()
+    cache_status, last_updated = check_cache_status()
+    if cache_status == "missing":
+        st.sidebar.error("Cache missing. Build in Data Mgmt.")
+    elif last_updated:
+        st.sidebar.caption(f"Cache last updated: {last_updated}")
+    
+    st.sidebar.markdown('<div style="text-align: center; color: grey; font-size: 0.8em;">Developed @ 626Labs LLC</div>', unsafe_allow_html=True)
+
+def _render_scrape_progress():
+    """Renders the UI for an in-progress scrape, including progress bar and time estimate."""
+    mode = st.session_state.search_mode
+    queue = st.session_state.scrape_queue
+    current_index = st.session_state.scrape_current_index
+
+    header_text = "Scrape in Progress"
+    if mode == "Market Mode":
+        market = st.session_state.get('selected_market', 'selected markets')
+        header_text += f" for Market: {market}"
+    elif mode == "CompSnipe Mode":
+        num_theaters = len(queue)
+        header_text += f" for {queue[0]['name']}" if num_theaters == 1 else f" for {num_theaters} selected theaters"
+    st.header(header_text)
+
+    time_remaining_str = ""
+    if current_index > 0 and 'scrape_total_duration' in st.session_state:
+        avg_time_per_theater = st.session_state.scrape_total_duration / current_index
+        theaters_remaining = len(queue) - current_index
+        time_remaining_str = f" (est. {format_time_to_human_readable(avg_time_per_theater * theaters_remaining)} remaining)"
+
+    progress_text = f"Processing theater {current_index} of {len(queue)}...{time_remaining_str}"
+    st.progress(current_index / len(queue) if queue else 0, text=progress_text)
+    if st.button("Cancel Scrape", type="primary"):
+        st.session_state.cancel_scrape = True
+        st.warning("Cancellation requested. The scrape will stop.")
+        st.rerun()
+
+def _finalize_scrape_session():
+    """Cleans up and finalizes the scrape session, preparing the report or handling cancellation."""
+    # If there are any results, even if they are empty, we should proceed to the report stage.
+    # The report function can handle an empty dataframe.
+    if st.session_state.get('scrape_results') is not None:
+        st.session_state.last_run_duration = st.session_state.get('scrape_total_duration', 0)
+        df_current = pd.DataFrame(st.session_state.scrape_results)
+        log_runtime(st.session_state.search_mode, st.session_state.scrape_current_index, len(st.session_state.scraped_showings), st.session_state.scrape_total_duration)
+        st.session_state.final_df = df_current
+        st.session_state.stage = 'report_generated'
+    elif st.session_state.get('cancel_scrape'):
+        st.info("Scrape was cancelled. No report generated.")
+        st.session_state.stage = 'ready_for_input'
+    else:
+        # This case handles if the scrape was initiated but no results were produced at all.
+        if 'scrape_total_duration' in st.session_state:
+            st.error(ui_config['scraper']['no_data_error'].format(duration=st.session_state.scrape_total_duration))
+        else:
+            st.error("Scrape failed to start or was interrupted before any data could be processed.")
+        st.session_state.stage = 'ready_for_input'
+
+    # Clean up session state keys related to the scrape run
+    for key in ['scrape_queue', 'scrape_results', 'scraped_showings', 'scrape_total_duration', 'scrape_current_index', 'cancel_scrape', 'report_running', 'scrape_run_context', 'scrape_run_id', 'scrape_thread', 'get_scrape_results', 'scrape_status_container']:
+        if key in st.session_state:
+            del st.session_state[key]
+    st.rerun()
+
+def _initialize_scrape_session():
+    """Initializes the session state for a new scrape run."""
+    theaters_to_scrape = []
+    if st.session_state.search_mode == "Market Mode":
+        # In Market Mode, selected_theaters is a list of names. We need the full objects.
+        all_theaters_in_context = st.session_state.get('theaters', [])
+        selected_names = st.session_state.get('selected_theaters', [])
+        theaters_to_scrape = [t for t in all_theaters_in_context if t.get('name') in selected_names]
+    elif st.session_state.search_mode == "CompSnipe Mode":
+        # In CompSnipe Mode, compsnipe_theaters is already a list of theater objects.
+        theaters_to_scrape = st.session_state.get('compsnipe_theaters', [])
+    elif st.session_state.search_mode == "Poster Board":
+        # In Poster Board, selected_theaters is a list of names. We need the full objects.
+        all_theaters_in_context = st.session_state.get('theaters', [])
+        selected_names = st.session_state.get('selected_theaters', [])
+        theaters_to_scrape = [t for t in all_theaters_in_context if t['name'] in selected_names]
+
+    st.session_state.scrape_queue = theaters_to_scrape
+    st.session_state.scrape_results = []
+    st.session_state.scraped_showings = []
+    st.session_state.scrape_total_duration = 0
+    st.session_state.scrape_current_index = 0
+    st.session_state.cancel_scrape = False
+    st.session_state.scrape_run_context = f"Mode: {st.session_state.search_mode}, Theaters: {len(theaters_to_scrape)}"
+    st.session_state.scrape_run_id = database.create_scrape_run(st.session_state.search_mode, st.session_state.scrape_run_context)
+
+def _process_single_theater_scrape(scout):
+    """Manages the async task of scraping a single theater and updating the UI."""
+    theater = st.session_state.scrape_queue[st.session_state.scrape_current_index]
+
+    if 'scrape_thread' not in st.session_state:
+        st.session_state.scrape_status_container = ["Initializing..."]
+        thread, get_results = run_async_in_thread(
+            scout.scrape_details,
+            [theater],
+            st.session_state.selected_showtimes,
+            status_container=st.session_state.scrape_status_container
+        )
+        st.session_state.scrape_thread = thread
+        st.session_state.get_scrape_results = get_results
+        st.rerun()
+    else:
+        status_container = st.session_state.scrape_status_container
+        thread = st.session_state.scrape_thread
+        with st.status(f"Scraping {theater['name']}: {status_container[0]}", expanded=True) as status_ui:
+            if thread.is_alive():
+                time.sleep(1.5)
+                st.rerun()
+            else:
+                status, value, log, duration = st.session_state.get_scrape_results()
+                st.session_state.last_run_log += log
+                st.session_state.scrape_total_duration += duration
+                if status == 'success':
+                    result, showings_scraped = value
+                    if result:
+                        st.session_state.scrape_results.extend(result)
+                        st.session_state.scraped_showings.extend(showings_scraped)
+                        database.save_prices(st.session_state.scrape_run_id, pd.DataFrame(result))
+                        status_ui.update(label=f"Scrape for {theater['name']} complete!", state="complete", expanded=False)
+                    else:
+                        status_ui.update(label=f"No prices found for {theater['name']}. (Showtimes may be sold out or unavailable).", state="complete", expanded=False)
+                else:
+                    st.error(f"Failed to scrape {theater['name']}: {get_error_message(value)}")
+                    status_ui.update(label=f"Error scraping {theater['name']}.", state="error", expanded=False)
+                
+                st.session_state.scrape_current_index += 1
+                for key in ['scrape_thread', 'get_scrape_results', 'scrape_status_container']:
+                    if key in st.session_state: del st.session_state[key]
+                st.rerun()
+
+def execute_scrape(scout):
+    """Runs the main scraping logic by orchestrating initialization, progress, and finalization steps."""
+    if 'scrape_queue' not in st.session_state:
+        _initialize_scrape_session()
+
+    _render_scrape_progress()
+
+    if st.session_state.get('cancel_scrape') or st.session_state.scrape_current_index >= len(st.session_state.scrape_queue):
+        _finalize_scrape_session()
+    else:
+        _process_single_theater_scrape(scout)
+
+def render_report():
+    """Displays the final report dataframe and download buttons."""
+    st.header(ui_config['report']['header'])
+    
+    duration_str = f"(Took {st.session_state.last_run_duration:.2f} seconds)" if 'last_run_duration' in st.session_state else ""
+    st.success(ui_config['report']['complete_message'].format(duration_str=duration_str))
+    
+    df_to_display = st.session_state.final_df
+
+    # --- Human-Readable Summary ---
+    st.subheader("Scrape Summary")
+
+    # --- NEW: View Toggle ---
+    view_mode = st.radio(
+        "Group Summary By:",
+        ("Theater", "Film"),
+        horizontal=True,
+        key="report_view_mode"
+    )
+
+    if view_mode == "Theater":
+        summary_data = generate_human_readable_summary(df_to_display)
+    else: # "Film"
+        from app.utils import generate_human_readable_summary_by_film
+        summary_data = generate_human_readable_summary_by_film(df_to_display)
+
+    if not summary_data:
+        st.info("No data to summarize.")
+    else:
+        # --- NEW: Chart for Average Price by Theater ---
+        if not df_to_display.empty and 'Price' in df_to_display.columns and 'Theater Name' in df_to_display.columns:
+            chart_df = df_to_display.copy()
+            chart_df['price_numeric'] = pd.to_numeric(chart_df['Price'].astype(str).str.replace('$', '', regex=False), errors='coerce')
+            chart_df.dropna(subset=['price_numeric'], inplace=True)
+
+            # If a theater appears on multiple dates, average its average prices for the chart
+            if not chart_df.empty:
+                avg_price_per_theater = chart_df.groupby('Theater Name')['price_numeric'].mean().sort_values(ascending=False)
+            else:
+                avg_price_per_theater = pd.Series()
+            
+            if not avg_price_per_theater.empty:
+                st.subheader("Average Price by Theater")
+                st.bar_chart(avg_price_per_theater)
+                st.divider()
+
+        # Sort dates for chronological order
+        if view_mode == "Theater":
+            sorted_dates = sorted(summary_data.keys())
+            for play_date in sorted_dates:
+                try:
+                    date_obj = datetime.datetime.strptime(play_date, '%Y-%m-%d').date()
+                    st.markdown(f"### 🗓️ {date_obj.strftime('%A, %B %d, %Y')}")
+                except (ValueError, TypeError):
+                    st.markdown(f"### 🗓️ {play_date}")
+                
+                markets_data_for_date = summary_data[play_date]
+                for market_name, theaters_data in sorted(markets_data_for_date.items()):
+                    st.markdown(f"#### Market: {market_name}")
+                    for theater_name, films_list in sorted(theaters_data.items()):
+                        with st.expander(f"**{theater_name}**", expanded=True):
+                            for film_summary in sorted(films_list, key=lambda x: x['film_title']):
+                                col1, col2 = st.columns([1, 4])
+
+                                with col1:
+                                    if film_summary.get('poster_url') and film_summary['poster_url'] != 'N/A':
+                                        st.image(film_summary['poster_url'])
+                                
+                                with col2:
+                                    st.markdown(f"##### {film_summary['film_title']} ({film_summary.get('num_showings', 0)} showings)")
+                                    
+                                    detail_parts = []
+                                    if film_summary.get('rating') and film_summary['rating'] != 'N/A':
+                                        detail_parts.append(f"Rated {film_summary['rating']}")
+                                    if film_summary.get('runtime') and film_summary['runtime'] != 'N/A':
+                                        detail_parts.append(film_summary['runtime'])
+                                    st.caption(" | ".join(detail_parts))
+                                    
+                                    if film_summary.get('general_amenities'):
+                                        st.caption(f"Amenities: {', '.join(film_summary['general_amenities'])}")
+
+                                    st.write(f"**Showtimes:** {', '.join(film_summary['showtimes'])}")
+                                    
+                                    st.write("**Ticket Prices:**")
+                                    price_breakdown_str = film_summary.get('price_breakdown_str')
+                                    if price_breakdown_str:
+                                        st.caption(price_breakdown_str)
+                                    else:
+                                        st.caption("No price information available.")
+                                
+                                st.markdown("---")
+        else: # "By Film" view
+            sorted_dates = sorted(summary_data.keys())
+            for play_date in sorted_dates:
+                try:
+                    date_obj = datetime.datetime.strptime(play_date, '%Y-%m-%d').date()
+                    st.markdown(f"### 🗓️ {date_obj.strftime('%A, %B %d, %Y')}")
+                except (ValueError, TypeError):
+                    st.markdown(f"### 🗓️ {play_date}")
+
+                markets_data_for_date = summary_data[play_date]
+                for market_name, films_data in sorted(markets_data_for_date.items()):
+                    st.markdown(f"#### Market: {market_name}")
+                    for film_title, film_info in sorted(films_data.items()):
+                        film_details = film_info['film_details']
+                        with st.expander(f"**{film_title}**", expanded=True):
+                            col1, col2 = st.columns([1, 4])
+                            with col1:
+                                if film_details.get('poster_url') and film_details['poster_url'] != 'N/A':
+                                    st.image(film_details['poster_url'])
+                            with col2:
+                                for theater_summary in sorted(film_info['theaters'], key=lambda x: x['theater_name']):
+                                    num_showings = theater_summary.get('num_showings', 0)
+                                    st.markdown(f"##### {theater_summary['theater_name']} ({num_showings} showings)")
+                                    st.write(f"**Showtimes:** {', '.join(theater_summary['showtimes'])}")
+                                    st.caption(f"**Prices:** {theater_summary['price_breakdown_str']}")
+                                    st.markdown("---")
+    
+    st.divider()
+    st.subheader("Raw Scrape Data")
+    st.dataframe(df_to_display, use_container_width=True)
+    
+    st.subheader(ui_config['report']['download_subheader'])
+    col1, col2, col3 = st.columns(3)
+    
+    excel_data = to_excel(df_to_display)
+    csv_data = to_csv(df_to_display)
+    
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M")
+    
+    col1.download_button(
+        label=ui_config['report']['download_csv_button'],
+        data=csv_data,
+        file_name=f'PriceScout_Report_{timestamp}.csv',
+        mime='text/csv',
+        use_container_width=True
+    )
+    
+    col2.download_button(
+        label=ui_config['report']['download_excel_button'],
+        data=excel_data,
+        file_name=f'PriceScout_Report_{timestamp}.xlsx',
+        mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        use_container_width=True
+    )
+
+    with col3:
+        if 'summary_pdf_bytes' in st.session_state and st.session_state.summary_pdf_bytes:
+            st.download_button(
+                label="📥 Download Summary PDF",
+                data=st.session_state.summary_pdf_bytes,
+                file_name=f"Scrape_Summary_{timestamp}.pdf",
+                mime="application/pdf",
+                use_container_width=True,
+                on_click=lambda: st.session_state.update({'summary_pdf_bytes': None})
+            )
+        else:
+            if st.button("📄 Generate Summary PDF", use_container_width=True):
+                with st.spinner("Generating summary PDF..."):
+                    from app.utils import generate_summary_pdf_report
+                    pdf_bytes = asyncio.run(generate_summary_pdf_report(summary_data))
+                    st.session_state.summary_pdf_bytes = pdf_bytes
+                st.rerun()
+
+    st.balloons()
+
+@st.cache_data
+def load_all_markets_data():
+    """Loads and caches all market data from all company directories."""
+    markets_data = {}
+    for market_file in glob.glob(os.path.join(DATA_DIR, '*', 'markets.json')):
+        with open(market_file, 'r') as f:
+            try:
+                markets_data.update(json.load(f))
+            except json.JSONDecodeError:
+                print(f"Warning: Could not load or parse {market_file}. Skipping.")
+    return markets_data
+
+@st.cache_data
+def load_cache_data():
+    """Loads and caches the shared theater_cache.json file."""
     try:
-        with open(MARKETS_FILE, 'r') as f:
-            markets_data = json.load(f)
         with open(CACHE_FILE, 'r') as f:
-            cache_data = json.load(f)
+            return json.load(f)
     except FileNotFoundError:
-        st.error(f"Error: `{MARKETS_FILE}` or `{CACHE_FILE}` not found. Please ensure they are in the same directory.")
-        st.info("You may need to build the theater cache first if it's missing.")
-        st.stop()
+        return {}
+
+@st.cache_resource
+def get_scraper_instance(dev_mode=False):
+    """Initializes and caches the Scraper instance."""
+    from app.scraper import Scraper
+    # In dev mode, run with a visible browser and open DevTools for debugging.
+    is_dev = dev_mode or st.session_state.get('dev_mode', False)
+    return Scraper(headless=not is_dev, devtools=is_dev)
+
+def main():
+    if not login():
+        return
+
+    st.title(ui_config['main']['title'])
+    theming.theme_selector_component() # <-- ADD THIS LINE
+    
+    # --- NEW: Use cached functions to load data ---
+    markets_data = load_all_markets_data()
+    cache_data = load_cache_data()
+    if not cache_data:
+        st.warning(f"Shared cache file (`{CACHE_FILE}`) not found. You can build it in Data Management mode.")
+
+    initialize_session_state()
+
+    # --- Setup Company, Paths, and DB ---
+    if not setup_application(markets_data):
+        return # Stop if setup fails (e.g., no company data)
+
+    scout = get_scraper_instance()
+
+    # --- Prepare shared data ---
+    all_theaters_list = [t for market in cache_data.get("markets", {}).values() for t in market.get("theaters", [])]
+    unique_theaters_by_name = {t['name']: t for t in all_theaters_list}
+    all_theaters_list_unique = sorted(list(unique_theaters_by_name.values()), key=lambda x: x['name'])
 
     IS_DISABLED = st.session_state.report_running
 
-    # --- Main UI ---
-    # Top-level sidebar controls that should always be visible
-    st.sidebar.title("Controls")
+    # --- Render Sidebar ---
+    st.sidebar.title(ui_config['sidebar']['controls_title'])
     st.sidebar.image(os.path.join(SCRIPT_DIR, 'PriceScoutLogo.png'))
-    if st.sidebar.button("🚀 Start New Report / Abort", use_container_width=True):
-        if 'report_running' in st.session_state:
-            st.session_state.report_running = False
+    if st.sidebar.button(ui_config['sidebar']['start_new_report_button'], use_container_width=True, disabled=IS_DISABLED):
         reset_session()
-
+    st.sidebar.divider()
+    render_sidebar_modes(IS_DISABLED, DEV_MODE_ENABLED)
     st.sidebar.divider()
 
-# --- CHANGE START ---: Moved Mode Selection to sidebar and converted to buttons
-    st.sidebar.subheader("Select Mode")
-    mode_options = ["Market Mode", "CompSnipe Mode", "Analysis Mode", "Data Management"]
     if DEV_MODE_ENABLED:
-        mode_options.append("AI Agent")
-    current_mode = st.session_state.get('search_mode', "Market Mode")
-
-    # To stack buttons, we simply create them one after another in a loop.
-    # No columns are needed.
-    for mode in mode_options:
-        # Create the button directly in the sidebar.
-        # The 'type' changes to "primary" if it's the currently selected mode.
-        if st.sidebar.button(mode, use_container_width=True, type="primary" if current_mode == mode else "secondary"):
-            
-            # If the button is clicked, update the search_mode in session_state
-            if st.session_state.search_mode != mode:
-                st.session_state.search_mode = mode
-                
-                # Clear any settings from the old mode to prevent conflicts
-                clear_workflow_state() 
-                
-                # Rerun the app immediately to reflect the change
-                st.rerun()
-
-    st.sidebar.divider()
-    # --- CHANGE END ---
-
-    if DEV_MODE_ENABLED:
-        st.sidebar.header("Developer Tools")
+        st.sidebar.header(ui_config['sidebar']['developer_tools_header'])
         st.session_state.dev_mode = True
-        st.session_state.capture_html = st.sidebar.toggle("Capture HTML Snapshots", help="Save HTML files for analysis.", disabled=IS_DISABLED)
-        if st.sidebar.button("Run Full System Diagnostic", use_container_width=True, disabled=IS_DISABLED):
+        scout.capture_html = st.sidebar.toggle("Capture HTML on Failure", help="Save HTML files for analysis.", disabled=IS_DISABLED)
+        st.session_state.capture_html = st.sidebar.toggle(ui_config['sidebar']['capture_html_toggle'], help="Save HTML files for analysis.", disabled=IS_DISABLED)
+        if st.sidebar.button(ui_config['sidebar']['run_diagnostic_button'], use_container_width=True, disabled=IS_DISABLED):
             st.session_state.run_diagnostic = True
             st.rerun()
+        if st.sidebar.button(ui_config['sidebar']['delete_cache_button'], key="dev_delete_cache"):
+            if os.path.exists(CACHE_FILE):
+                os.remove(CACHE_FILE)
+                st.success("Theater cache removed.")
+                st.rerun()
     else:
         st.session_state.dev_mode = False
 
     if st.session_state.get('run_diagnostic'):
-        st.header("🛠️ Full System Diagnostic")
-        st.warning("**Warning:** This will scrape every theater in the selected markets and may take a very long time to complete.")
+        st.header(ui_config['diagnostic']['header'])
+        st.warning(ui_config['diagnostic']['warning'])
         all_markets = []
-        for director, markets in markets_data["Marcus Theatres"].items():
-            all_markets.extend(markets.keys())
+        selected_company = st.session_state.selected_company
+        if selected_company in markets_data:
+            for director, markets in markets_data[selected_company].items():
+                all_markets.extend(markets.keys())
         all_markets = sorted(list(set(all_markets)))
 
         if 'markets_to_test' not in st.session_state:
             st.session_state.markets_to_test = []
 
-        st.write("Select markets to test:")
+        st.write(ui_config['diagnostic']['select_markets_prompt'])
         cols = st.columns(4)
         for i, market in enumerate(all_markets):
             is_selected = market in st.session_state.markets_to_test
@@ -226,57 +731,49 @@ if check_password():
                     st.session_state.markets_to_test.append(market)
                 st.rerun()
         markets_to_test = st.session_state.markets_to_test
-        if st.button("Start Full Diagnostic", type="primary", disabled=IS_DISABLED):
+        if st.button(ui_config['diagnostic']['start_button'], type="primary", disabled=IS_DISABLED):
             st.session_state.report_running = True
             st.rerun()
 
     if st.session_state.report_running and st.session_state.get('run_diagnostic'):
-        with st.spinner("Running diagnostic scan... This will take a long time."):
+        markets_to_test = st.session_state.get('markets_to_test', [])
+        with st.spinner(ui_config['diagnostic']['spinner_text']):
             diag_date_str = (datetime.date.today() + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
-            status, result, log, duration = run_async_in_thread(scout.run_diagnostic_scrape, markets_to_test, diag_date_str)
+            thread, get_results = run_async_in_thread(scout.run_diagnostic_scrape, markets_to_test, diag_date_str)
+            thread.join() # Wait for the thread to complete
+            status, result, log, duration = get_results()
             st.session_state.last_run_log += log
             if status == 'success':
-                st.success(f"Diagnostic Complete! (Took {duration:.2f} seconds)")
+                st.success(ui_config['diagnostic']['success_message'].format(duration=duration))
                 df_diag = pd.DataFrame(result)
                 st.dataframe(df_diag)
             else:
-                st.error(f"The diagnostic tool encountered a critical error after {duration:.2f} seconds.")
+                st.error(ui_config['diagnostic']['error_message'].format(duration=duration))
             st.session_state.report_running = False
             st.session_state.run_diagnostic = False
-
-
-    st.subheader("Theater Data Cache")
-    cache_status, last_updated = check_cache_status()
-    if cache_status == "fresh":
-        st.success(f"Theater cache is up to date. Last refreshed: {last_updated}")
-    elif cache_status == "stale":
-        st.warning(f"Theater cache is stale (older than {CACHE_EXPIRATION_DAYS} days). Last refreshed: {last_updated}")
-    else:
-        st.error("Theater cache file is missing or invalid. Please build it.")
-
-    
-    st.divider()
-
-    with st.expander("🗓️ Task Scheduler"):
-        st.write("Create a new automated scraping task. The backend agent will run any due tasks every 15 minutes.")
+            st.rerun()
+    _render_sidebar_footer()
+    with st.expander(ui_config['scheduler']['expander_label']):
+        st.write(ui_config['scheduler']['description'])
         
         all_markets = []
-        for parent, regions in markets_data.items():
-            for region, markets in regions.items():
-                all_markets.extend(markets.keys())
+        if markets_data:
+            for parent, regions in markets_data.items():
+                for region, markets in regions.items():
+                    all_markets.extend(markets.keys())
         all_markets = sorted(list(set(all_markets)))
 
         with st.form("scheduler_form", clear_on_submit=True):
-            task_name = st.text_input("Task Name (e.g., 'DFW_Nightly_Audit')")
-            markets_to_schedule = st.multiselect("Select Markets to Scrape", options=all_markets)
-            schedule_time = st.time_input("Scheduled Time (UTC)", datetime.time(8, 0)) # Default to 8:00 UTC (3 AM CDT)
-            notification_email = st.text_input("Notification Email (Optional)")
+            task_name = st.text_input(ui_config['scheduler']['task_name_label'])
+            markets_to_schedule = st.multiselect(ui_config['scheduler']['select_markets_label'], options=all_markets)
+            schedule_time = st.time_input(ui_config['scheduler']['time_label'], datetime.time(8, 0)) # Default to 8:00 UTC (3 AM CDT)
+            notification_email = st.text_input(ui_config['scheduler']['email_label'])
             
-            submitted = st.form_submit_button("Save Scheduled Task")
+            submitted = st.form_submit_button(ui_config['scheduler']['save_button'])
 
             if submitted:
                 if not task_name or not markets_to_schedule:
-                    st.error("Task Name and at least one Market are required.")
+                    st.error(ui_config['scheduler']['error_missing_fields'])
                 else:
                     sanitized_name = scout._sanitize_filename(task_name)
                     task_config = {
@@ -287,535 +784,35 @@ if check_password():
                         "enabled": True,
                         "last_run": None
                     }
-                    os.makedirs(SCHEDULED_TASKS_DIR, exist_ok=True)
-                    filepath = os.path.join(SCHEDULED_TASKS_DIR, f"{sanitized_name}.json")
+                    os.makedirs(config.SCHEDULED_TASKS_DIR, exist_ok=True)
+                    filepath = os.path.join(config.SCHEDULED_TASKS_DIR, f"{sanitized_name}.json")
                     with open(filepath, 'w') as f:
                         json.dump(task_config, f, indent=4)
-                    st.success(f"Successfully saved task '{task_name}'!")
-                    st.toast(f"Saved to {filepath}")
+                    st.success(ui_config['scheduler']['success_message'].format(task_name=task_name))
+                    st.toast(ui_config['scheduler']['toast_message'].format(filepath=filepath))
+        
+        st.divider()
+        render_scheduled_tasks_list()
     st.divider()
 
-    
-    
-    if st.session_state.search_mode == "Market Mode":
-        if 'selected_region' not in st.session_state: st.session_state.selected_region = None
-        if 'selected_market' not in st.session_state: st.session_state.selected_market = None
-
-        parent_company = list(markets_data.keys())[0]
-        regions = list(markets_data[parent_company].keys())
-        st.subheader("Select Director")
-        cols = st.columns(len(regions))
-        for i, region in enumerate(regions):
-            is_selected = st.session_state.selected_region == region
-            if cols[i].button(region, key=f"region_{region}", type="primary" if is_selected else "secondary", use_container_width=True, disabled=IS_DISABLED):
-                st.session_state.selected_region = region
-                st.session_state.selected_market = None
-                st.session_state.stage = 'region_selected'
-                st.rerun()
-
-        if st.session_state.selected_region:
-            st.divider()
-            markets = list(markets_data[parent_company][st.session_state.selected_region].keys())
-            market_cols = st.columns(4)
-            for i, market in enumerate(markets):
-                is_selected = st.session_state.selected_market == market
-                if market_cols[i % 4].button(market, key=f"market_{market}", type="primary" if is_selected else "secondary", use_container_width=True, disabled=IS_DISABLED):
-                    st.session_state.selected_market = market
-                    st.session_state.theaters = cache_data.get("markets", {}).get(market, {}).get("theaters", [])
-                    st.session_state.selected_theaters = [t['name'] for t in st.session_state.theaters]
-                    st.session_state.stage = 'theaters_listed'
-                    st.rerun()
-
-        if st.session_state.stage in ['theaters_listed', 'data_fetched', 'report_generated']:
-            st.subheader("Step 2: Select Theaters")
-            cols = st.columns(4)
-            theaters = st.session_state.get('theaters', [])
-            for i, theater in enumerate(theaters):
-                is_selected = theater['name'] in st.session_state.get('selected_theaters', [])
-                if cols[i % 4].button(theater['name'], key=f"theater_{i}", type="primary" if is_selected else "secondary", use_container_width=True, disabled=IS_DISABLED):
-                    if 'selected_theaters' not in st.session_state: st.session_state.selected_theaters = []
-                    if is_selected: st.session_state.selected_theaters.remove(theater['name'])
-                    else: st.session_state.selected_theaters.append(theater['name'])
-                    st.rerun()
-            
-            st.toggle("Only show films playing at ALL selected theaters", key="market_films_filter", disabled=IS_DISABLED, help="Filters the list in Step 2 to only show films common to every theater selected.")
-            scrape_date = st.date_input("Select Date for Showtimes", datetime.date.today() + datetime.timedelta(days=1), key="market_date", disabled=IS_DISABLED)
-            
-            if st.button("Find Films for Selected Theaters", disabled=IS_DISABLED, use_container_width=True):
-                theaters_to_scrape = [t for t in theaters if t['name'] in st.session_state.selected_theaters]
-                with st.spinner("Finding all available films and showtimes..."):
-                    thread, get_results = run_async_in_thread(scout.get_all_showings_for_theaters, theaters_to_scrape, scrape_date.strftime('%Y-%m-%d'))
-                    thread.join()
-                    status, result, log, duration = get_results()
-                    st.session_state.last_run_log = log
-                    if status == 'success':
-                        st.info(f"Film search completed in {duration:.2f} seconds.")
-                        st.session_state.all_showings = result
-                        st.session_state.selected_films = []
-                        st.session_state.selected_showtimes = {}
-                        st.session_state.stage = 'data_fetched'
-                    else:
-                        st.error(f"Failed to fetch showings for theaters: {get_error_message(result)}")
-                st.rerun()
-
-        if st.session_state.stage in ['data_fetched', 'report_generated']:
-            st.subheader("Step 3: Select Films & Showtimes")
-            
-            all_films_unfiltered = sorted(list(reduce(lambda a, b: a.union(b), [set(s['film_title'] for s in showings) for showings in st.session_state.all_showings.values() if showings], set())))
-            
-            if st.session_state.get('market_films_filter'):
-                film_sets = [set(s['film_title'] for s in st.session_state.all_showings.get(theater, [])) for theater in st.session_state.selected_theaters]
-                if film_sets:
-                    common_films = set.intersection(*film_sets)
-                    all_films_to_display = sorted(list(common_films))
-                else:
-                    all_films_to_display = []
-            else:
-                all_films_to_display = all_films_unfiltered
-
-            st.write("Select Films:")
-            col1, col2, col3, col4 = st.columns(4)
-            with col1:
-                if st.button("Select All Films", key="market_select_all_films", use_container_width=True):
-                    st.session_state.selected_films = all_films_to_display
-                    st.rerun()
-            with col2:
-                if st.button("Deselect All Films", key="market_deselect_all_films", use_container_width=True):
-                    st.session_state.selected_films = []
-                    st.rerun()
-
-            st.divider()
-
-            cols = st.columns(4)
-            for i, film in enumerate(all_films_to_display):
-                is_selected = film in st.session_state.selected_films
-                if cols[i % 4].button(film, key=f"film_{film}", type="primary" if is_selected else "secondary", use_container_width=True, disabled=IS_DISABLED):
-                    if is_selected: st.session_state.selected_films.remove(film)
-                    else: st.session_state.selected_films.append(film)
-                    st.rerun()
-            st.divider()
-
-            if st.session_state.selected_films:
-                render_daypart_selector(st.session_state.all_showings, st.session_state.selected_films, st.session_state.selected_theaters, IS_DISABLED, "market")
-
-            for theater_name in st.session_state.get('selected_theaters', []):
-                has_selections = any(st.session_state.selected_showtimes.get(theater_name, {}).values())
-                expander_label = f"✅  {theater_name}" if has_selections else f"⚪️ {theater_name}"
-                with st.expander(expander_label, expanded=True):
-                    showings = st.session_state.all_showings.get(theater_name, [])
-                    films_to_display = {f for f in st.session_state.selected_films if f in [s['film_title'] for s in showings]}
-                    if not films_to_display: st.write("No selected films are showing at this theater.")
-                    for film in sorted(list(films_to_display)):
-                        st.markdown(f"**{film}**")
-                        film_showings = sorted([s for s in showings if s['film_title'] == film], key=lambda x: datetime.datetime.strptime(x['showtime'].replace('p', 'PM').replace('a', 'AM'), "%I:%M%p").time())
-                        showings_by_time = {}
-                        for s in film_showings:
-                            if s['showtime'] not in showings_by_time:
-                                showings_by_time[s['showtime']] = []
-                            showings_by_time[s['showtime']].append(s)
-
-                        cols = st.columns(8)
-                        for i, (time_str, showings_at_time) in enumerate(showings_by_time.items()):
-                            is_selected = time_str in st.session_state.selected_showtimes.get(theater_name, {}).get(film, {})
-                            if cols[i % 8].button(time_str, key=f"market_time_{theater_name}_{film}_{time_str}", type="primary" if is_selected else "secondary", use_container_width=True, disabled=IS_DISABLED):
-                                if theater_name not in st.session_state.selected_showtimes: st.session_state.selected_showtimes[theater_name] = {}
-                                if film not in st.session_state.selected_showtimes[theater_name]: st.session_state.selected_showtimes[theater_name][film] = {}
-                                
-                                if is_selected:
-                                    del st.session_state.selected_showtimes[theater_name][film][time_str]
-                                else:
-                                    st.session_state.selected_showtimes[theater_name][film][time_str] = showings_at_time
-                                st.rerun()
-        if any(any(film.values()) for film in st.session_state.get('selected_showtimes', {}).values()):
-            st.subheader("Step 4: Generate Report")
-            if st.button('📄 Generate Live Pricing Report', use_container_width=True, disabled=IS_DISABLED):
-                st.session_state.confirm_scrape = True
-                st.rerun()
-
-    elif st.session_state.search_mode == "CompSnipe Mode":
-        st.subheader("Step 1: Select Theaters")
-        zip_col, zip_btn_col = st.columns([4, 1])
-        with zip_col:
-            zip_search_term = st.text_input("Enter 5-digit ZIP code to find theaters", max_chars=5, key="zip_search_input",
-                                            on_change=lambda: st.session_state.update(live_search_results={}, compsnipe_theaters=[]), disabled=IS_DISABLED)
-        with zip_btn_col:
-            st.write("") 
-            if st.button("Search by ZIP", key="search_by_zip_btn", disabled=IS_DISABLED):
-                with st.spinner(f"Live searching Fandango for theaters near {zip_search_term}..."):
-                    date_str = (datetime.date.today() + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
-                    thread, result_func = run_async_in_thread(scout.live_search_by_zip, zip_search_term, date_str)
-                    thread.join()
-                    status, result, log, _ = result_func()
-                    st.session_state.last_run_log = log
-                    if status == 'success': 
-                        st.session_state.live_search_results = result
-                    else: 
-                        st.error(f"Failed to perform live ZIP search: {get_error_message(result)}")
-                st.rerun()
-
-        if st.session_state.live_search_results:
-            cols = st.columns(4)
-            for i, name in enumerate(sorted(st.session_state.live_search_results.keys())):
-                if 'compsnipe_theaters' not in st.session_state: st.session_state.compsnipe_theaters = []
-                is_selected = name in [t['name'] for t in st.session_state.compsnipe_theaters]
-                if cols[i % 4].button(name, key=f"cs_theater_{i}", type="primary" if is_selected else "secondary", use_container_width=True, disabled=IS_DISABLED):
-                    theater_obj = st.session_state.live_search_results[name]
-                    if is_selected:
-                        st.session_state.compsnipe_theaters = [t for t in st.session_state.compsnipe_theaters if t['name'] != name]
-                    else:
-                        st.session_state.compsnipe_theaters.append(theater_obj)
-                    st.rerun()
-
-        if st.session_state.get('compsnipe_theaters'):
-            scrape_date_cs = st.date_input("Select Date for Showtimes", datetime.date.today() + datetime.timedelta(days=1), key="cs_date", disabled=IS_DISABLED)
-            
-            if st.button("Find Available Films", use_container_width=True, disabled=IS_DISABLED):
-                with st.spinner("Finding all available films and showtimes..."):
-                    thread, result_func = run_async_in_thread(scout.get_all_showings_for_theaters, st.session_state.compsnipe_theaters, scrape_date_cs.strftime('%Y-%m-%d'))
-                    thread.join()
-                    status, result, log, duration = result_func()
-                    st.session_state.last_run_log = log
-                    if status == 'success':
-                        st.info(f"Film search completed in {duration:.2f} seconds.")
-                        st.session_state.all_showings = result
-                        st.session_state.stage = 'cs_films_found'
-                    else:
-                        st.error(f"Failed to fetch showings: {get_error_message(result)}")
-                st.rerun()
-
-        if st.session_state.get('stage') == 'cs_films_found':
-            st.subheader("Step 2: Choose Film Scope")
-            
-            film_sets = [set(s['film_title'] for s in st.session_state.all_showings.get(t['name'], [])) for t in st.session_state.compsnipe_theaters]
-            all_films = sorted(list(set.union(*film_sets))) if film_sets else []
-            common_films = sorted(list(set.intersection(*film_sets))) if film_sets else []
-            
-            c1, c2, c3 = st.columns(3)
-            if c1.button(f"Scrape All {len(all_films)} Films", use_container_width=True, disabled=IS_DISABLED):
-                st.session_state.selected_films = all_films
-                st.session_state.compsnipe_film_filter_mode = 'all'
-                st.session_state.stage = 'cs_showtimes'
-                st.rerun()
-            if c2.button(f"Scrape {len(common_films)} Common Films", use_container_width=True, disabled=IS_DISABLED):
-                st.session_state.selected_films = common_films
-                st.session_state.compsnipe_film_filter_mode = 'common'
-                st.session_state.stage = 'cs_showtimes'
-                st.rerun()
-            if c3.button("Let Me Select Films...", use_container_width=True, disabled=IS_DISABLED):
-                st.session_state.compsnipe_film_filter_mode = 'manual'
-                st.session_state.stage = 'cs_showtimes'
-                st.rerun()
-
-        if st.session_state.get('stage') == 'cs_showtimes':
-            st.subheader("Step 3: Select Films & Showtimes")
-
-            if st.session_state.compsnipe_film_filter_mode == 'manual':
-                film_sets = [set(s['film_title'] for s in st.session_state.all_showings.get(t['name'], [])) for t in st.session_state.compsnipe_theaters]
-                all_films = sorted(list(set.union(*film_sets))) if film_sets else []
-                st.write("Select Films:")
-                col1, col2, col3, col4 = st.columns(4)
-                with col1:
-                    if st.button("Select All Films", key="cs_select_all_films", use_container_width=True):
-                        st.session_state.selected_films = all_films
-                        st.rerun()
-                with col2:
-                    if st.button("Deselect All Films", key="cs_deselect_all_films", use_container_width=True):
-                        st.session_state.selected_films = []
-                        st.rerun()
-                
-                st.divider()
-
-                cols = st.columns(4)
-                for i, film in enumerate(all_films):
-                    is_selected = film in st.session_state.selected_films
-                    if cols[i % 4].button(film, key=f"cs_film_{film}", type="primary" if is_selected else "secondary", use_container_width=True, disabled=IS_DISABLED):
-                        if is_selected: st.session_state.selected_films.remove(film)
-                        else: st.session_state.selected_films.append(film)
-                        st.rerun()
-                st.divider()
-
-            if st.session_state.selected_films:
-                render_daypart_selector(st.session_state.all_showings, st.session_state.selected_films, [t['name'] for t in st.session_state.compsnipe_theaters], IS_DISABLED, "cs")
-
-            for theater in st.session_state.get('compsnipe_theaters', []):
-                theater_name = theater['name']
-                has_selections = any(st.session_state.selected_showtimes.get(theater_name, {}).values())
-                expander_label = f"✅  {theater_name}" if has_selections else f"⚪️ {theater_name}"
-                with st.expander(expander_label, expanded=True):
-                    showings = st.session_state.all_showings.get(theater_name, [])
-                    films_to_display = {f for f in st.session_state.selected_films if f in [s['film_title'] for s in showings]}
-                    if not films_to_display: st.write("No selected films are showing at this theater.")
-                    for film in sorted(list(films_to_display)):
-                        st.markdown(f"**{film}**")
-                        film_showings = sorted([s for s in showings if s['film_title'] == film], key=lambda x: datetime.datetime.strptime(x['showtime'].replace('p', 'PM').replace('a', 'AM'), "%I:%M%p").time())
-                        showings_by_time = {}
-                        for s in film_showings:
-                            if s['showtime'] not in showings_by_time:
-                                showings_by_time[s['showtime']] = []
-                            showings_by_time[s['showtime']].append(s)
-
-                        cols = st.columns(8)
-                        for i, (time_str, showings_at_time) in enumerate(showings_by_time.items()):
-                            is_selected = time_str in st.session_state.selected_showtimes.get(theater_name, {}).get(film, {})
-                            if cols[i % 8].button(time_str, key=f"cs_time_{theater_name}_{film}_{time_str}", type="primary" if is_selected else "secondary", use_container_width=True, disabled=IS_DISABLED):
-                                if theater_name not in st.session_state.selected_showtimes: st.session_state.selected_showtimes[theater_name] = {}
-                                if film not in st.session_state.selected_showtimes[theater_name]: st.session_state.selected_showtimes[theater_name][film] = {}
-                                
-                                if is_selected:
-                                    del st.session_state.selected_showtimes[theater_name][film][time_str]
-                                else:
-                                    st.session_state.selected_showtimes[theater_name][film][time_str] = showings_at_time
-                                st.rerun()
-
-            if any(any(film.values()) for film in st.session_state.get('selected_showtimes', {}).values()):
-                st.subheader("Step 4: Generate Report")
-                if st.button('📄 Generate Sniper Report', use_container_width=True, disabled=IS_DISABLED):
-                    st.session_state.confirm_scrape = True
-                    st.rerun()
-
+    # --- Main Application Logic (State Machine) ---
     if st.session_state.get('confirm_scrape'):
-        st.info(f"You are about to scrape prices. This may take several minutes.")
-        if st.button("✅ Yes, Proceed", use_container_width=True, type="primary"):
-            st.session_state.report_running = True
-            st.session_state.confirm_scrape = False
-            st.rerun()
+        handle_scrape_confirmation()
+    elif st.session_state.report_running and not st.session_state.get('run_diagnostic'):
+        execute_scrape(scout)
+    elif st.session_state.get('stage') == 'report_generated' and 'final_df' in st.session_state and not st.session_state.final_df.empty:
+        render_report()
+    else:
+        # --- NEW: Clear markets_data from session state if not on the matching page ---
+        if st.session_state.search_mode != "Theater Matching" and 'markets_data' in st.session_state:
+            del st.session_state['markets_data']
+        # Default state: render the UI for the selected mode
+        render_main_content(scout, markets_data, cache_data, all_theaters_list_unique, IS_DISABLED)
 
-    if st.session_state.report_running and not st.session_state.get('run_diagnostic'):
-        mode = st.session_state.search_mode
-        
-        with st.spinner(f"Executing {mode} scrape... This may take several minutes. UI is locked."):
-            theaters_for_report = []
-            if mode == "CompSnipe Mode":
-                theaters_for_report = st.session_state.compsnipe_theaters
-            elif mode == "Market Mode":
-                theaters_for_report = [t for t in st.session_state.theaters if t['name'] in st.session_state.selected_theaters]
-            run_context_str = "N/A"
-            if mode == "Market Mode":
-                market = st.session_state.get('selected_market', 'Unknown Market')
-                theater_names = ", ".join([t['name'] for t in theaters_for_report])
-                run_context_str = f"Market: {market} | Theaters: {theater_names}"
-            elif mode == "CompSnipe Mode":
-                zip_code = st.session_state.get('zip_search_input', 'N/A')
-                theater_names = ", ".join([t['name'] for t in theaters_for_report])
-                run_context_str = f"ZIP: {zip_code} | Theaters: {theater_names}"
-            thread, get_results = run_async_in_thread(scout.scrape_details, theaters_for_report, st.session_state.selected_showtimes)
-            thread.join()
-            status, value, log, duration = get_results()
-            st.session_state.last_run_log += log
-
-            if status == 'success':
-                result, showings_scraped = value
-                if result:
-                    st.session_state.last_run_duration = duration
-                    df_current = pd.DataFrame(result)
-                    
-                    log_runtime(mode, len(theaters_for_report), len(showings_scraped), duration)
-                    database.save_to_database(df_current, mode, run_context_str)
-                    
-                    st.session_state.final_df = df_current
-                    st.session_state.stage = 'report_generated'
-                else:
-                    st.error(f"Scraper returned no data after {duration:.2f} seconds.")
-            else:
-                st.error(f"Scraper failed to produce a report after {duration:.2f} seconds. Error: {get_error_message(value)}")
-
-            st.session_state.report_running = False
-            st.rerun()
-    elif st.session_state.search_mode == "Data Management":
-        from data_management_v2 import main as data_management_main
-        data_management_main()
-    elif st.session_state.search_mode == "AI Agent":
-        from ai_agent import main as ai_agent_main
-        ai_agent_main()
-
-
-    elif st.session_state.search_mode == "Analysis Mode":
-        st.header("🗂️ Historical Analysis")
-
-        try:
-            with st.expander("📈 Advanced Trend Analysis", expanded=True):
-                # Initialize session state variables
-                if 'trend_theaters' not in st.session_state:
-                    st.session_state.trend_theaters = []
-                if 'trend_films' not in st.session_state:
-                    st.session_state.trend_films = []
-                if 'trend_dayparts' not in st.session_state:
-                    st.session_state.trend_dayparts = []
-
-                all_theaters = database.get_unique_column_values('theater_name')
-                if not all_theaters:
-                    st.info("No data available to analyze.")
-                else:
-                    # --- Step 1: Select Theaters ---
-                    st.subheader("Step 1: Select Theaters")
-                    cols = st.columns(4)
-                    for i, theater in enumerate(all_theaters):
-                        is_selected = theater in st.session_state.trend_theaters
-                        if cols[i % 4].button(theater, key=f"trend_theater_{i}", type="primary" if is_selected else "secondary", use_container_width=True):
-                            if is_selected: st.session_state.trend_theaters.remove(theater)
-                            else: st.session_state.trend_theaters.append(theater)
-                            # Clear dependent selections
-                            st.session_state.trend_films = []
-                            st.session_state.trend_dayparts = []
-                            st.rerun()
-
-                    if st.session_state.trend_theaters:
-                        st.divider()
-                        
-                        # --- Step 2: Select Date Range ---
-                        st.subheader("Step 2: Select a Date Range for Analysis")
-                        today = datetime.date.today()
-                        seven_days_ago = today - datetime.timedelta(days=7)
-                        c1, c2 = st.columns(2)
-                        start_date = c1.date_input("Start Date", seven_days_ago, key='trend_start_date')
-                        end_date = c2.date_input("End Date", today, key='trend_end_date')
-
-                        # --- Step 3: Select Films (using buttons) ---
-                        if start_date and end_date and start_date <= end_date:
-                            all_dates_in_range = pd.date_range(start_date, end_date).strftime('%Y-%m-%d').tolist()
-                            
-                            st.subheader("Step 3: Select Films")
-                            available_films = database.get_common_films_for_theaters_dates(st.session_state.trend_theaters, all_dates_in_range)
-                            
-                            if not available_films:
-                                st.warning("No films are common to all selected theaters in this date range.")
-                            else:
-                                film_cols = st.columns(4)
-                                for i, film in enumerate(available_films):
-                                    is_selected = film in st.session_state.trend_films
-                                    if film_cols[i % 4].button(film, key=f"trend_film_{i}", type="primary" if is_selected else "secondary", use_container_width=True):
-                                        if is_selected: st.session_state.trend_films.remove(film)
-                                        else: st.session_state.trend_films.append(film)
-                                        st.rerun()
-                            
-                            # --- Step 4: Select Dayparts (using buttons) ---
-                            if st.session_state.trend_films:
-                                st.subheader("Step 4: Select Dayparts")
-                                dayparts_options = ["Matinee", "Twilight", "Prime", "Late Night"]
-                                daypart_cols = st.columns(len(dayparts_options))
-                                for i, dp in enumerate(dayparts_options):
-                                    is_selected = dp in st.session_state.trend_dayparts
-                                    if daypart_cols[i].button(dp, key=f"trend_dp_{i}", type="primary" if is_selected else "secondary", use_container_width=True):
-                                        if is_selected: st.session_state.trend_dayparts.remove(dp)
-                                        else: st.session_state.trend_dayparts.append(dp)
-                                        st.rerun()
-
-                        # --- Step 5: Generate the Advanced Report ---
-                        if st.session_state.trend_theaters and st.session_state.trend_films and st.session_state.trend_dayparts:
-                            st.divider()
-                            if st.button("🚀 Generate Advanced Report", type="primary", use_container_width=True):
-                                with st.spinner("Performing advanced analysis..."):
-                                    raw_data = database.get_data_for_trend_report(
-                                        st.session_state.trend_theaters,
-                                        all_dates_in_range,
-                                        st.session_state.trend_films,
-                                        st.session_state.trend_dayparts
-                                    )
-                                    # (The rest of the logic remains the same)
-                                    if raw_data.empty:
-                                        st.warning("No price data found for the combination of your selections.")
-                                        if 'advanced_report_df' in st.session_state: del st.session_state['advanced_report_df']
-                                    else:
-                                        raw_data['scrape_date'] = pd.to_datetime(raw_data['scrape_date'])
-                                        raw_data['Day Type'] = raw_data['scrape_date'].dt.dayofweek.apply(lambda x: 'Weekend' if x >= 5 else 'Weekday')
-                                        raw_data = raw_data.sort_values(by='scrape_date')
-                                        raw_data['price_change'] = raw_data.groupby(['theater_name', 'film_title', 'ticket_type', 'daypart'])['price'].diff()
-                                        def format_cell(row):
-                                            price = f"${row['price']:.2f}"
-                                            change = format_price_change(row['price_change'])
-                                            if change == "$0.00" or change == "N/A": return price
-                                            return f"{price} ({change})"
-                                        raw_data['display_value'] = raw_data.apply(format_cell, axis=1)
-                                        raw_data['scrape_date'] = raw_data['scrape_date'].dt.strftime('%Y-%m-%d')
-                                        report_df = raw_data.pivot_table(index=['theater_name', 'film_title', 'Day Type', 'ticket_type', 'daypart'], columns='scrape_date', values='display_value', aggfunc='last').fillna('-')
-                                        st.session_state.advanced_report_df = report_df.reset_index()
-
-
-                                    if raw_data.empty:
-                                        st.warning("No price data found for the combination of your selections.")
-                                        if 'advanced_report_df' in st.session_state:
-                                            del st.session_state['advanced_report_df']
-                                    else:
-                                        raw_data['scrape_date'] = pd.to_datetime(raw_data['scrape_date'])
-                                        raw_data['Day Type'] = raw_data['scrape_date'].dt.dayofweek.apply(
-                                            lambda x: 'Weekend' if x >= 5 else 'Weekday'  # Saturday=5, Sunday=6
-                                        )
-                                        raw_data = raw_data.sort_values(by='scrape_date')
-                                        raw_data['price_change'] = raw_data.groupby(
-                                            ['theater_name', 'film_title', 'ticket_type', 'daypart']
-                                        )['price'].diff()
-                                        
-                                        def format_cell(row):
-                                            price = f"${row['price']:.2f}"
-                                            change = format_price_change(row['price_change'])
-                                            if change == "$0.00" or change == "N/A":
-                                                return price
-                                            return f"{price} ({change})"
-
-                                        raw_data['display_value'] = raw_data.apply(format_cell, axis=1)
-                                        raw_data['scrape_date'] = raw_data['scrape_date'].dt.strftime('%Y-%m-%d')
-                                        
-                                        report_df = raw_data.pivot_table(
-                                            index=['theater_name', 'film_title', 'Day Type', 'ticket_type', 'daypart'],
-                                            columns='scrape_date',
-                                            values='display_value',
-                                            aggfunc='last'
-                                        ).fillna('-')
-                                        
-                                        st.session_state.advanced_report_df = report_df.reset_index()
-
-            # --- Display the final Advanced Report ---
-            if 'advanced_report_df' in st.session_state:
-                st.subheader("Advanced Trend Report")
-                st.success("Report generated successfully!")
-                df_to_show = st.session_state.advanced_report_df
-                st.dataframe(df_to_show, use_container_width=True)
-                st.download_button(
-                    label="📄 Download Advanced Report as CSV",
-                    data=to_csv(df_to_show),
-                    file_name='PriceScout_Advanced_Report.csv',
-                    mime='text/csv'
-                )
-
-        except Exception as e:
-            st.error(f"An error occurred in the analysis tool: {e}")
-            st.code(traceback.format_exc())
-            
-    if st.session_state.get('stage') == 'report_generated' and 'final_df' in st.session_state and not st.session_state.final_df.empty:
-        st.header("Live Pricing Report")
-        
-        duration_str = f"(Took {st.session_state.last_run_duration:.2f} seconds)" if 'last_run_duration' in st.session_state else ""
-        st.success(f"**Report Complete!** {duration_str} Data has been successfully saved to the database.")
-        
-        df_to_display = st.session_state.final_df
-        st.dataframe(df_to_display, use_container_width=True)
-        
-        st.subheader("Download Report")
-        col1, col2, _ = st.columns([1, 1, 4])
-        
-        excel_data = to_excel(df_to_display)
-        csv_data = to_csv(df_to_display)
-        
-        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M")
-        
-        col1.download_button(
-            label="📄 Download as CSV",
-            data=csv_data,
-            file_name=f'PriceScout_Report_{timestamp}.csv',
-            mime='text/csv',
-            use_container_width=True
-        )
-        
-        col2.download_button(
-            label="📊 Download as Excel",
-            data=excel_data,
-            file_name=f'PriceScout_Report_{timestamp}.xlsx',
-            mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            use_container_width=True
-        )
-
-        st.balloons()
-
+    # --- Render Dev Log ---
     if st.session_state.dev_mode and "last_run_log" in st.session_state:
-        with st.expander("Developer Mode: Scraper Log"):
+        with st.expander(ui_config['developer']['log_expander']):
             st.code(st.session_state.last_run_log, language='text')
+
+if __name__ == "__main__":
+    main()
