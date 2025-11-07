@@ -1,0 +1,24 @@
+{
+  "admin": [
+    "Market Mode",
+    "Operating Hours Mode",
+    "CompSnipe Mode",
+    "Historical Data and Analysis",
+    "Data Management",
+    "Theater Matching",
+    "Admin",
+    "Poster Board"
+  ],
+  "manager": [
+    "Market Mode",
+    "Operating Hours Mode",
+    "CompSnipe Mode",
+    "Historical Data and Analysis",
+    "Poster Board"
+  ],
+  "user": [
+    "Market Mode",
+    "CompSnipe Mode",
+    "Poster Board"
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "main": {
+    "title": "📊 PriceScout: Competitive Pricing Tool"
+  },
+  "sidebar": {
+    "controls_title": "Controls",
+    "start_new_report_button": "🚀 Start New Report / Abort",
+    "select_mode_subheader": "Select Mode",
+    "developer_tools_header": "Developer Tools",
+    "capture_html_toggle": "Capture HTML Snapshots",
+    "run_diagnostic_button": "Run Market Diagnostic",
+    "run_full_diagnostic_button": "Run Full System Diagnostic",
+    "delete_cache_button": "Delete Theater Cache"
+  },
+  "sidebar_modes": [
+    { "name": "Market Mode", "requires_cache": true },
+    { "name": "Operating Hours Mode", "requires_cache": true },
+    { "name": "CompSnipe Mode", "requires_cache": false },
+    { "name": "Historical Data and Analysis", "requires_cache": true },
+    { "name": "Data Management", "requires_cache": false, "admin_only": true },
+    {
+        "name": "Theater Matching",
+        "requires_cache": false,
+        "admin_only": true
+    },
+    { "name": "Admin", "admin_only": true },
+    { "name": "Poster Board", "requires_cache": true }
+],
+  "diagnostic": {
+    "header": "🛠️ Full System Diagnostic",
+    "warning": "**Warning:** This will scrape every theater in the selected markets and may take a very long time to complete.",
+    "select_markets_prompt": "Select markets to test:",
+    "start_button": "Start Full Diagnostic",
+    "spinner_text": "Running diagnostic scan... This will take a long time.",
+    "success_message": "Diagnostic Complete! (Took {duration:.2f} seconds)",
+    "error_message": "The diagnostic tool encountered a critical error after {duration:.2f} seconds."
+  },
+  "cache": {
+    "subheader": "Theater Data Cache",
+    "fresh_message": "Theater cache is up to date. Last refreshed: {last_updated}",
+    "stale_message": "Theater cache is stale (older than {CACHE_EXPIRATION_DAYS} days). Last refreshed: {last_updated}",
+    "missing_message": "Theater cache file is missing or invalid. Please build it."
+  },
+  "scheduler": {
+    "expander_label": "🗓️ Task Scheduler",
+    "description": "Create a new automated scraping task. The backend agent will run any due tasks every 15 minutes.",
+    "task_name_label": "Task Name (e.g., 'DFW_Nightly_Audit')",
+    "select_markets_label": "Select Markets to Scrape",
+    "time_label": "Scheduled Time (UTC)",
+    "email_label": "Notification Email (Optional)",
+    "save_button": "Save Scheduled Task",
+    "error_missing_fields": "Task Name and at least one Market are required.",
+    "success_message": "Successfully saved task '{task_name}'!",
+    "toast_message": "Saved to {filepath}"
+  },
+  "scraper": {
+    "confirm_message": "You are about to scrape prices. This may take several minutes.",
+    "op_hours_confirm_message": "You are about to scrape operating hours. This may take several minutes.",
+    "proceed_button": "✅ Yes, Proceed",
+    "spinner_text": "Executing {mode} scrape... This may take several minutes. UI is locked.",
+    "no_data_error": "Scraper returned no data after {duration:.2f} seconds.",
+    "failure_error": "Scraper failed to produce a report after {duration:.2f} seconds. Error: {error}"
+  },
+  "report": {
+    "header": "Live Pricing Report",
+    "complete_message": "**Report Complete!** {duration_str} Data has been successfully saved to the database.",
+    "download_subheader": "Download Report",
+    "download_csv_button": "📄 Download as CSV",
+    "download_excel_button": "📊 Download as Excel"
+  },
+  "developer": {
+    "log_expander": "Developer Mode: Scraper Log"
+  }
+}

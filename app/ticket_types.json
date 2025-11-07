@@ -1,0 +1,139 @@
+{
+    "amenity_map": {
+        "3D": [
+            "3d"
+        ],
+        "4DX": [
+            "4dx"
+        ],
+        "D-BOX": [
+            "d-box",
+            "dbox"
+        ],
+        "Dolby Cinema": [
+            "dolby cinema",
+            "dolby at amc"
+        ],
+        "Grand Screen": [
+            "grand screen"
+        ],
+        "IMAX": [
+            "imax"
+        ],
+        "Luxury": [
+            "luxury"
+        ],
+        "RPX": [
+            "rpx"
+        ],
+        "ScreenX": [
+            "screenx"
+        ],
+        "Superscreen": [
+            "superscreen"
+        ],
+        "The Big House": [
+            "the big house",
+            "big house"
+        ],
+        "UltraScreen": [
+            "ultrascreen"
+        ],
+        "XD": [
+            "xd"
+        ]
+    },
+    "base_type_map": {
+        "3D General Admission": [
+            "3d general admission"
+        ],
+        "Ac Loyalty Member": [
+            "ac loyalty member"
+        ],
+        "Adult": [
+            "adult",
+            "adults",
+            "general 13+",
+            "general admission"
+        ],
+        "Child": [
+            "child",
+            "child event",
+            "children",
+            "kid",
+            "kids ages 2-12"
+        ],
+        "D-Box 3D": [
+            "general admission dbox3d"
+        ],
+        "Discount Day": [
+            "discount day",
+            "wednesday 50off",
+            "discount tuesday",
+            "disc day",
+            "rcc value day"
+        ],
+        "Early Bird": [
+            "early bird"
+        ],
+        "Loyalty Member": [
+            "loyalty member"
+        ],
+        "Matinee": [
+            "matinee",
+            "bargain tues & weds before 4pm rsvd"
+        ],
+        "Military": [
+            "military"
+        ],
+        "Senior": [
+            "senior",
+            "seniors",
+            "event senior"
+        ],
+        "Special Event": [
+            "special event",
+            "adult event",
+            "gen adm: special event",
+            "admission v",
+            "event",
+            "event $10"
+        ],
+        "Student": [
+            "student"
+        ],
+        "Taylor Swift | The Official Release Party Of A Showgirl": [
+            "taylor swift | the official release party of a showgirl",
+            "taylor swift",
+            "taylor swift (sensory)",
+            "plf taylor swift | the official release party of a showgirl"
+        ]
+    },
+    "ignored_amenities": [
+        "admission",
+        "event",
+        "general",
+        "prime",
+        "promotion",
+        "recliner",
+        "reserved",
+        "rsvd",
+        "tuesday",
+        "unseen",
+        "weekend"
+    ],
+    "plf_formats": [
+        "4DX",
+        "D-BOX",
+        "Dolby Cinema",
+        "Grand Screen",
+        "IMAX",
+        "Prime",
+        "RPX",
+        "ScreenX",
+        "Superscreen",
+        "The Big House",
+        "UltraScreen",
+        "XD"
+    ]
+}

@@ -1,0 +1,49 @@
+# Price Scout - Production Dependencies
+# Last Updated: October 26, 2025
+# Security Audit: pip-audit + safety check completed
+#
+# KNOWN VULNERABILITIES (as of Oct 26, 2025):
+# - pip 25.2: GHSA-4xh5-x5gv-qwph (tarfile extraction vulnerability)
+#   >> FIX: Upgrade to pip 25.3 when available
+#   >> MITIGATION: Don't install from untrusted sdist sources
+
+# === CORE FRAMEWORK ===
+streamlit==1.49.1
+pandas==2.3.2
+playwright==1.55.0
+
+# === WEB SCRAPING & HTTP ===
+beautifulsoup4==4.13.5
+httpx==0.28.1
+requests==2.32.5  # Used by omdb_client
+
+# === DATA PROCESSING ===
+thefuzz[speedup]==0.22.1  # Fuzzy string matching for theater names
+python-Levenshtein==0.27.1  # Required by thefuzz[speedup]
+RapidFuzz==3.14.1  # Required by thefuzz
+
+# === SECURITY ===
+bcrypt==4.3.0  # Password hashing
+
+# === DATE/TIME ===
+pytz==2025.2
+python-dateutil==2.9.0.post0
+
+# === FILE HANDLING ===
+openpyxl==3.1.5  # Excel read support
+xlsxwriter==3.2.9  # Excel write support
+
+# === TESTING ===
+pytest==8.4.2
+pytest-asyncio==1.2.0
+pytest-cov==7.0.0
+pytest-mock==3.15.0
+
+# === TASK SCHEDULING ===
+APScheduler==3.11.0
+
+# === OPTIONAL/DEV DEPENDENCIES ===
+# These are installed but not required for core functionality
+# langchain==0.3.27  # AI agent functionality (optional)
+# opencv-python==4.12.0.88  # Computer vision (optional)
+# PyAutoGUI==0.9.54  # GUI automation (optional)

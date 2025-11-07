@@ -1,0 +1,5 @@
+username,password,role,company,default_company,home_location_type,home_location_value
+jsmith,SecurePass123!,manager,AMC,AMC,market,Dallas > Dallas Metro
+bdoe,AnotherPass456!,user,Marcus,Marcus,theater,Milwaukee > Milwaukee Metro > Marcus Cinema
+admin2,AdminPass789!,admin,,,none,
+testuser,TestPass999!,user,AMC,AMC,director,Dallas

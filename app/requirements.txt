@@ -1,0 +1,10 @@
+streamlit
+pandas
+playwright
+beautifulsoup4
+requests
+openpyxl
+thefuzz
+python-Levenshtein
+bcrypt
+pytz

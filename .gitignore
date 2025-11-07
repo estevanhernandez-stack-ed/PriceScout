@@ -1,0 +1,157 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Testing
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+*.cover
+*.py,cover
+.cache
+nosetests.xml
+coverage.xml
+test_reports/
+
+# Virtual Environments
+venv/
+ENV/
+env/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Application Specific
+debug_snapshots/
+debug_snapshots/*
+tmp/
+dummy_reports_dir/
+dummy_*/
+archive/
+app/debug/
+
+# Test Artifacts
+2025-*.csv
+dummy_*.csv
+dummy_*.json
+error.txt
+cache_data.json
+updated_markets.json
+test_*.html
+failure_*.png
+failure_*.html
+debug_*.html
+get_prices_failure_*.html
+fandango_search_failure_*.png
+
+# Backup Files
+*.bak
+*.backup
+*.tmp
+*~
+*.swp
+*.swo
+theater_cache*.bak*
+*.rebuild_bak
+
+# MagicMock Test Data
+data/MagicMock/
+
+# Reports (keep structure, ignore data)
+data/*/reports/*.csv
+data/*/reports/**/*.csv
+
+# Compiled Python
+*.pyc
+*.pyo
+
+# Streamlit
+.streamlit/secrets.toml
+
+# OS Files
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Documentation Build
+docs/_build/
+site/
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+*.ipynb
+
+# PyCharm
+.idea/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# Playwright
+.playwright/
+
+# Deployment folders
+deployment_pricescout_v2/
+
+# Keep these (example files)
+!.env.example
+!data/*/markets.json
+!data/*/scheduled_tasks/*.json

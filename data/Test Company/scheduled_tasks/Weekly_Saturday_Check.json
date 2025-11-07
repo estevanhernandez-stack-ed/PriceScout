@@ -1,0 +1,8 @@
+{
+    "task_name": "Weekly Saturday Check",
+    "task_type": "weekly_op_hours_report",
+    "day_of_week": "Saturday",
+    "schedule_time_utc": "08:00",
+    "enabled": true,
+    "last_run": null
+}

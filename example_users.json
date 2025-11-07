@@ -1,0 +1,25 @@
+{
+  "users": [
+    {
+      "username": "jsmith",
+      "password": "SecurePass123!",
+      "role": "manager",
+      "company": "AMC",
+      "default_company": "AMC"
+    },
+    {
+      "username": "bdoe",
+      "password": "AnotherPass456!",
+      "role": "user",
+      "company": "Marcus",
+      "default_company": "Marcus"
+    },
+    {
+      "username": "superadmin",
+      "password": "AdminPass789!",
+      "role": "admin",
+      "company": null,
+      "default_company": null
+    }
+  ]
+}

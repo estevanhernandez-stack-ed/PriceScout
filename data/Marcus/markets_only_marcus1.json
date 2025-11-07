@@ -1,0 +1,547 @@
+{
+  "Marcus Theatres": {
+    "Garrett Rawson": {
+      "Addison Area 60101": {
+        "theaters": [
+          {
+            "name": "Marcus Addison Cinema",
+            "zip": "60101"
+          }
+        ]
+      },
+      "Bloomington 61701": {
+        "theaters": [
+          {
+            "name": "Marcus Bloomington Cinema + IMAX",
+            "zip": "61704"
+          }
+        ]
+      },
+      "Chicago Heights Area 60411": {
+        "theaters": [
+          {
+            "name": "Marcus Chicago Heights Cinema",
+            "zip": "60411"
+          },
+          {
+            "name": "Marcus Country Club Hills Cinema",
+            "zip": "60478"
+          }
+        ]
+      },
+      "Columbus 43147": {
+        "theaters": [
+          {
+            "name": "Marcus Pickerington Cinema",
+            "zip": "43147"
+          }
+        ]
+      },
+      "Crosswoods Complex 43235": {
+        "theaters": [
+          {
+            "name": "Marcus Crosswoods Cinema",
+            "zip": "43235"
+          }
+        ]
+      },
+      "Elgin Area 60123": {
+        "theaters": [
+          {
+            "name": "Marcus Elgin Cinema",
+            "zip": "60123"
+          }
+        ]
+      },
+      "Gurnee Area 60031": {
+        "theaters": [
+          {
+            "name": "Marcus Gurnee Mills Cinema",
+            "zip": "60031"
+          }
+        ]
+      },
+      "Milwaukee Area 53092": {
+        "theaters": [
+          {
+            "name": "Marcus North Shore Cinema",
+            "zip": "53092"
+          },
+          {
+            "name": "Marcus BistroPlex Southridge",
+            "zip": "53129"
+          },
+          {
+            "name": "Marcus Hillside Cinema",
+            "zip": "53018"
+          },
+          {
+            "name": "Marcus Ridge Cinema",
+            "zip": "53151"
+          },
+          {
+            "name": "Marcus Majestic Cinema of Brookfield",
+            "zip": "53186"
+          },
+          {
+            "name": "Marcus Menomonee Falls Cinema",
+            "zip": "53051"
+          },
+          {
+            "name": "Movie Tavern Brookfield",
+            "zip": "53045"
+          }
+        ]
+      },
+      "Orland Park Area 60467": {
+        "theaters": [
+          {
+            "name": "Marcus Orland Park Cinemas",
+            "zip": "60467"
+          }
+        ]
+      },
+      "Racine - Kenosha 53177": {
+        "theaters": [
+          {
+            "name": "Marcus Cinema at the Renaissance",
+            "zip": "53177"
+          },
+          {
+            "name": "Marcus South Shore Cinema",
+            "zip": "53154"
+          }
+        ]
+      },
+      "Sheboygan Area 53081": {
+        "theaters": [
+          {
+            "name": "Marcus Sheboygan Cinema",
+            "zip": "53081"
+          }
+        ]
+      }
+    },
+    "Tim Ward": {
+      "Appleton 54914": {
+        "theaters": [
+          {
+            "name": "Marcus Hollywood Cinemas",
+            "zip": "54914"
+          },
+          {
+            "name": "Marcus Valley Grand Cinema",
+            "zip": "54913"
+          },
+          {
+            "name": "Marcus Oshkosh Cinema",
+            "zip": "54902"
+          }
+        ]
+      },
+      "Duluth 55802": {
+        "theaters": [
+          {
+            "name": "Marcus Duluth Cinema",
+            "zip": "55811"
+          },
+          {
+            "name": "Marcus Lakes Cinema",
+            "zip": "55811"
+          }
+        ]
+      },
+      "Fargo 58103": {
+        "theaters": [
+          {
+            "name": "Marcus Century Cinema",
+            "zip": "58103"
+          },
+          {
+            "name": "Marcus West Acres Cinema",
+            "zip": "58103"
+          }
+        ]
+      },
+      "Green Bay 54304": {
+        "theaters": [
+          {
+            "name": "Marcus Bay Park Cinemas",
+            "zip": "54304"
+          },
+          {
+            "name": "Marcus Green Bay East Cinema",
+            "zip": "54311"
+          }
+        ]
+      },
+      "LaCrosse 54601": {
+        "theaters": [
+          {
+            "name": "Marcus La Crosse Cinemas",
+            "zip": "54601"
+          }
+        ]
+      },
+      "Madison Area 53590": {
+        "theaters": [
+          {
+            "name": "Marcus Palace Cinema",
+            "zip": "53590"
+          },
+          {
+            "name": "Marcus Point Cinemas",
+            "zip": "53719"
+          }
+        ]
+      },
+      "Oakdale 55128": {
+        "theaters": [
+          {
+            "name": "Marcus Oakdale Cinema",
+            "zip": "55128"
+          }
+        ]
+      },
+      "Ripon 54971": {
+        "theaters": [
+          {
+            "name": "Marcus Campus Theatre",
+            "zip": "54971"
+          }
+        ]
+      },
+      "Rochester 55904": {
+        "theaters": [
+          {
+            "name": "Marcus Rochester Cinema + IMAX",
+            "zip": "55901"
+          }
+        ]
+      },
+      "Rosemount 55068": {
+        "theaters": [
+          {
+            "name": "Marcus Rosemount Cinema",
+            "zip": "55068"
+          }
+        ]
+      },
+      "Shakopee 55379": {
+        "theaters": [
+          {
+            "name": "Marcus Southbridge Crossing Cinema",
+            "zip": "55379"
+          }
+        ]
+      },
+      "St. Cloud 56387": {
+        "theaters": [
+          {
+            "name": "Marcus Parkwood Cinema",
+            "zip": "56387"
+          }
+        ]
+      },
+      "Wausau Area 54474": {
+        "theaters": [
+          {
+            "name": "Marcus Cedar Creek Cinema",
+            "zip": "54474"
+          }
+        ]
+      },
+      "St. Louis Park 55416": {
+        "theaters": [
+          {
+            "name": "Marcus West End Cinema",
+            "zip": "55416"
+          }
+        ]
+      }
+    },
+    "Brian Shander": {
+      "Cedar Falls 50702": {
+        "theaters": [
+          {
+            "name": "Marcus Crossroads Cinema",
+            "zip": "50702"
+          }
+        ]
+      },
+      "Cedar Rapids 52402": {
+        "theaters": [
+          {
+            "name": "Marcus Cedar Rapids Cinema",
+            "zip": "52402"
+          }
+        ]
+      },
+      "Chesterfield 63005": {
+        "theaters": [
+          {
+            "name": "Marcus Chesterfield Cinema",
+            "zip": "63005"
+          }
+        ]
+      },
+      "Des Peres 63131": {
+        "theaters": [
+          {
+            "name": "Marcus Des Peres Cinema",
+            "zip": "63131"
+          }
+        ]
+      },
+      "Iowa City 52241": {
+        "theaters": [
+          {
+            "name": "Marcus Coral Ridge Cinema",
+            "zip": "52241"
+          },
+          {
+            "name": "Marcus Sycamore Cinema",
+            "zip": "52240"
+          }
+        ]
+      },
+      "Lincoln 68505": {
+        "theaters": [
+          {
+            "name": "Marcus East Park Cinemas",
+            "zip": "68506"
+          },
+          {
+            "name": "Marcus Edgewood Cinemas",
+            "zip": "68516"
+          },
+          {
+            "name": "Marcus Lincoln Grand Cinemas",
+            "zip": "68508"
+          },
+          {
+            "name": "Marcus South Pointe Cinemas",
+            "zip": "68516"
+          }
+        ]
+      },
+      "O'Fallon 62269": {
+        "theaters": [
+          {
+            "name": "Marcus O'Fallon Cinema",
+            "zip": "62269"
+          }
+        ]
+      },
+      "Omaha 68164": {
+        "theaters": [
+          {
+            "name": "Marcus Majestic Cinema of Omaha",
+            "zip": "68130"
+          },
+          {
+            "name": "Marcus Twin Creek Cinema",
+            "zip": "68123"
+          },
+          {
+            "name": "Marcus Village Pointe Cinema",
+            "zip": "68118"
+          }
+        ]
+      },
+      "Ronnie's (St. Louis) 63126": {
+        "theaters": [
+          {
+            "name": "Marcus Arnold Cinemas",
+            "zip": "63010"
+          },
+          {
+            "name": "Marcus Ronnie's Cinema + IMAX  ",
+            "zip": "63126"
+          }
+        ]
+      },
+      "St. Charles 63376": {
+        "theaters": [
+          {
+            "name": "Marcus Mid Rivers Cinema",
+            "zip": "63376"
+          },
+          {
+            "name": "Marcus St. Charles Cinema",
+            "zip": "63303"
+          }
+        ]
+      },
+      "Town Square": {
+        "theaters": [
+          {
+            "name": "Marcus Town Square Cinema",
+            "zip": "63368"
+          }
+        ]
+      },
+      "Cape Girardeau 63701": {
+        "theaters": [
+          {
+            "name": "Marcus Cape West Cinema",
+            "zip": "63701"
+          }
+        ]
+      },
+      "Lake Ozark 65049": {
+        "theaters": [
+          {
+            "name": "Marcus Eagles Landing Cinema",
+            "zip": "65049"
+          }
+        ]
+      }
+    },
+    "Roy VanHorn": {
+      "Horizon Village 30024": {
+        "theaters": [
+          {
+            "name": "Movie Tavern Horizon Village",
+            "zip": "30024"
+          }
+        ]
+      },
+      "Tucker 30084": {
+        "theaters": [
+          {
+            "name": "Movie Tavern Tucker Cinema",
+            "zip": "30084"
+          }
+        ]
+      },
+      "Roswell 30075": {
+        "theaters": [
+          {
+            "name": "Movie Tavern Roswell",
+            "zip": "30075"
+          }
+        ]
+      },
+      "Citiplace 70808": {
+        "theaters": [
+          {
+            "name": "Movie Tavern Citiplace Cinema",
+            "zip": "70808"
+          }
+        ]
+      },
+      "Covington 70433": {
+        "theaters": [
+          {
+            "name": "Movie Tavern Covington",
+            "zip": "70433"
+          }
+        ]
+      },
+      "Denton 76201": {
+        "theaters": [
+          {
+            "name": "Movie Tavern Denton",
+            "zip": "76205"
+          }
+        ]
+      },
+      "Fort Worth 76107": {
+        "theaters": [
+          {
+            "name": "Movie Tavern West 7th Street",
+            "zip": "76107"
+          },
+          {
+            "name": "Movie Tavern Hulen",
+            "zip": "76132"
+          }
+        ]
+      },
+      "Juban 70726": {
+        "theaters": [
+          {
+            "name": "Movie Tavern Juban Crossing",
+            "zip": "70726"
+          }
+        ]
+      },
+      "Little Rock 72223": {
+        "theaters": [
+          {
+            "name": "Movie Tavern Little Rock",
+            "zip": "72223"
+          }
+        ]
+      }
+    },
+    "Jason Buckland": {
+      "Aurora 80013": {
+        "theaters": [
+          {
+            "name": "Movie Tavern Aurora",
+            "zip": "80013"
+          }
+        ]
+      },
+      "Collegeville 19426": {
+        "theaters": [
+          {
+            "name": "Movie Tavern Collegeville Cinema",
+            "zip": "19426"
+          }
+        ]
+      },
+      "Exton 19341": {
+        "theaters": [
+          {
+            "name": "Movie Tavern Exton",
+            "zip": "19341"
+          }
+        ]
+      },
+      "Flourtown 19031": {
+        "theaters": [
+          {
+            "name": "Movie Tavern Flourtown",
+            "zip": "19031"
+          }
+        ]
+      },
+      "Brannon Crossing 40356": {
+        "theaters": [
+          {
+            "name": "Movie Tavern Brannon Crossing",
+            "zip": "40356"
+          }
+        ]
+      },
+      "Syracuse 13204": {
+        "theaters": [
+          {
+            "name": "Movie Tavern Syracuse",
+            "zip": "13204"
+          }
+        ]
+      },
+      "Trexlertown 18087": {
+        "theaters": [
+          {
+            "name": "Movie Tavern Trexlertown",
+            "zip": "18087"
+          }
+        ]
+      },
+      "Williamsburg 23188": {
+        "theaters": [
+          {
+            "name": "Movie Tavern Williamsburg",
+            "zip": "23188"
+          }
+        ]
+      }
+    },
+    "unassigned markets": {}
+  }
+}
