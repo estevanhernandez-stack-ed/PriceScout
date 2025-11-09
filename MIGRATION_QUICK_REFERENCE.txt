@@ -1,0 +1,148 @@
+================================================================================
+  PRICE SCOUT MIGRATION - QUICK REFERENCE CARD
+================================================================================
+
+GOAL: Move original Price Scout from marketpricescout.com to subdomain
+
+FROM: marketpricescout.com
+TO:   pricescout.marketpricescout.com
+
+================================================================================
+STEP-BY-STEP COMMANDS
+================================================================================
+
+1. ADD DNS RECORD (Do this first!)
+   --------------------------------
+   Go to your DNS provider and add:
+   Type:  A Record
+   Host:  pricescout
+   Value: 134.199.207.21
+   TTL:   3600
+
+   Wait 5-10 minutes for DNS to propagate
+
+2. SSH INTO DROPLET
+   --------------------------------
+   ssh root@134.199.207.21
+
+3. BACKUP CURRENT CONFIG
+   --------------------------------
+   cp /etc/nginx/sites-available/marketpricescout.com /root/marketpricescout.com.backup
+
+4. RENAME CONFIG FILE
+   --------------------------------
+   mv /etc/nginx/sites-available/marketpricescout.com /etc/nginx/sites-available/pricescout.marketpricescout.com
+
+5. EDIT CONFIG FILE
+   --------------------------------
+   nano /etc/nginx/sites-available/pricescout.marketpricescout.com
+
+   FIND:    server_name marketpricescout.com www.marketpricescout.com;
+   REPLACE: server_name pricescout.marketpricescout.com;
+
+   Save: Ctrl+O, Enter, Ctrl+X
+
+6. UPDATE SYMLINK
+   --------------------------------
+   rm /etc/nginx/sites-enabled/marketpricescout.com
+   ln -s /etc/nginx/sites-available/pricescout.marketpricescout.com /etc/nginx/sites-enabled/
+
+7. TEST NGINX
+   --------------------------------
+   nginx -t
+
+   Should say: "syntax is ok" and "test is successful"
+
+8. GET SSL CERTIFICATE
+   --------------------------------
+   certbot --nginx -d pricescout.marketpricescout.com
+
+   Follow prompts, choose redirect HTTP to HTTPS
+
+9. RESTART NGINX
+   --------------------------------
+   systemctl restart nginx
+
+10. VERIFY
+    --------------------------------
+    systemctl status nginx
+    systemctl status pricescout
+    curl -I https://pricescout.marketpricescout.com
+
+================================================================================
+AUTOMATED OPTION
+================================================================================
+
+Upload and run the migration script:
+
+  scp migrate_to_subdomain.sh root@134.199.207.21:/root/
+  ssh root@134.199.207.21
+  chmod +x migrate_to_subdomain.sh
+  ./migrate_to_subdomain.sh
+
+================================================================================
+VERIFICATION
+================================================================================
+
+✓ DNS resolves: nslookup pricescout.marketpricescout.com
+✓ App works:    https://pricescout.marketpricescout.com
+✓ Can login
+✓ Can run scrape
+✓ SSL valid (green padlock in browser)
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+DNS not working?
+  → Wait longer (up to 10 mins)
+  → Check A record is correct
+  → Run: dig pricescout.marketpricescout.com
+
+Certbot fails?
+  → Ensure DNS is propagated first
+  → Check port 80 is open
+  → Try: certbot --dry-run first
+
+Nginx errors?
+  → Check syntax: nginx -t
+  → View logs: tail -f /var/log/nginx/error.log
+  → Restore backup if needed
+
+App not loading?
+  → Check service: systemctl status pricescout
+  → Restart: systemctl restart pricescout
+  → Check logs: journalctl -u pricescout -n 50
+
+================================================================================
+ROLLBACK (if needed)
+================================================================================
+
+  cp /root/marketpricescout.com.backup /etc/nginx/sites-available/marketpricescout.com
+  rm /etc/nginx/sites-enabled/pricescout.marketpricescout.com
+  ln -s /etc/nginx/sites-available/marketpricescout.com /etc/nginx/sites-enabled/
+  nginx -t
+  systemctl restart nginx
+
+================================================================================
+AFTER MIGRATION
+================================================================================
+
+Your setup will be:
+  → Original: https://pricescout.marketpricescout.com (port 8501)
+  → v2:       https://v2.marketpricescout.com (port 8502) ← Deploy next!
+  → Main:     https://marketpricescout.com (available for landing page)
+
+Deploy v2:
+  → Run prepare_deployment.bat on your local machine
+  → Follow DEPLOYMENT_INSTRUCTIONS.txt
+
+================================================================================
+SUPPORT
+================================================================================
+
+Full guide:     MIGRATION_GUIDE.md
+Deploy guide:   DEPLOYMENT_SUMMARY.md
+Troubleshoot:   See MIGRATION_GUIDE.md → Troubleshooting section
+
+================================================================================
