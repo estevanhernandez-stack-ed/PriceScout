@@ -6,7 +6,7 @@ from app.omdb_client import OMDbClient
 import datetime as dt
 import asyncio
 from app.utils import run_async_in_thread, _extract_company_name
-from app import database, ui_components
+from app import db_adapter as database, ui_components
 from thefuzz import fuzz
 import re
 from itertools import groupby

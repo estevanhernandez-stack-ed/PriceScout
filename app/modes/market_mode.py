@@ -4,7 +4,7 @@ from functools import reduce
 import pandas as pd
 import asyncio
 from app.utils import run_async_in_thread, get_error_message, save_operating_hours_from_all_showings, _extract_company_name
-from app import database
+from app import db_adapter as database
 from app.ui_components import render_daypart_selector, apply_daypart_auto_selection, render_film_and_showtime_selection
 
 def render_market_mode(scout, markets_data, cache_data, IS_DISABLED, parent_company):
@@ -265,11 +265,25 @@ def render_market_mode(scout, markets_data, cache_data, IS_DISABLED, parent_comp
         st.divider()
         if st.button("Calculate & Save Operating Hours", use_container_width=True, key="market_op_hours_shortcut", help="This will select all films and showtimes for the currently selected theaters, save the operating hours to the database, and update the UI to reflect the selections."):
             # Determine which films to process based on the 'Only show common films' toggle
-            all_films_unfiltered = sorted(list(reduce(lambda a, b: a.union(b), [set(s['film_title'] for s in showings) for showings in st.session_state.all_showings.values() if showings], set())))
+            # all_showings has structure: {date: {theater_name: [showings]}}
+            # We need to iterate through dates first, then theaters
+            all_films_sets = []
+            for date_str, daily_showings in st.session_state.all_showings.items():
+                for theater_name, showings in daily_showings.items():
+                    if showings:
+                        all_films_sets.append(set(s['film_title'] for s in showings))
+            all_films_unfiltered = sorted(list(reduce(lambda a, b: a.union(b), all_films_sets, set())))
             theaters_in_scope = [t for t in st.session_state.theaters if t['name'] in st.session_state.selected_theaters]
-            
+
             if st.session_state.get('market_films_filter'):
-                film_sets = [set(s['film_title'] for s in st.session_state.all_showings.get(theater['name'], [])) for theater in theaters_in_scope]
+                film_sets = []
+                for theater in theaters_in_scope:
+                    theater_films = set()
+                    for date_str, daily_showings in st.session_state.all_showings.items():
+                        showings = daily_showings.get(theater['name'], [])
+                        theater_films.update(s['film_title'] for s in showings)
+                    if theater_films:
+                        film_sets.append(theater_films)
                 films_to_process = sorted(list(set.intersection(*film_sets))) if film_sets else []
             else:
                 films_to_process = all_films_unfiltered

@@ -17,7 +17,7 @@ from app import config
 from app.scraper import Scraper
 from app.modes.operating_hours_mode import generate_weekly_report_data
 from app.utils import _extract_company_name
-from app import database
+from app import db_adapter as database
 
 logger = logging.getLogger(__name__)
 

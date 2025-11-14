@@ -1,0 +1,213 @@
+# PriceScout Docker Ignore File
+# Excludes unnecessary files from Docker build context
+# Reduces build time and image size
+
+# ==============================================================================
+# VERSION CONTROL
+# ==============================================================================
+.git/
+.gitignore
+.gitattributes
+.github/
+
+# ==============================================================================
+# PYTHON
+# ==============================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# PyCharm
+.idea/
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# ==============================================================================
+# DATABASES (Don't include in image - use volumes or Azure services)
+# ==============================================================================
+*.db
+*.sqlite
+*.sqlite3
+data/**/*.db
+users.db
+user_data.db
+
+# ==============================================================================
+# DATA DIRECTORIES (Mount as volumes in production)
+# ==============================================================================
+data/
+!data/.gitkeep
+reports/
+!reports/.gitkeep
+scheduled_tasks/
+!scheduled_tasks/.gitkeep
+
+# ==============================================================================
+# LOGS AND DEBUG
+# ==============================================================================
+*.log
+logs/
+debug_snapshots/
+!debug_snapshots/.gitkeep
+*.html
+dummy_runtime_log.csv
+
+# Cache files
+*.cache
+.cache/
+cache_data.json
+theater_cache.json
+theater_cache.json.rebuild_bak
+
+# ==============================================================================
+# TESTING
+# ==============================================================================
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+test_reports/
+*.cover
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# ==============================================================================
+# DOCUMENTATION (Include only essential docs)
+# ==============================================================================
+docs/
+dev_docs/
+archive/
+*.md
+!README.md
+!VERSION
+
+# Deployment docs (not needed in container)
+DEPLOYMENT_SUMMARY.md
+DEPLOYMENT_GUIDE.md
+AZURE_DEPLOYMENT_PLAN.md
+MIGRATION_GUIDE.md
+MIGRATION_QUICK_REFERENCE.txt
+PriceScout_DEMO_INSTRUCTIONS.md
+Project-Brief-*.md
+
+# ==============================================================================
+# DEPLOYMENT ARTIFACTS
+# ==============================================================================
+deployment_pricescout_v2/
+deploy/
+migrations/
+!migrations/schema.sql
+!migrations/migrate_to_postgresql.py
+!migrations/README.md
+
+# Scripts (not needed at runtime)
+scripts/
+cleanup.ps1
+prepare_deployment.bat
+migrate_to_subdomain.sh
+
+# Templates
+*_template.csv
+*.xlsx
+example_users.json
+
+# ==============================================================================
+# ENVIRONMENT FILES (Use Azure App Service Configuration instead)
+# ==============================================================================
+.env
+.env.*
+!.env.example
+
+# ==============================================================================
+# TEMPORARY FILES
+# ==============================================================================
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ==============================================================================
+# BUILD ARTIFACTS
+# ==============================================================================
+*.pyc
+*.pyo
+*.pyd
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ==============================================================================
+# SECURITY (Never include in image)
+# ==============================================================================
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+id_rsa*
+.ssh/
+secrets/
+
+# ==============================================================================
+# AZURE (Handled by Azure services)
+# ==============================================================================
+.azure/
+
+# ==============================================================================
+# PLAYWRIGHT (Browsers installed during build)
+# ==============================================================================
+.playwright/
+
+# ==============================================================================
+# SPECIFIC FILES TO EXCLUDE
+# ==============================================================================
+check_db_structure.py
+find_user_by_username.py
+find_user_password.py
+create_excel_template.py
+test_config.py
+pytest.ini
+VERSIONING.md
+SECURITY.md
+role_permissions.json
+bulk_user_upload_template.csv
+BULK_USER_UPLOAD_GUIDE.md
+
+# ==============================================================================
+# KEEP THESE (Essential for runtime)
+# ==============================================================================
+# app/
+# requirements.txt
+# VERSION
+# README.md

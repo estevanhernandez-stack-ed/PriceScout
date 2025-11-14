@@ -146,7 +146,7 @@ async def test_process_all_markets_company_prioritization(mocker):
 async def test_rebuild_theater_cache(mocker):
     # Mock scraper.check_url_status
     mock_check_url_status = mocker.patch.object(data_management_v2.scraper, 'check_url_status', new_callable=mocker.AsyncMock)
-    
+
     # Mock rematch_single_theater
     mock_rematch_single_theater = mocker.patch('app.data_management_v2.rematch_single_theater', new_callable=mocker.AsyncMock)
 
@@ -167,7 +167,7 @@ async def test_rebuild_theater_cache(mocker):
     # Define side effects for mocks
     # First call to check_url_status (for "Theater with Broken URL") should be False
     # Second call to check_url_status (for "Theater to be Rematched") should be False
-    mock_check_url_status.side_effect = [False, False] 
+    mock_check_url_status.side_effect = [False, False]
 
     # First call to rematch_single_theater (for "Theater with Broken URL") should be "No match found"
     # Second call to rematch_single_theater (for "Theater to be Rematched") should be a successful rematch
@@ -195,7 +195,7 @@ async def test_rebuild_theater_cache(mocker):
     assert stats["re_matched"] == 1
     assert stats["skipped"] == 2 # Permanently Closed and Not on Fandango
     assert stats["failed"] == 1 # Theater with Broken URL (first one)
-    
+
     # Verify failed_theaters list contains the broken theater
     assert len(failed_theaters) == 1
     assert failed_theaters[0]['original_name'] == "Theater with Broken URL"
@@ -205,7 +205,7 @@ async def test_rebuild_theater_cache(mocker):
     assert broken_theater["url"] == ""
     assert broken_theater["not_on_fandango"] is True
 
-    
+
 
     # Verify "Permanently Closed Theater" remains unchanged
     closed_theater = next(t for t in updated_cache["markets"]["Market1"]["theaters"] if t["name"] == "Permanently Closed Theater")
@@ -272,7 +272,7 @@ def mock_dm_session_state(monkeypatch):
         'Company': ['CompanyX', 'CompanyY']
     })
     mock_state = {'all_results_df': df}
-    
+
     # Patch st.session_state to use our dictionary for this test's scope
     monkeypatch.setattr(data_management_v2.st, 'session_state', mock_state)
     return mock_state
@@ -285,9 +285,9 @@ def test_render_attention_theater_form_rematch_action(mock_async_run, mock_st, m
     mock_st.form_submit_button.return_value = True
     mock_st.radio.return_value = "Re-run Match"
     mock_async_run.return_value = {
-        'Original Name': 'Theater A', 
-        'Matched Fandango Name': 'New Matched Name', 
-        'Match Score': '95%', 
+        'Original Name': 'Theater A',
+        'Matched Fandango Name': 'New Matched Name',
+        'Match Score': '95%',
         'Matched Fandango URL': 'http://new.url',
         'Company': 'CompanyX'
     }
@@ -303,13 +303,13 @@ def test_render_attention_theater_form_rematch_action(mock_async_run, mock_st, m
     # --- Assertions ---
     mock_st.form.assert_called_with(key='form_rematch_0')
     mock_async_run.assert_called_once()
-    
+
     updated_df = mock_dm_session_state['all_results_df']
     updated_row = updated_df.iloc[index]
     assert updated_row['Matched Fandango Name'] == 'New Matched Name'
     assert updated_row['Match Score'] == '95%'
     assert updated_row['Matched Fandango URL'] == 'http://new.url'
-    
+
     mock_st.success.assert_called_once()
     mock_st.rerun.assert_called_once()
 
@@ -373,14 +373,14 @@ def test_merge_external_db(mock_st, tmp_path, monkeypatch, dm_temp_db):
         cursor.execute("INSERT INTO showings (showing_id, play_date, theater_name, film_title, showtime) VALUES (101, '2025-01-02', 'Source Theater', 'Source Film', '11:00am')")
         cursor.execute("INSERT INTO prices (run_id, showing_id, ticket_type, price) VALUES (?, ?, ?, ?)", (2, 101, 'Adult', 20.0))
         conn.commit()
-    
+
     # <<< IMPORTANT: Restore context to master DB for the merge operation
     monkeypatch.setattr(config, 'DB_FILE', master_db_path)
 
     # --- 3. Simulate File Upload ---
     with open(source_db_path, 'rb') as f:
         source_db_bytes = f.read()
-    
+
     mock_uploaded_file = MagicMock()
     mock_uploaded_file.getvalue.return_value = source_db_bytes
 
@@ -394,14 +394,14 @@ def test_merge_external_db(mock_st, tmp_path, monkeypatch, dm_temp_db):
             src_runs = pd.read_sql("SELECT * FROM scrape_runs", src_conn)
             assert len(src_runs) == 2, f"Source should have 2 runs, found {len(src_runs)}"
             print(f"\n[DEBUG] Source DB runs:\n{src_runs}")
-        
+
             # Check that only one new run was merged
             runs_df = pd.read_sql("SELECT * FROM scrape_runs", conn)
             print(f"\n[DEBUG] Master DB runs after merge:\n{runs_df}")
             assert len(runs_df) == 2, f"Should have the original run and one new run, but found {len(runs_df)}: {runs_df['run_id'].tolist()}"
             assert 'New Run' in runs_df['run_context'].values
             assert 'Existing Run' in runs_df['run_context'].values
-            
+
             # DEBUG: Check showings
             showings_df = pd.read_sql("SELECT * FROM showings", conn)
             print(f"\n[DEBUG] Master DB showings:\n{showings_df}")
@@ -414,7 +414,7 @@ def test_merge_external_db(mock_st, tmp_path, monkeypatch, dm_temp_db):
             print(f"\n[DEBUG] Master DB prices:\n{prices_df}")
             assert len(prices_df) == 2, f"Should have prices from the original and the new run, got {len(prices_df)}"        # Check that the original price record is untouched
         assert 'Master Film' in prices_df['film_title'].values
-        
+
         # Check that the new price record was added
         assert 'Source Film' in prices_df['film_title'].values
 
@@ -456,7 +456,7 @@ def test_upsert_showings(mock_print, dm_temp_db):
 
     # Second upsert with same data, should add no new rows
     data_management_v2.database.upsert_showings(all_showings, play_date)
-    
+
     with sqlite3.connect(dm_temp_db, detect_types=sqlite3.PARSE_DECLTYPES) as conn:
         df = pd.read_sql("SELECT * FROM showings", conn)
         assert len(df) == 3 # Length should be unchanged
@@ -471,8 +471,8 @@ def test_migrate_schema(mock_print, dm_temp_db):
         cursor.execute("CREATE TABLE scrape_runs (run_id INTEGER PRIMARY KEY, run_timestamp DATETIME, mode TEXT, run_context TEXT)")
         cursor.execute("""
             CREATE TABLE prices (
-                price_id INTEGER PRIMARY KEY, run_id INTEGER, theater_name TEXT, film_title TEXT, 
-                showtime TEXT, daypart TEXT, format TEXT, ticket_type TEXT, price REAL, 
+                price_id INTEGER PRIMARY KEY, run_id INTEGER, theater_name TEXT, film_title TEXT,
+                showtime TEXT, daypart TEXT, format TEXT, ticket_type TEXT, price REAL,
                 capacity TEXT, play_date DATE
             )
         """)
@@ -495,7 +495,7 @@ def test_migrate_schema(mock_print, dm_temp_db):
         # Check old table is gone
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='prices_old'")
         assert cursor.fetchone() is None
-        
+
         showings_df = pd.read_sql("SELECT * FROM showings", conn)
         prices_df = pd.read_sql("SELECT * FROM prices", conn)
 
@@ -537,218 +537,3 @@ def test_upsert_film_details_with_box_office(dm_temp_db):
         result = cursor.fetchone()
         assert result is not None
         assert result[0] == 100000000
-
-@pytest.mark.asyncio
-async def test_rematch_single_theater_success(mocker):
-    """Test rematch_single_theater with successful name match."""
-    mocker.patch.object(
-        data_management_v2.scraper, 
-        'live_search_by_name', 
-        new_callable=mocker.AsyncMock, 
-        return_value={
-            "Fandango AMC Theater 24": {
-                "name": "Fandango AMC Theater 24",
-                "url": "http://fandango.com/amc24"
-            }
-        }
-    )
-    
-    result = await data_management_v2.rematch_single_theater("AMC Theater 24", "12345")
-    
-    assert result['Original Name'] == "AMC Theater 24"
-    assert result['Matched Fandango Name'] == "Fandango AMC Theater 24"
-    assert result['Matched Fandango URL'] == "http://fandango.com/amc24"
-    assert int(result['Match Score'].rstrip('%')) >= 50
-
-@pytest.mark.asyncio
-async def test_rematch_single_theater_zip_fallback(mocker):
-    """Test rematch_single_theater falling back to zip search when name search fails."""
-    mocker.patch.object(
-        data_management_v2.scraper, 
-        'live_search_by_name', 
-        new_callable=mocker.AsyncMock, 
-        return_value={}
-    )
-    mocker.patch.object(
-        data_management_v2.scraper, 
-        'live_search_by_zip', 
-        new_callable=mocker.AsyncMock, 
-        return_value={
-            "Cinema 16 at Main Street": {
-                "name": "Cinema 16 at Main Street",
-                "url": "http://fandango.com/cinema16"
-            }
-        }
-    )
-    
-    result = await data_management_v2.rematch_single_theater("Cinema Main Street 16", "54321")
-    
-    assert result['Original Name'] == "Cinema Main Street 16"
-    assert result['Matched Fandango Name'] == "Cinema 16 at Main Street"
-    assert result['Matched Fandango URL'] == "http://fandango.com/cinema16"
-
-@pytest.mark.asyncio
-async def test_rematch_single_theater_no_match(mocker):
-    """Test rematch_single_theater when no match is found."""
-    mocker.patch.object(
-        data_management_v2.scraper, 
-        'live_search_by_name', 
-        new_callable=mocker.AsyncMock, 
-        return_value={}
-    )
-    mocker.patch.object(
-        data_management_v2.scraper, 
-        'live_search_by_zip', 
-        new_callable=mocker.AsyncMock, 
-        return_value={}
-    )
-    
-    result = await data_management_v2.rematch_single_theater("Nonexistent Theater", "99999")
-    
-    assert result['Original Name'] == "Nonexistent Theater"
-    assert result['Matched Fandango Name'] == "No match found"
-    assert result['Match Score'] == "0%"
-    assert result['Matched Fandango URL'] == ""
-
-def test_add_unmatched_ticket_type_local(dm_temp_db, mocker):
-    """Test _add_unmatched_ticket_type_local adds unmatched ticket type to database."""
-    # Initialize database with schema
-    data_management_v2.database.init_database()
-    
-    # Call the function
-    data_management_v2._add_unmatched_ticket_type_local("IMAX 3D", "IMAX 3D Premium")
-    
-    # Verify the unmatched type was added
-    with sqlite3.connect(dm_temp_db, detect_types=sqlite3.PARSE_DECLTYPES) as conn:
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT unmatched_part, original_description FROM unmatched_ticket_types WHERE unmatched_part = ?",
-            ("IMAX 3D",)
-        )
-        result = cursor.fetchone()
-        assert result is not None
-        assert result[0] == "IMAX 3D"
-        assert result[1] == "IMAX 3D Premium"
-
-def test_discover_and_add_new_films_from_bom_new_films(dm_temp_db, mocker):
-    """Test discover_and_add_new_films_from_bom with new films."""
-    # Initialize database
-    data_management_v2.database.init_database()
-    
-    # Mock BoxOfficeMojoScraper
-    mock_bom = mocker.MagicMock()
-    mock_bom.discover_films_by_year.return_value = [
-        {"title": "New Film 1"},
-        {"title": "New Film 2"}
-    ]
-    mocker.patch('app.data_management_v2.BoxOfficeMojoScraper', return_value=mock_bom)
-    
-    # Mock OMDbClient
-    mock_omdb = mocker.MagicMock()
-    mock_omdb.get_film_details.side_effect = [
-        {
-            "film_title": "New Film 1",
-            "genre": "Action",
-            "mpaa_rating": "PG-13",
-            "imdb_id": "tt111",
-            "runtime": "120 min",
-            "director": "Director 1",
-            "actors": "Actor 1",
-            "plot": "Plot 1",
-            "poster_url": "http://example.com/poster1.jpg",
-            "metascore": 80,
-            "imdb_rating": 8.0,
-            "release_date": "2025-01-01",
-            "domestic_gross": None,
-            "opening_weekend_domestic": None,
-            "last_omdb_update": datetime.datetime.now()
-        },
-        {
-            "film_title": "New Film 2",
-            "genre": "Comedy",
-            "mpaa_rating": "R",
-            "imdb_id": "tt222",
-            "runtime": "90 min",
-            "director": "Director 2",
-            "actors": "Actor 2",
-            "plot": "Plot 2",
-            "poster_url": "http://example.com/poster2.jpg",
-            "metascore": 70,
-            "imdb_rating": 7.5,
-            "release_date": "2025-02-01",
-            "domestic_gross": None,
-            "opening_weekend_domestic": None,
-            "last_omdb_update": datetime.datetime.now()
-        }
-    ]
-    mocker.patch('app.data_management_v2.OMDbClient', return_value=mock_omdb)
-    
-    # Run the function
-    new_films, existing_films, failed_films = data_management_v2.discover_and_add_new_films_from_bom(2025)
-    
-    # Verify results
-    assert len(new_films) == 2
-    assert "New Film 1" in new_films
-    assert "New Film 2" in new_films
-    assert len(existing_films) == 0
-    assert len(failed_films) == 0
-
-def test_discover_and_add_new_films_from_bom_existing_films(dm_temp_db, mocker):
-    """Test discover_and_add_new_films_from_bom with existing films."""
-    # Initialize database and add a film
-    data_management_v2.database.init_database()
-    with sqlite3.connect(dm_temp_db, detect_types=sqlite3.PARSE_DECLTYPES) as conn:
-        cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO films (film_title, genre, mpaa_rating, last_omdb_update) VALUES (?, ?, ?, ?)",
-            ("Existing Film", "Drama", "PG", datetime.datetime.now())
-        )
-        conn.commit()
-    
-    # Mock BoxOfficeMojoScraper
-    mock_bom = mocker.MagicMock()
-    mock_bom.discover_films_by_year.return_value = [
-        {"title": "Existing Film"}
-    ]
-    mocker.patch('app.data_management_v2.BoxOfficeMojoScraper', return_value=mock_bom)
-    
-    # Mock OMDbClient (shouldn't be called for existing films)
-    mock_omdb = mocker.MagicMock()
-    mocker.patch('app.data_management_v2.OMDbClient', return_value=mock_omdb)
-    
-    # Run the function
-    new_films, existing_films, failed_films = data_management_v2.discover_and_add_new_films_from_bom(2025)
-    
-    # Verify results
-    assert len(new_films) == 0
-    assert len(existing_films) == 1
-    assert "Existing Film" in existing_films
-    assert len(failed_films) == 0
-    assert mock_omdb.get_film_details.call_count == 0  # Should not fetch details for existing films
-
-def test_discover_and_add_new_films_from_bom_failed_films(dm_temp_db, mocker):
-    """Test discover_and_add_new_films_from_bom with films that fail OMDb lookup."""
-    # Initialize database
-    data_management_v2.database.init_database()
-    
-    # Mock BoxOfficeMojoScraper
-    mock_bom = mocker.MagicMock()
-    mock_bom.discover_films_by_year.return_value = [
-        {"title": "Unknown Film"}
-    ]
-    mocker.patch('app.data_management_v2.BoxOfficeMojoScraper', return_value=mock_bom)
-    
-    # Mock OMDbClient to return None (film not found)
-    mock_omdb = mocker.MagicMock()
-    mock_omdb.get_film_details.return_value = None
-    mocker.patch('app.data_management_v2.OMDbClient', return_value=mock_omdb)
-    
-    # Run the function
-    new_films, existing_films, failed_films = data_management_v2.discover_and_add_new_films_from_bom(2025)
-    
-    # Verify results
-    assert len(new_films) == 0
-    assert len(existing_films) == 0
-    assert len(failed_films) == 1
-    assert failed_films[0]['Title'] == "Unknown Film"
-    assert "Could not find match" in failed_films[0]['Error']

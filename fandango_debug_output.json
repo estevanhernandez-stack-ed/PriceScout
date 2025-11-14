@@ -1,0 +1,1093 @@
+{
+  "schemaChanges": [
+    "FCM-3475",
+    "FCM-3111"
+  ],
+  "account": {
+    "forgotPasswordUrl": "https://www.fandango.com/accounts/forgot-password?from=https%3a%2f%2ftickets.fandango.com%2fmobileexpress%2fseatselection%3frow_count%3d523447898%26mid%3d240922%26chainCode%3dMRCS%26sdate%3d2025-11-13+16%253A00%26tid%3dAAXHO",
+    "passwordRules": "Use 8 or more characters with a number and a lowercase letter. No spaces.",
+    "signInRecaptchaAction": "mpp_checkout_account"
+  },
+  "completePurchase": {
+    "canCompletePurchase": false,
+    "completePurchaseUrl": "/MobileExpress/ConfirmOrder",
+    "isSubscribedToFanMail": false,
+    "deviceType": "desktop",
+    "privacyUrl": "https://www.fandango.com/PrivacyPolicy",
+    "superBandId": 0,
+    "termsUrl": "https://www.fandango.com/terms-and-policies",
+    "purchaseHash": "4ecec9f23f0c17261a28ff08ba77b96f52141b083dd95d7c3e074f9614df5b53"
+  },
+  "exhibitorLoyalty": {
+    "isEnabled": true,
+    "isSecondLoyaltyEnabled": false,
+    "maxCharLimit": 19,
+    "logoUrl": "https://images.fandango.com/r2.0.1.1266/images/loyalty/MRCS_card_mobile.png",
+    "programDescription": "<p>Simply enter your valid Magical Movie Rewards number to have your Fandango service fee waived, earn points, and redeem applicable rewards from Marcus Theaters.<p><p>Fandango will automatically send your card number along with your order to Marcus Theaters for processing. Marcus Theaters will credit your Magical Movie Rewards account when tickets are retrieved at the theater.</p><p>The Magical Movie Rewards program is managed by Marcus Theaters, not Fandango. For questions regarding your account or the program, please contact Marcus Theaters or visit https://marcustheatres.com/movie-rewards</p>",
+    "programHeader": "Marcus Theater Rewards Program",
+    "programName": "Marcus Rewards Program",
+    "programShortName": "MarcusRewardsProgram",
+    "saveNumberProgramName": "Marcus Rewards",
+    "isApplied": false,
+    "isExpired": false,
+    "hasRewardProgram": false,
+    "isBalanceApplied": false,
+    "isRedemptionApplied": false,
+    "rewardBalance": 0.0,
+    "loyaltyByEmail": false,
+    "loyaltyByPhone": false,
+    "loyaltyByMemberIdRegex": "False",
+    "loyaltyByAlternateID": true,
+    "hasProgram": true,
+    "isLoyaltyOnly": false,
+    "loyaltyPopupCardImgClass": "Marcus Rewards",
+    "saveNumber": false,
+    "loyaltyRewards": {
+      "isEnabled": false,
+      "isEligibleForThisOrder": false,
+      "isApplied": false,
+      "balance": 0.0
+    }
+  },
+  "membershipOffer": {
+    "defaultPlan": {
+      "planId": "025",
+      "name": "FanClub Monthly with Free Trial",
+      "sumoPlanName": "FanClub_7 day FT Monthly",
+      "headline": "Save on every ticket",
+      "subhead": "Save $0.00 on your order",
+      "benefitsHeadline": "Get waived fees during your 7-day free trial. After your free trial, enjoy more exclusive benefits. ",
+      "benefitsPopUpHeadline": "Plus, enjoy other exclusive benefits right away",
+      "optInHeadline": "Congratulations, You're Waiving Your Fees",
+      "legalCopy": "7-day trial, then $9.99 monthly. Prices subject to change.",
+      "confirmButton": {
+        "text": "Try 7 Days Free"
+      },
+      "declineButton": {
+        "text": "No, Skip to Checkout"
+      },
+      "orderSummaryItem": "FanClub Free Trial",
+      "orderSummaryHeadline": "$9.99 Monthly Membership",
+      "orderSummaryDesc": "Plus tax, if any. Prices subject to change.",
+      "marketingImage": {
+        "url": "https://images.fandango.com/cms/assets/af8befe0-f85f-11ef-a588-3b078e6b3d8a--radial-gradient.png"
+      },
+      "membershipLogo": {
+        "url": "https://images.fandango.com/cms/assets/7511de20-5e4e-11ef-a588-3b078e6b3d8a--fandango-fanclub-logo-horizontal-color-rgb.svg"
+      },
+      "benefits": [
+        {
+          "name": "Waived Fees",
+          "description": "Waived fees on all Fandango ticket purchases",
+          "image": {
+            "url": "https://images.fandango.com/cms/assets/2341abf0-f860-11ef-ab6e-6bc4e16d49df--fanclub-circle-star.svg"
+          }
+        },
+        {
+          "name": "Monthly discount",
+          "description": "$10 off any movie ticket each month (expires monthly)",
+          "image": {
+            "url": "https://images.fandango.com/cms/assets/190f0ba0-f860-11ef-a588-3b078e6b3d8a--fanclub-cash.svg"
+          }
+        },
+        {
+          "name": "FanStore",
+          "description": "$10 off one FanStore purchase of eligible item(s) each month (expires monthly)",
+          "image": {
+            "url": "https://images.fandango.com/cms/assets/b6806f20-0376-11f0-8321-2b978811c524--fanclub-tag.svg"
+          }
+        },
+        {
+          "name": "Special Perks",
+          "description": "Special perks and early access to offers",
+          "image": {
+            "url": "https://images.fandango.com/cms/assets/30d159f0-f860-11ef-8321-2b978811c524--fanclub-gift.svg"
+          }
+        }
+      ],
+      "serviceFeesWaived": 0.0,
+      "monthlyCharge": 9.99,
+      "initialCharge": 9.99,
+      "initialTermMonths": 1,
+      "freeTrialDays": 7,
+      "initialChargeDate": "2025-11-20T12:57:49.6878012",
+      "monthlyChargeSubtext": "after 7-day trial",
+      "checkboxLegalText": "By checking this box, you agree to the <a href=\"https://www.fandango.com/policies/fanclub-terms\" target=\"_blank\">FanClub Program Terms</a> and that we can save and charge your card for future purchases. \n\nOnce your 7-day trial expires, your FanClub Membership will renew into a paid membership and <b>you will be billed $9.99 per month starting 11/20/2025, plus any applicable taxes until you cancel.</b> \n\nPrices subject to change. You can <a href=\"https://support.fandango.com/fandangosupport/s/article/How-do-I-cancel-my-FanClub-membership\" target=\"_blank\">cancel</a> anytime by visiting your account page and selecting \u201ccancel membership\u201d prior to the start of any future billing periods to avoid future charges. The cancellation will be effective at the end of the then-current period (no refunds or credits for partial membership periods unless required by law). Any promotional offers applied as part of this purchase will be delivered to you via email after the end of your 7-day free trial, once your paid membership begins.\u200b",
+      "termsApplyCopy": "As part of joining FanClub, we will save and charge your card for future purchases. Once your 7-day trial expires, your FanClub Membership will renew into a paid membership and <b>you will be billed $9.99 per month, plus any applicable taxes until you cancel</b>. Prices subject to change. You can cancel anytime by visiting your account page and selecting \u201ccancel membership\u201d prior to the start of any future billing periods to avoid future charges. The cancellation will be effective at the end of the then-current period (no refunds or credits for partial membership periods unless required by law). Any promotional offers applied as part of this purchase will be delivered to you via email after the end of your 7-day free trial, once your paid membership begins.",
+      "lastChanceHeadline": "Last Chance to Skip the Fees",
+      "sidecartBlurb": "Get waived fees by starting a FanClub 7-day free trial. After your free trial, enjoy more exclusive benefits."
+    },
+    "alternatePlans": [
+      {
+        "planId": "001",
+        "name": "FanClub Monthly with Free Trial",
+        "sumoPlanName": "Monthly With Free Trial",
+        "headline": "Say Goodbye To<br> Convenience Fees Today",
+        "subhead": "Save $0.00 on your order",
+        "benefitsHeadline": "Get waived fees during your 7-day free trial. After your free trial, enjoy more exclusive benefits. ",
+        "benefitsPopUpHeadline": "Plus, enjoy other exclusive benefits right away",
+        "optInHeadline": "Congratulations, You Are Waiving Your Fees",
+        "legalCopy": "7-day trial, 3-month minimum at $29.97, then $9.99 monthly. Prices subject to change.",
+        "confirmButton": {
+          "text": "Try 7 Days Free"
+        },
+        "declineButton": {
+          "text": "No, Skip To Checkout"
+        },
+        "orderSummaryItem": "FanClub Free Trial",
+        "orderSummaryHeadline": "3 Months for $29.97, then $9.99/monthly",
+        "orderSummaryDesc": "Plus tax, if any. Prices subject to change.",
+        "marketingImage": {
+          "url": "https://images.fandango.com/cms/assets/af8befe0-f85f-11ef-a588-3b078e6b3d8a--radial-gradient.png"
+        },
+        "membershipLogo": {
+          "url": "https://images.fandango.com/cms/assets/7511de20-5e4e-11ef-a588-3b078e6b3d8a--fandango-fanclub-logo-horizontal-color-rgb.svg"
+        },
+        "benefits": [
+          {
+            "name": "Waived Fees",
+            "description": "Waived fees on all ticket purchases",
+            "image": {
+              "url": "https://images.fandango.com/cms/assets/2341abf0-f860-11ef-ab6e-6bc4e16d49df--fanclub-circle-star.svg"
+            }
+          },
+          {
+            "name": "Monthly discount",
+            "description": "$10 off any movie ticket each month (expires monthly)",
+            "image": {
+              "url": "https://images.fandango.com/cms/assets/190f0ba0-f860-11ef-a588-3b078e6b3d8a--fanclub-cash.svg"
+            }
+          },
+          {
+            "name": "FanStore",
+            "description": "$10 off one FanStore purchase of eligible item(s) each month (expires monthly)",
+            "image": {
+              "url": "https://images.fandango.com/cms/assets/b6806f20-0376-11f0-8321-2b978811c524--fanclub-tag.svg"
+            }
+          },
+          {
+            "name": "Special Perks",
+            "description": "Special perks and early access to offers",
+            "image": {
+              "url": "https://images.fandango.com/cms/assets/30d159f0-f860-11ef-8321-2b978811c524--fanclub-gift.svg"
+            }
+          }
+        ],
+        "openHtmlBlock": "test",
+        "serviceFeesWaived": 0.0,
+        "monthlyCharge": 9.99,
+        "initialCharge": 29.97,
+        "initialTermMonths": 3,
+        "freeTrialDays": 7,
+        "initialChargeDate": "2025-11-20T12:57:49.4780034",
+        "monthlyChargeSubtext": "after 7 day trial",
+        "checkboxLegalText": "By checking this box, you agree to the <a href=\"https://www.fandango.com/policies/fanclub-terms\" target=\"_blank\">FanClub Program Terms</a> and that we can save and charge your card for future purchases. Once your 7-day trial expires, your FanClub Membership will renew into a paid membership and <b>you will be billed $29.97 for the first 3-months on 11/20/2025,and then $9.99 per month starting 2/20/2026, plus any applicable taxes until you cancel</b>. Prices subject to change. You can <a href=\"https://support.fandango.com/fandangosupport/s/article/How-do-I-cancel-my-FanClub-membership\" target=\"_blank\">cancel</a> anytime by visiting your account page and selecting \u201ccancel membership\u201d prior to the start of any future billing periods to avoid future charges. The cancellation will be effective at the end of then-current period (no refunds or credits for partial membership periods unless required by law).  Any promotional offers applied as part of this purchase will be delivered to you via email after the end of your 7-day free trial, once your paid membership begins.\u200b",
+        "termsApplyCopy": "As part of joining FanClub, we will save and charge your card for future purchases. Once your 7-day trial expires, your FanClub Membership will renew into a paid membership and you will be billed $29.97 for the first 3-months, and then $9.99 per month thereafter, plus any applicable taxes until you cancel. Prices subject to change. You can cancel anytime by visiting your account page and selecting \u201ccancel membership\u201d prior to the start of any future billing periods to avoid future charges. The cancellation will be effective at the end of the then-current period (no refunds or credits for partial membership periods unless required by law).  Any promotional offers applied as part of this purchase will be delivered to you via email after the end of your 7-day free trial, once your paid membership begins.\u200b",
+        "lastChanceHeadline": "Last Chance To Skip The Fees",
+        "sidecartBlurb": "Get waived fees by starting a FanClub 7-day free trial. After your free trial, enjoy more exclusive benefits."
+      },
+      {
+        "planId": "004",
+        "name": "FanClub Monthly",
+        "sumoPlanName": "Direct to Paid 3 Month to Monthly Subscription",
+        "headline": "Join today to get waived fees plus a FREE movie ticket for later!",
+        "subhead": "Save $0.00 on this order in waived fees",
+        "benefitsHeadline": "For a limited time, join FanClub and get a FREE movie ticket for later. Your free movie ticket will be delivered to you via email within 24 to 48 hours after your membership begins.  <a href=\"https://www.fandangomovietickets.com/FanClub_WickedForGood\">Terms and Conditions Apply</a>",
+        "benefitsPopUpHeadline": "Plus, enjoy other exclusive benefits right away",
+        "optInHeadline": "Congrats! You\u2019re waiving your fees and getting a free movie ticket for later.",
+        "legalCopy": "3-mo billed at $29.97, then $9.99 each month of membership. Prices subject to change.",
+        "confirmButton": {
+          "text": "Add FanClub to Cart"
+        },
+        "declineButton": {
+          "text": "No, Skip to Checkout"
+        },
+        "orderSummaryItem": "FanClub Monthly Membership",
+        "orderSummaryHeadline": "3 Months for $29.97, then $9.99 monthly",
+        "orderSummaryDesc": "Plus tax, if any. Prices subject to change.",
+        "marketingImage": {
+          "url": "https://images.fandango.com/cms/assets/af8befe0-f85f-11ef-a588-3b078e6b3d8a--radial-gradient.png"
+        },
+        "membershipLogo": {
+          "url": "https://images.fandango.com/cms/assets/7511de20-5e4e-11ef-a588-3b078e6b3d8a--fandango-fanclub-logo-horizontal-color-rgb.svg"
+        },
+        "benefits": [
+          {
+            "name": "Waived Fees",
+            "description": "Waived fees on all Fandango ticket purchases",
+            "image": {
+              "url": "https://images.fandango.com/cms/assets/2341abf0-f860-11ef-ab6e-6bc4e16d49df--fanclub-circle-star.svg"
+            }
+          },
+          {
+            "name": "Monthly discount",
+            "description": "$10 off any movie ticket each month (expires monthly)",
+            "image": {
+              "url": "https://images.fandango.com/cms/assets/190f0ba0-f860-11ef-a588-3b078e6b3d8a--fanclub-cash.svg"
+            }
+          },
+          {
+            "name": "FanStore",
+            "description": "$10 off one FanStore purchase of eligible item(s) each month (expires monthly)",
+            "image": {
+              "url": "https://images.fandango.com/cms/assets/b6806f20-0376-11f0-8321-2b978811c524--fanclub-tag.svg"
+            }
+          },
+          {
+            "name": "Special Perks",
+            "description": "Special perks and early access to offers",
+            "image": {
+              "url": "https://images.fandango.com/cms/assets/30d159f0-f860-11ef-8321-2b978811c524--fanclub-gift.svg"
+            }
+          }
+        ],
+        "serviceFeesWaived": 0.0,
+        "monthlyCharge": 9.99,
+        "initialCharge": 29.97,
+        "initialTermMonths": 3,
+        "freeTrialDays": 0,
+        "initialChargeDate": "2025-11-13T12:57:49.5538763",
+        "checkboxLegalText": "By checking this box, you agree to the <a href=\"https://www.fandango.com/policies/fanclub-terms\" target=\"_blank\">FanClub Program Terms</a> and that we can save and charge your card for future purchases. Once you complete this transaction, <b>you will be billed $29.97 for the first 3-months on 11/13/2025, and then $9.99 per month starting 2/13/2026, plus any applicable taxes until you cancel</b>. Prices subject to change. You can\u00a0<a href=\"https://support.fandango.com/fandangosupport/s/article/How-do-I-cancel-my-FanClub-membership\" target=\"_blank\">cancel</a> anytime by visiting your account page and selecting \u201ccancel membership\u201d prior to the start of any future billing periods to avoid future charges. The cancellation will be effective at the end of the then-current period (no refunds or credits for partial membership periods unless required by law). Certain promotional offers obtained as part of this purchase will be applied to your current order, other promo codes will be made available to you via email or in your account once your paid membership begins.",
+        "termsApplyCopy": "As part of joining FanClub, we will save and charge your card for future purchases. When you join FanClub, <b>you will be billed $29.97 for the first 3-months on 11/13/2025, and then $9.99 per month starting 2/13/2026, plus any applicable taxes until you cancel</b>. Prices subject to change. You can cancel anytime by visiting your account page and selecting \u201ccancel membership\u201d prior to the start of any future billing periods to avoid future charges. The cancellation will be effective at the end of the then-current period (no refunds or credits for partial membership periods unless required by law). Certain promotional offers obtained as part of this purchase will be applied to your current order, other promo codes will be made available to you via email or in your account once your paid membership begins.",
+        "lastChanceHeadline": "Last chance to get waived fees plus a FREE movie ticket for later!",
+        "sidecartBlurb": "For a limited time, join FanClub and get a FREE movie ticket for later. Your free movie ticket will be delivered to you via email within 24 to 48 hours after your membership begins.  <a href=\"https://www.fandangomovietickets.com/FanClub_WickedForGood\">Terms and Conditions Apply</a>"
+      },
+      {
+        "planId": "003",
+        "name": "FanClub Annual",
+        "sumoPlanName": "Yearly Subscription",
+        "headline": "Save on every ticket",
+        "subhead": "Save $0.00 on this order in waived fees",
+        "benefitsHeadline": "For a limited time, join FanClub and get 2 free tickets in this current order. (Cannot be combined with other promotions, single admission tickets only.)",
+        "benefitsPopUpHeadline": "Plus, enjoy other exclusive benefits right away",
+        "optInHeadline": "Congratulations, You Are Waiving Your Fees",
+        "legalCopy": "$99.00 annual membership. Prices subject to change.",
+        "confirmButton": {
+          "text": "Add FanClub to Cart"
+        },
+        "declineButton": {
+          "text": "No, Skip to Checkout"
+        },
+        "orderSummaryItem": "FanClub Annual Plan",
+        "orderSummaryHeadline": "$99.00 Annual<BR>Membership",
+        "orderSummaryDesc": "Plus tax, if any. Prices subject to change.",
+        "marketingImage": {
+          "url": "https://images.fandango.com/cms/assets/af8befe0-f85f-11ef-a588-3b078e6b3d8a--radial-gradient.png"
+        },
+        "membershipLogo": {
+          "url": "https://images.fandango.com/cms/assets/7511de20-5e4e-11ef-a588-3b078e6b3d8a--fandango-fanclub-logo-horizontal-color-rgb.svg"
+        },
+        "benefits": [
+          {
+            "name": "Waived Fees",
+            "description": "Waived fees on all Fandango ticket purchases",
+            "image": {
+              "url": "https://images.fandango.com/cms/assets/2341abf0-f860-11ef-ab6e-6bc4e16d49df--fanclub-circle-star.svg"
+            }
+          },
+          {
+            "name": "Monthly discount",
+            "description": "$10 off any movie ticket each month (expires monthly)",
+            "image": {
+              "url": "https://images.fandango.com/cms/assets/190f0ba0-f860-11ef-a588-3b078e6b3d8a--fanclub-cash.svg"
+            }
+          },
+          {
+            "name": "FanStore",
+            "description": "$10 off one FanStore purchase of eligible item(s) each month (expires monthly)",
+            "image": {
+              "url": "https://images.fandango.com/cms/assets/b6806f20-0376-11f0-8321-2b978811c524--fanclub-tag.svg"
+            }
+          },
+          {
+            "name": "Special Perks",
+            "description": "Special perks and early access to offers",
+            "image": {
+              "url": "https://images.fandango.com/cms/assets/30d159f0-f860-11ef-8321-2b978811c524--fanclub-gift.svg"
+            }
+          }
+        ],
+        "serviceFeesWaived": 0.0,
+        "monthlyCharge": 0.0,
+        "initialCharge": 99.0,
+        "initialTermMonths": 0,
+        "freeTrialDays": 0,
+        "initialChargeDate": "2025-11-13T12:57:49.6218279",
+        "checkboxLegalText": "By checking this box, you agree to the\u00a0<a href=\"https://www.fandango.com/policies/fanclub-terms\" target=\"_blank\">FanClub Program Terms</a>\u00a0and that we can save and charge your card for future purchases. Once you complete this transaction, your FanClub Membership will\u00a0be valid for one year from the date of purchase\u00a0and will renew\u00a0annually.\u00a0<b>You will be billed $99.00\u00a0per year,\u00a0plus any applicable taxes until you cancel.</b> Prices subject to change. You can\u00a0<a href=\"https://support.fandango.com/fandangosupport/s/article/How-do-I-cancel-my-FanClub-membership\" target=\"_blank\">cancel</a> anytime by visiting your account page and selecting \u201ccancel membership\u201d prior to the start of any future billing periods to avoid future charges. The cancellation will be effective at the end of the then-current period (no refunds or credits for partial membership periods unless required by law). Certain promotional offers obtained as part of this purchase will be applied to your current order, other promo codes will be made available to you via email or in your account once your paid membership begins.",
+        "termsApplyCopy": "As part of joining FanClub, we will save and charge your card for future purchases. When you join FanClub, your FanClub Membership will be valid for one year from the date of purchase and will renew annually. <b>You will be billed $99.00 per year, plus any applicable taxes until you cancel</b>. Prices subject to change. You can cancel anytime by visiting your account page and selecting \u201ccancel membership\u201d prior to the start of any future billing periods to avoid future charges. The cancellation will be effective at the end of the then-current period (no refunds or credits for partial membership periods unless required by law). Certain promotional offers obtained as part of this purchase will be applied to your current order, other promo codes will be made available to you via email or in your account once your paid membership begins.",
+        "lastChanceHeadline": "Last Chance to Skip the Fees",
+        "sidecartBlurb": "For a limited time, join FanClub and get 2 free tickets in this current order. (Cannot be combined with other promotions, single admission tickets only.)"
+      },
+      {
+        "planId": "006",
+        "name": "FanClub Annual with Free Trial",
+        "sumoPlanName": "7-day Free Trial into Paid Annual Subscription",
+        "headline": "Save on every ticket",
+        "subhead": "Save $0.00 on your order",
+        "benefitsHeadline": "Get waived fees during your 7-day free trial. After your free trial, enjoy more exclusive benefits. ",
+        "benefitsPopUpHeadline": "Plus, enjoy other exclusive benefits right away",
+        "optInHeadline": "Congratulations, You're Waiving Your Fees",
+        "legalCopy": "7-day free trial, then $99.00 yearly. Prices are subject to change.",
+        "confirmButton": {
+          "text": "Try 7 Days Free"
+        },
+        "declineButton": {
+          "text": "No, Skip to Checkout"
+        },
+        "orderSummaryItem": "FanClub Free Trial",
+        "orderSummaryHeadline": "$99.00 Annual Membership",
+        "orderSummaryDesc": "Plus tax, if any. Prices subject to change.",
+        "marketingImage": {
+          "url": "https://images.fandango.com/cms/assets/af8befe0-f85f-11ef-a588-3b078e6b3d8a--radial-gradient.png"
+        },
+        "membershipLogo": {
+          "url": "https://images.fandango.com/cms/assets/7511de20-5e4e-11ef-a588-3b078e6b3d8a--fandango-fanclub-logo-horizontal-color-rgb.svg"
+        },
+        "benefits": [
+          {
+            "name": "Waived Fees",
+            "description": "Waived fees on all Fandango ticket purchases",
+            "image": {
+              "url": "https://images.fandango.com/cms/assets/2341abf0-f860-11ef-ab6e-6bc4e16d49df--fanclub-circle-star.svg"
+            }
+          },
+          {
+            "name": "Monthly discount",
+            "description": "$10 off any movie ticket each month (expires monthly)",
+            "image": {
+              "url": "https://images.fandango.com/cms/assets/190f0ba0-f860-11ef-a588-3b078e6b3d8a--fanclub-cash.svg"
+            }
+          },
+          {
+            "name": "FanStore",
+            "description": "$10 off one FanStore purchase of eligible item(s) each month (expires monthly)",
+            "image": {
+              "url": "https://images.fandango.com/cms/assets/b6806f20-0376-11f0-8321-2b978811c524--fanclub-tag.svg"
+            }
+          },
+          {
+            "name": "Special Perks",
+            "description": "Special perks and early access to offers",
+            "image": {
+              "url": "https://images.fandango.com/cms/assets/30d159f0-f860-11ef-8321-2b978811c524--fanclub-gift.svg"
+            }
+          }
+        ],
+        "serviceFeesWaived": 0.0,
+        "monthlyCharge": 0.0,
+        "initialCharge": 99.0,
+        "initialTermMonths": 0,
+        "freeTrialDays": 7,
+        "initialChargeDate": "2025-11-20T12:57:49.7580203",
+        "monthlyChargeSubtext": "after 7-day trial",
+        "checkboxLegalText": "By checking this box, you agree to the <a href=\"https://www.fandango.com/policies/fanclub-terms\" target=\"_blank\">FanClub Program Terms</a> and that we can save and charge your card for future purchases. Once your 7-day trial expires, <b>your FanClub Membership will renew into a paid membership and you will be billed $99.00 per year starting 11/20/2025, plus any applicable taxes until you cancel.</b> Your FanClub Membership will be valid for one year from the date of purchase and will renew annually. Prices are subject to change. You can <a href=\"https://support.fandango.com/fandangosupport/s/article/How-do-I-cancel-my-FanClub-membership\" target=\"_blank\">cancel</a> anytime by visiting your account page and selecting \u201ccancel membership\u201d prior to the start of any future billing periods to avoid future charges. The cancellation will be effective at the end of the then-current period (no refunds or credits for partial membership periods unless required by law). Any promotional offers applied as part of this purchase will be delivered to you via email after the end of your 7-day free trial, once your paid membership begins.\u200b",
+        "termsApplyCopy": "As part of joining FanClub, we will save and charge your card for future purchases. Once your 7-day trial expires, your FanClub Membership will renew into a paid membership and <b>you will be billed $99.00 per year, plus any applicable taxes until you cancel. </b> Your FanClub Membership will be valid for one year from the date of purchase and will renew annually. Prices are subject to change. You can cancel anytime by visiting your account page and selecting \u201ccancel membership\u201d prior to the start of any future billing periods to avoid future charges. The cancellation will be effective at the end of the then-current period (no refunds or credits for partial membership periods unless required by law). Any promotional offers applied as part of this purchase will be delivered to you via email once your paid membership begins. ",
+        "lastChanceHeadline": "Last Chance to Skip the Fees",
+        "sidecartBlurb": "Get waived fees by starting a FanClub 7-day free trial. After your free trial, enjoy more exclusive benefits."
+      },
+      {
+        "planId": "005",
+        "name": "FanClub Monthly",
+        "sumoPlanName": "Direct to Paid (1 month) Monthly Subscription",
+        "headline": "Save on every ticket",
+        "subhead": "Save $0.00 in fees on this order",
+        "benefitsHeadline": "The movie membership that pays for itself",
+        "benefitsPopUpHeadline": "Plus, enjoy other exclusive benefits right away",
+        "optInHeadline": "Congratulations, You Are Waiving Your Fees",
+        "legalCopy": "$9.99 monthly membership. Prices subject to change.",
+        "confirmButton": {
+          "text": "Add FanClub to Cart"
+        },
+        "declineButton": {
+          "text": "No, Skip to Checkout"
+        },
+        "orderSummaryItem": "FanClub Monthly Membership",
+        "orderSummaryHeadline": "$9.99 Monthly Membership",
+        "orderSummaryDesc": "Plus tax, if any. Prices subject to change.",
+        "marketingImage": {
+          "url": "https://images.fandango.com/cms/assets/af8befe0-f85f-11ef-a588-3b078e6b3d8a--radial-gradient.png"
+        },
+        "membershipLogo": {
+          "url": "https://images.fandango.com/cms/assets/7511de20-5e4e-11ef-a588-3b078e6b3d8a--fandango-fanclub-logo-horizontal-color-rgb.svg"
+        },
+        "benefits": [
+          {
+            "name": "Waived Fees",
+            "description": "Waived fees on all Fandango ticket purchases",
+            "image": {
+              "url": "https://images.fandango.com/cms/assets/2341abf0-f860-11ef-ab6e-6bc4e16d49df--fanclub-circle-star.svg"
+            }
+          },
+          {
+            "name": "Monthly discount",
+            "description": "$10 off any movie ticket each month (expires monthly)",
+            "image": {
+              "url": "https://images.fandango.com/cms/assets/190f0ba0-f860-11ef-a588-3b078e6b3d8a--fanclub-cash.svg"
+            }
+          },
+          {
+            "name": "FanStore",
+            "description": "$10 off one FanStore purchase of eligible item(s) each month (expires monthly)",
+            "image": {
+              "url": "https://images.fandango.com/cms/assets/b6806f20-0376-11f0-8321-2b978811c524--fanclub-tag.svg"
+            }
+          },
+          {
+            "name": "Special Perks",
+            "description": "Special perks and early access to offers",
+            "image": {
+              "url": "https://images.fandango.com/cms/assets/30d159f0-f860-11ef-8321-2b978811c524--fanclub-gift.svg"
+            }
+          }
+        ],
+        "serviceFeesWaived": 0.0,
+        "monthlyCharge": 9.99,
+        "initialCharge": 9.99,
+        "initialTermMonths": 1,
+        "freeTrialDays": 0,
+        "initialChargeDate": "2025-11-13T12:57:49.9082611",
+        "checkboxLegalText": "By checking this box, you agree to the  <a href=\"https://www.fandango.com/policies/fanclub-terms\" target=\"_blank\">FanClub Program Terms</a> and that we can save and charge your card for future purchases. Once you complete this transaction, <b>you will be billed $9.99 per month, plus any applicable taxes until you cancel</b>. Prices are subject to change. You can\u00a0<a href=\"https://support.fandango.com/fandangosupport/s/article/How-do-I-cancel-my-FanClub-membership\" target=\"_blank\">cancel</a> anytime by visiting your account page and selecting \u201ccancel membership\u201d prior to the start of any future billing periods to avoid future charges. The cancellation will be effective at the end of the then-current period (no refunds or credits for partial membership periods unless required by law).  Any promotional offers applied as part of this purchase will be delivered to you via email once your paid membership begins. ",
+        "termsApplyCopy": "As part of joining FanClub, we will save and charge your card for future purchases. Once you complete this transaction, <b>you will be billed $9.99 per month, plus any applicable taxes until you cancel</b>. Prices are subject to change. You can cancel anytime by visiting your account page and selecting \u201ccancel membership\u201d prior to the start of any future billing periods to avoid future charges. The cancellation will be effective at the end of the then-current period (no refunds or credits for partial membership periods unless required by law). Any promotional offers applied as part of this purchase will be delivered to you via email once your paid membership begins. ",
+        "lastChanceHeadline": "Last Chance to Skip the Fees",
+        "sidecartBlurb": "By joining FanClub, you won't pay fees on Fandango ticket purchases."
+      },
+      {
+        "planId": "002",
+        "name": "QA Daily Plan with 1 Day Free Trial",
+        "sumoPlanName": "1 Day Free Trial - QA",
+        "headline": "Say Goodbye To<br> Convenience Fees Today",
+        "subhead": "Save $0.00 on your order",
+        "benefitsHeadline": "Get waived fees on this ticket purchase - up to 4 tickets. <strong>After your 7-day free trial,</strong> enjoy exclusive benefits like:",
+        "benefitsPopUpHeadline": "Plus, enjoy other exclusive benefits right away",
+        "optInHeadline": "Congratulations, You Are Waiving Your Fees",
+        "legalCopy": "1-day trial, 3-month minimum at $2.97, then $0.99 monthly.",
+        "confirmButton": {
+          "text": "Try 7 Days Free"
+        },
+        "declineButton": {
+          "text": "No, Skip To Checkout"
+        },
+        "orderSummaryItem": "FanClub Free Trial",
+        "orderSummaryHeadline": "3 Months for $2.97, then $0.99/monthly",
+        "orderSummaryDesc": "Plus tax, if any",
+        "marketingImage": {
+          "url": "https://images.fandango.com/cms/assets/af8befe0-f85f-11ef-a588-3b078e6b3d8a--radial-gradient.png"
+        },
+        "membershipLogo": {
+          "url": "https://images.fandango.com/cms/assets/7511de20-5e4e-11ef-a588-3b078e6b3d8a--fandango-fanclub-logo-horizontal-color-rgb.svg"
+        },
+        "benefits": [
+          {
+            "name": "Waived Fees",
+            "description": "Waived fees on ticket purchases",
+            "image": {
+              "url": "https://images.fandango.com/cms/assets/2341abf0-f860-11ef-ab6e-6bc4e16d49df--fanclub-circle-star.svg"
+            }
+          },
+          {
+            "name": "Monthly discount",
+            "description": "$10 toward a ticket purchase each month - any movie, any showtime, any format",
+            "image": {
+              "url": "https://images.fandango.com/cms/assets/190f0ba0-f860-11ef-a588-3b078e6b3d8a--fanclub-cash.svg"
+            }
+          },
+          {
+            "name": "Special Perks",
+            "description": "Special perks and early access to offers",
+            "image": {
+              "url": "https://images.fandango.com/cms/assets/30d159f0-f860-11ef-8321-2b978811c524--fanclub-gift.svg"
+            }
+          }
+        ],
+        "openHtmlBlock": "test",
+        "serviceFeesWaived": 0.0,
+        "monthlyCharge": 0.99,
+        "initialCharge": 2.97,
+        "initialTermMonths": 3,
+        "freeTrialDays": 1,
+        "initialChargeDate": "2025-11-14T12:57:49.9648203",
+        "monthlyChargeSubtext": "after 1 day trial",
+        "checkboxLegalText": "By checking this box, you agree to the <a href=\"https://www.fandango.com/policies/fanclub-terms\" target=\"_blank\">FanClub Program Terms</a> and that we can save and charge your card for future purchases. Once your 7-day trial expires, your FanClub Membership will renew into a paid membership and <b>you will be billed $2.97 for the first 3-months on 11/14/2025,and then $0.99 per month starting 2/14/2026, plus any applicable taxes until you cancel</b>. You can <a href=\"#\">cancel</a> anytime by visiting your account page and selecting \u201ccancel membership\u201d prior to the start of any future billing periods to avoid future charges. The cancellation will be effective at the end of then-current period (no refunds or credits for partial membership periods unless required by law).",
+        "termsApplyCopy": "As part of joining FanClub, we will save and charge your card for future purchases. Once your 7-day trial expires, your FanClub Membership will renew into a paid membership and you will be billed $29.97 for the first 3-months, and then $9.99 per month thereafter, plus any applicable taxes until you cancel. You can cancel anytime by visiting your account page and selecting \u201ccancel membership\u201d prior to the start of any future billing periods to avoid future charges. The cancellation will be effective at the end of the then-current period (no refunds or credits for partial membership periods unless required by law).",
+        "lastChanceHeadline": "Last Chance To Skip The Fees",
+        "sidecartBlurb": "By starting a FanClub 7-day free trial, you'll get waived fees on up to four tickets in this purchase today, plus other great benefits after your free trial ends."
+      }
+    ],
+    "membershipStatus": "NotLoggedIn",
+    "fanClubStatus": "Unknown"
+  },
+  "payment": {
+    "allowOptionalPaymentMethods": true,
+    "creditCard": {
+      "displayCreditCardBranding": false,
+      "isCvvRequired": false,
+      "isExpired": false,
+      "isPopulated": false,
+      "selectedCardDisplayLabel": "",
+      "selectedCardDisplaySubLabel": "",
+      "saveCreditCard": false,
+      "scannerEnabled": false,
+      "tmsId": "AAXHO"
+    },
+    "exhibitorGiftCard": {
+      "chain": {
+        "regal": "REGL",
+        "kerasotes": "KERA",
+        "amc": "AMC"
+      },
+      "exhibitorChain": "MRCS",
+      "exhibitorName": "Marcus Theatres",
+      "isEnabled": true,
+      "isPinEnabled": true,
+      "pinInfo": "We only accept Marcus gift cards with a PIN on Fandango. If you have a Marcus gift card without a Pin, please visit your local Marcus Theatre box office to redeem your gift card.",
+      "pinMaxLength": 4,
+      "recaptchaAction": "mpp_checkout_exhibitorcard",
+      "topMessage": "Please enter your gift card number and PIN below. "
+    },
+    "fandangoGiftCard": {
+      "businessPropertyName": "Fandango",
+      "fandangoGiftCardName": "Fandango",
+      "isEnabled": true,
+      "isMovieTickets": false,
+      "recaptchaAction": "mpp_checkout_giftcard"
+    },
+    "giftCardList": {
+      "businessPropertyName": "Fandango",
+      "fandangoGiftCardName": "Fandango",
+      "exhibitorName": "Marcus Theatres",
+      "isExhibitorGiftCardEnabled": true,
+      "isFandangoGiftCardEnabled": true
+    },
+    "hasActiveWallet": false,
+    "hasRewardProgram": false,
+    "isBalanceApplied": false,
+    "isGiftCardOptionEnabled": true,
+    "loyaltyCard": {
+      "isSecondLoyaltyEnabled": false,
+      "loyaltyPopupCardImgClass": "Marcus Rewards",
+      "loyaltyProgramDescription": "<p>Simply enter your valid Magical Movie Rewards number to have your Fandango service fee waived, earn points, and redeem applicable rewards from Marcus Theaters.<p><p>Fandango will automatically send your card number along with your order to Marcus Theaters for processing. Marcus Theaters will credit your Magical Movie Rewards account when tickets are retrieved at the theater.</p><p>The Magical Movie Rewards program is managed by Marcus Theaters, not Fandango. For questions regarding your account or the program, please contact Marcus Theaters or visit https://marcustheatres.com/movie-rewards</p>",
+      "loyaltyProgramHeader": "Marcus Theater Rewards Program",
+      "loyaltyProgramName": "Marcus Rewards Program",
+      "maxCharLimit": 19,
+      "saveNumber": false,
+      "saveNumberProgramName": "Marcus Rewards",
+      "logoUrl": "https://images.fandango.com/r2.0.1.1266/images/loyalty/MRCS_card_mobile.png"
+    },
+    "loyaltyProgram": {
+      "hasProgram": true,
+      "isLoyaltyOnly": false,
+      "name": "Marcus Rewards Program",
+      "redemptionApplied": false,
+      "shortName": "MarcusRewardsProgram",
+      "logoUrl": "https://images.fandango.com/r2.0.1.1266/images/loyalty/MRCS_card_mobile.png"
+    },
+    "promoCode": {
+      "recaptchaAction": "mpp_checkout_promocode"
+    },
+    "rewardBalance": 0.0,
+    "showPaymentMethod": false,
+    "wallets": [
+      {
+        "isEnabled": true,
+        "isNative": false,
+        "name": "PayPal",
+        "selector": "paypalonetouch"
+      },
+      {
+        "isEnabled": true,
+        "isNative": false,
+        "name": "Apple Pay",
+        "selector": "applepay"
+      },
+      {
+        "isEnabled": true,
+        "isNative": false,
+        "name": "Google Pay",
+        "selector": "androidpay"
+      },
+      {
+        "isEnabled": true,
+        "isNative": false,
+        "name": "Venmo",
+        "selector": "venmo"
+      }
+    ],
+    "method": {
+      "allowOptionalPaymentMethods": true,
+      "creditCard": {
+        "hasBranding": false,
+        "isPopulated": false,
+        "label": "  ",
+        "saveCreditCardToPhone": false,
+        "scannerEnabled": false,
+        "subLabel": "Exp: /",
+        "tmsId": "AAXHO"
+      },
+      "hasActiveWallet": false,
+      "hasRewardProgram": false,
+      "isBalanceApplied": false,
+      "isGiftCardOption": true,
+      "loyaltyProgram": {
+        "hasProgram": true,
+        "isLoyaltyOnly": false,
+        "name": "Marcus Rewards Program",
+        "redemptionApplied": false,
+        "shortName": "MarcusRewardsProgram",
+        "logoUrl": "https://images.fandango.com/r2.0.1.1266/images/loyalty/MRCS_card_mobile.png"
+      },
+      "rewardBalance": 0.0,
+      "sectionNumber": 4,
+      "showPaymentMethod": false,
+      "wallets": [
+        {
+          "isEnabled": true,
+          "isNative": false,
+          "name": "PayPal",
+          "selector": "paypalonetouch"
+        },
+        {
+          "isEnabled": true,
+          "isNative": false,
+          "name": "Apple Pay",
+          "selector": "applepay"
+        },
+        {
+          "isEnabled": true,
+          "isNative": false,
+          "name": "Google Pay",
+          "selector": "androidpay"
+        },
+        {
+          "isEnabled": true,
+          "isNative": false,
+          "name": "Venmo",
+          "selector": "venmo"
+        }
+      ]
+    }
+  },
+  "promotedIcons": {
+    "icons": []
+  },
+  "tickets": {
+    "discountedTicketMessage": "Valid ID may be required for theater admittance.",
+    "loyaltyTicketMessage": "A valid Marcus Rewards Program number is required to purchase these tickets.",
+    "maxReservedTickets": 9,
+    "maxTickets": 9,
+    "seatingAreas": [
+      {
+        "areaId": "1-reserved1",
+        "areaName": "Theatre 11",
+        "isReservedSeating": true,
+        "isSoldOut": false,
+        "ticketTypes": [
+          {
+            "description": "General Admission",
+            "isDiscounted": false,
+            "isExhibitorLoyaltyRequired": false,
+            "price": 15.57,
+            "serviceFee": 2.19,
+            "ticketTypeId": "0001",
+            "admissionsPerTicket": 1
+          },
+          {
+            "description": "Senior",
+            "isDiscounted": true,
+            "isExhibitorLoyaltyRequired": false,
+            "price": 13.38,
+            "serviceFee": 2.19,
+            "ticketTypeId": "0004",
+            "admissionsPerTicket": 1
+          }
+        ]
+      }
+    ],
+    "selectedSeatingAreaId": "1-reserved1",
+    "selectedTickets": [],
+    "ticketQuantityMessage": {
+      "body": "Bags or packages with any dimensions measuring larger than 12\u201d X 12\u201d X 6\u201d will not be permitted into the theatre. This includes but is not limited to purses, backpacks and totes. Exception: Medical equipment bags and diaper bags.",
+      "header": "Bag & Package Policy"
+    }
+  },
+  "rokt": {
+    "firstName": "",
+    "emailHash": "",
+    "zip": "70433",
+    "movie": "Black Phone 2 (2025)",
+    "movieRating": "R",
+    "ticketQuantity": 0,
+    "ccBin": "",
+    "advertisementIdHash": "",
+    "environment": "prd"
+  },
+  "charities": {
+    "enabled": true,
+    "charities": [
+      {
+        "headline": "Support Boys and Girls Club",
+        "charityID": "1",
+        "charityName": "Boys and Girls Club",
+        "description": "It's for the kids. Boys & Girls Club of America offers quality programs designed to empower youth to excel in school and lead healthy, productive lives. Round up to the nearest dollar at checkout today to support their mission and kids across America.",
+        "subHeadline": "Round up to help provide kids life-enriching programs, including moviegoing adventures",
+        "receiptline": "Charitable Donation",
+        "smtpEmailConfirmationTemplate": "Thank you {EMAIL_ADDRESS} for donating {DONATION_AMOUNT} to Boys & Girls Club of America, P.O. Box 117431 Atlanta, GA 30368-7431.\n\nBoys & Girls Club of America is a Section 501 (c) (3) organization with Federal Tax ID of 13-5562976. No goods or services were received in exchange for the contribution amount specified. As such, the contribution is tax deductible to the extent permitted by law.\n\nIf you would like Fandango to send your name and email address to the charity or check your donation status, please visit our FAQ at https://support.fandango.com/fandangosupport/s/article/How-can-I-send-my-contact-information-to-the-charity-I-donated-to-at-checkout.",
+        "paymentConfig": [
+          "amcRewards",
+          "exhibitorGiftCard",
+          "exhibitorSubscription"
+        ],
+        "charityEnabled": true,
+        "charityLogoURL": "https://images.fandango.com/cms/assets/73f94010-a6b9-11ef-8321-2b978811c524--boys-girls-club-logo.png",
+        "optedOutChains": [],
+        "optedOutStates": [],
+        "optedOutTheaters": [],
+        "defaultRoundUpUncheckedStates": [
+          "CA"
+        ],
+        "partnerLevelDefaultRoundUp": true,
+        "optedOutPaymentErrorConfig": {
+          "defaultMessage": "Donations are not available with the payment option applied.",
+          "customMessages": []
+        }
+      }
+    ]
+  },
+  "errorMessages": [],
+  "boxOfficeStatus": "ValidPerformance",
+  "isRestrictedShowtime": false,
+  "isTheaterTicketingDisabled": false,
+  "isNonTicketingShowtime": false,
+  "isValidShowtime": true,
+  "confirmationPageUrl": "https://tickets.fandango.com/transaction/ticketing/mobileexpress/TicketOrderConfirmationPage.aspx",
+  "reservationId": "",
+  "hasMatineeMessage": false,
+  "matineeMessage": "",
+  "isOnSeatPicker": true,
+  "supportedApplePayPaymentFields": [
+    ""
+  ],
+  "pageContainer": "seat-selection",
+  "cognito": {
+    "sharedIdentityEnabled": true
+  },
+  "config": {
+    "adChoicesUrl": "https://www.fandango.com/cookies-and-tracking#cookie_management",
+    "businessPropertyName": "Fandango",
+    "ccpaLinkText": "Do Not Sell My Personal Information",
+    "ccpaLinkUrl": "https://www.fandango.com/donotsellmyinfo",
+    "copyrightYear": 2025,
+    "discoveryUrl": "https://www.fandango.com",
+    "dynamicContentHost": "https://images.fandango.com/r2.0.1.1266/",
+    "fandangoDiscoveryUrl": "http://www.fandango.com",
+    "hostUrl": "https://tickets.fandango.com",
+    "imagesUrl": "https://images.fandango.com/commerce-cdn/images/",
+    "oneTrustDomainScript": "4ca4d5ed-de67-4994-b162-3b4472b2c35b",
+    "oneTrustEnabled": true,
+    "oneTrustIntegrityHash": "https://cdn.cookielaw.org/consent/4ca4d5ed-de67-4994-b162-3b4472b2c35b/otSDKStub.js",
+    "oneTrustJsScriptBlock": "&lt;!-- OneTrust Cookies Consent Notice start for fandango.com --&gt;\n&lt;!-- salt=jsScriptBlock-CMP3.0-feature-flag --&gt;\n&lt;!-- Icon for checkout --&gt;\n&lt;style&gt;\n#ot-sdk-btn.ot-sdk-show-settings.footer__link:not(:empty)::before {\n    content: &#39;&#39;;\n    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB0AAAAOCAYAAADT0Rc6AAAACXBIWXMAAACWAAAAlgEGQc5mAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAkZJREFUOI2VlE1IVFEYhp9zZqwZTaeNCdEiIgzLVmFUY4swadFyaFFQoNYwLlpJjhmaAxXWCBL9OWaQkUILWwSBZJTBMNOP5UL6oSLIoHIhQ/iT48zc0+Kqd+7cMcd39b3vd77v/e655xxBJryqDWgA1llyq8c00EG3CKSLYinyKTcaYZeT5BUPsroMmb9mKZvQFDFNIwZo6Q02NVGWk73CzW0RMUwXDHuOE6+rZG2un5HUIK8+19WAYB8hEbUDoBG+c4JUrTt3Q4D7L1ezGlBEACGlT7W4nKRq3dhWqik4DY/HDH5jOK1fCLz7Db57s6458jKaeFWzXUBT0LOyYWkLlBTB4Z2GNvLdiHddhLfn9C0fHYdXZ6GmF+YSllaN9pRG/qEdZvXzBJSWGNzTBT9iMHvN0CZnzDXvxqHiErxp1rmvD+5Gss7vkgDCOMNMzcG2VuiN6rzzKTwchYmged2tYWu36bgRz8St+UXYbZK/Qx9w1rp1odABUT/svQyffkP7IIydhyKnufDmCzPfWgwfA9A4AOGvEPGDpqD/tcVzSiroODNAKl3ds0Uvah+EezVQvtE67a8/Zv7lArQ+guATiH6DyiD01cH6jGERdAhQAi9a/0m0oxXI5TfFwPufUB4wa4UO/dekI88GiZRZo1sICUKhUXWsB/lgBOtZy4Lrz61apiFkMZQcgPRn8JQ6iGBoQxHJziPYq7eDM/OOLaC4IetV+D8kVXSJZ2ZTgDYlCybpnJ2nXimWsVwV5oGrhPAjhFoU/wFkb7M55NWangAAAABJRU5ErkJggg==);\n    display: inline-block;\n    height: 14px;\n    width: 29px;\n    margin-right: 4px;\n    vertical-align: middle;\n}\n#cobranding-bar {\n  position: absolute;\n  width: 100%;\n  top: 0;\n}\n&lt;/style&gt;\n&lt;script type=&quot;text/javascript&quot;&gt;\n    var OneTrust = window.OneTrust || {};\n    window.useOnetrustActiveGroups = true;\n    window.OnetrustActiveGroups = window.OnetrustActiveGroups || &#39;&#39;;\n&lt;/script&gt;\n&lt;!-- salt=jsScriptBlock-CMP3.0-feature-flag --&gt;\n&lt;script src=&quot;https://cdn.cookielaw.org/consent/019779f7-ad1e-7b9a-b340-3fe13dd68b68/otSDKStub.js&quot;  type=&quot;text/javascript&quot; charset=&quot;UTF-8&quot; data-domain-script=&quot;019779f7-ad1e-7b9a-b340-3fe13dd68b68&quot; integrity=&quot;sha384-pzlYG0y29ivcWYvCJVMrNL85zComGD7oodhnFGfHmf20Zj6xAZmhx2ZdRpR/xkDa&quot; crossorigin=&quot;anonymous&quot; &gt;&lt;/script&gt;\n&lt;script type=&quot;text/javascript&quot;&gt;\nfunction OptanonWrapper() { }\n&lt;/script&gt;\n&lt;!-- OneTrust Cookies Consent Notice end for fandango.com --&gt;\n\n&lt;!-- OneTrust IAB US Privacy (USP) --&gt;\n&lt;script src=&quot;https://cdn.cookielaw.org/opt-out/otCCPAiab.js&quot; id=&quot;privacyCookie&quot; type=&quot;text/javascript&quot; charset=&quot;UTF-8&quot; ccpa-opt-out-ids=&quot;USP&quot; ccpa-opt-out-geo=&quot;US&quot; ccpa-opt-out-lspa=&quot;false&quot;&gt;&lt;/script&gt;\n&lt;!-- OneTrust IAB US Privacy (USP) en\n&lt;!-- OneTrust Cookies Consent Notice end for fandango.com --&gt;",
+    "oneTrustScriptUrl": "https://cdn.cookielaw.org/consent/4ca4d5ed-de67-4994-b162-3b4472b2c35b/otSDKStub.js",
+    "privacyPolicyUrl": "https://www.fandango.com/PrivacyPolicy",
+    "termsUrl": "https://www.fandango.com/terms-and-policies",
+    "versionBuster": "3.4.2718_20251103182138"
+  },
+  "deviceSession": {
+    "affiliateId": 0,
+    "deviceType": "desktop",
+    "isLoggedIn": false,
+    "isSoftLoggedIn": false,
+    "sessionId": "gkvqtuylxxen43jprluwq2le",
+    "partner": {
+      "isEnabled": false,
+      "bandId": 0
+    },
+    "pencilBanner": {
+      "bandId": 0,
+      "isComcast": false,
+      "isVisible": false
+    },
+    "operations": []
+  },
+  "features": {
+    "_version": "chk-vmb-1.0",
+    "accertify": {
+      "isEnabled": true,
+      "collectorEndpoint": "https://www.cdn-net.com",
+      "fraudManagementID": "3d73a5a6-fbf0-4f1a-a598-d350457f74a7",
+      "key": "65f46890-18ae-4998-9706-7c18bf6707b7"
+    },
+    "adobeTargetPreHidingEnabled": true,
+    "buyNowEnabled": true,
+    "cartTrackingEnabled": true,
+    "consolidatedTicketSelectionEnabled": true,
+    "creditCardBanner": {
+      "isEnabled": false,
+      "excludeAffiliateIds": [
+        "12377",
+        "12378",
+        "12551",
+        "12552",
+        "12394",
+        "12553"
+      ],
+      "imageUrl": "https://images.fandango.com/cms/assets/9f5a2b80-add8-11eb-8d70-c5bf5e872b28--promobanner-640x60.png",
+      "altText": "Pay with Mastercard and get 50 bonus VIP+ points."
+    },
+    "feeAmendmentInTicketOverlay": {
+      "isEnabled": true,
+      "filterList": "MA"
+    },
+    "feesInTicketOverlay": {
+      "isEnabled": true,
+      "filterList": "NY, TN, CA, MD, CO, MN, MA, VA"
+    },
+    "darkModeEnabled": true,
+    "earlyReviewSectionEnabled": true,
+    "facebookConversionTrackingEnabled": true,
+    "includeRecaptchaOnReducedUIFeatures": false,
+    "jurassicConfirmationEnabled": true,
+    "jurassicModalEnabled": true,
+    "jurassicSideCartEnabled": true,
+    "linkedSeatingEnabled": true,
+    "matineeEnabled": true,
+    "mps": {
+      "isEnabled": true,
+      "environment": "production",
+      "host": "mps.nbcuni.com",
+      "site": "fandango-mobile",
+      "type": "ecommerce"
+    },
+    "noRefundEnabled": false,
+    "orphanSeatRules": {
+      "ignoreTheaterChains": [
+        "XYZ",
+        "CLUX"
+      ]
+    },
+    "payPalBuyNowEnabled": true,
+    "promotedIconsEnabled": false,
+    "purchaseFunnelAdEnabled": true,
+    "purchaseFunnelAdTimeout": 3,
+    "reCaptcha": {
+      "isEnabled": true,
+      "isRequired": false,
+      "publicKey": "6LdJdHIcAAAAAOlETV2zK4EIkMbXnPg24UJeH9w7",
+      "actionOverrides": [
+        {
+          "action": "placeholder",
+          "isRequired": false
+        }
+      ]
+    },
+    "reducedUIFeaturesEnabled": false,
+    "rhombusEnabled": true,
+    "roktThankYouPlacementEnabled": true,
+    "roktPaymentPlacementEnabled": true,
+    "roktNativeAppsPaymentPlacementEnabled": true,
+    "seatMapApi": {
+      "isEnabled": true,
+      "origin": "/checkoutapi/"
+    },
+    "seatIconTakeover": {
+      "isEnabled": false,
+      "imageUrl": "//images.fandango.com/cms/assets/ebc722b0-3319-11ef-ab6e-6bc4e16d49df--minion-seat-icon.svg"
+    },
+    "seatMapIconMappings": [
+      {
+        "seatType": "twoseater",
+        "imageUrl": "https://images.fandango.com/cms/assets/8d30eb10-27e9-11ed-90fe-f325d9bf4959--property-12-seater.svg"
+      },
+      {
+        "seatType": "twoseaterNoButtons",
+        "imageUrl": "https://images.fandango.com/cms/assets/22a8a310-3689-11ed-b2f6-e1f3892e3f59--icon-seats-twoseater-no-buttons.svg"
+      },
+      {
+        "seatType": "twoseaterindivNoButtons",
+        "imageUrl": "https://images.fandango.com/cms/assets/22a8a310-3689-11ed-b2f6-e1f3892e3f59--icon-seats-twoseater-no-buttons.svg"
+      },
+      {
+        "seatType": "sofatwoseaterNoButtons",
+        "imageUrl": "https://images.fandango.com/cms/assets/22a8a310-3689-11ed-b2f6-e1f3892e3f59--icon-seats-twoseater-no-buttons.svg"
+      }
+    ],
+    "socialDistancing": {
+      "isMessagingEnabled": false,
+      "bufferTheaterChains": [],
+      "isBufferEnabled": false,
+      "modalsEnabled": false,
+      "rowBufferSize": 1,
+      "colBufferSize": 1
+    },
+    "studiosBanner": {
+      "isEnabled": true,
+      "lightTheme": {
+        "url": "//images.fandango.com/cms/assets/6c0448c0-76ab-11ef-a588-3b078e6b3d8a--studio-logos-footer.png"
+      },
+      "darkTheme": {
+        "url": "//images.fandango.com/cms/assets/6c0448c0-76ab-11ef-a588-3b078e6b3d8a--studio-logos-footer.png"
+      }
+    },
+    "zoomOnSeatTapEnabled": false
+  },
+  "movie": {
+    "genres": [
+      "Horror"
+    ],
+    "movieId": 240922,
+    "posterUrl": "https://images.fandango.com/r2.0.1.1266/ImageRenderer/180/272/redesign/static/img/default_poster_128x190.png/240922/images/masterrepository/fandango/240922/bp2_teaser1sheet6_rgb_1.jpg",
+    "rating": "R",
+    "runtime": "1 hr 54 min",
+    "studio": "Universal Pictures ",
+    "title": "Black Phone 2 (2025)"
+  },
+  "offers": {
+    "hasActiveOffers": true,
+    "hasCookiedPromotion": false,
+    "offers": [
+      {
+        "isActive": true,
+        "id": 287,
+        "type": "Loyalty",
+        "label": "GET A $5 REWARD",
+        "title": "for every 4 tickets purchased!",
+        "memberTypeId": 1,
+        "isLoyalty": true,
+        "image": "https://images.fandango.com/r2.0.1.1266//images/offers/287/1/FanRewards_SignUpIn_405x139_lg.png",
+        "imageUrl": "https://images.fandango.com/r2.0.1.1266//images/offers/287/1/FanRewards_SignUpIn_405x139_lg.png",
+        "description": "Earn Fandango FanRewards Points on every movie ticket purchase. Every four tickets earn you a $5 reward to spend on Fandango or Fandango at Home.",
+        "promptToJoin": true,
+        "terms": "Buy movie tickets through your Fandango account on Fandango.com or the Fandango app and receive 125 FanRewards Points for each movie ticket. All or at least some portion of the purchase for each ticket must be paid using a credit or debit card, PayPal, credit in your Fandango account from a prior exchanged purchase or a Fandango gift card (i.e., if you use a promo code then only part of that purchase can be paid for using the promo code) to qualify for FanRewards Points. Movie tickets must be for a movie with a showtime starting before 11:59 p.m. PT on the last day of the promotion period. When you receive 500 FanRewards Points, you will receive a $5.00 Discount Reward which you will need to convert into a Discount Promo Code for use on a qualifying purchase on www.fandango.com or www.fandangoathome.com. Discount Promo Code expires 21 days after the $5.00 Discount Reward is posted to your Fandango account. Discount Promo Code cannot be combined with any other offer, promo code or discount. Discount Promo Codes cannot be used to purchase a gift card. After applying your Discount Promo Code, any unused balance will automatically expire. Void where prohibited. Fandango reserves the right to modify or cancel this offer at any time and without notice. This offer is subject to the FanRewards Program Terms at https://www.fandango.com/fanrewards and Fandango\u2019s Terms and Policies and Privacy Policy at www.fandango.com/Terms-and-Policies. Additional taxes may be owed on a rental or purchase price shown for Fandango at Home.",
+        "omnitureData": "{\"event\":\"purchase gwp modal\",\"gwpDetails\":\"287 | Earn Fandango FanRewards Points on every movie ticket purchase. Every four tickets earn you a $5 reward to spend on Fandango or Fandango at Home.\",\"movieName\":\"Black Phone 2 (2025), The\",\"offerID\":\"287\",\"studio\":\"Universal Pictures \"}"
+      }
+    ]
+  },
+  "orderSummary": {
+    "adjustedTicketsTotal": 0.0,
+    "discountTotal": 0.0,
+    "displaySalesTaxDisclosure": false,
+    "exhibitorBenefitName": "Marcus Theatres Discount Member Savings",
+    "exhibitorFeeWaivedLabel": "Marcus Rewards Program",
+    "exhibitorFeeWaivedTotal": 0.0,
+    "exhibitorGiftCardTotal": 0.0,
+    "fandangoCreditTotal": 0.0,
+    "fees": [],
+    "giftCardTotal": 0.0,
+    "hasAdjustedTicketPrice": false,
+    "hasDiscount": false,
+    "hasFandangoCredit": false,
+    "hasFandangoGiftCard": false,
+    "hasFees": false,
+    "hasLoyaltyAList": false,
+    "hasLoyaltyBenefit": false,
+    "hasLoyaltyRedemption": false,
+    "hasLoyaltyReward": false,
+    "hasSightlineWaiver": false,
+    "hasSightlineDiscount": false,
+    "hasSurcharges": false,
+    "hasSurchargeTax": false,
+    "hasVipAccount": false,
+    "isDonationApplied": false,
+    "donationTotal": 0.0,
+    "displayDonationSection": false,
+    "isCanadianTheater": false,
+    "isCaymanIslandTheater": false,
+    "isFeeWaivedByExhibitorLoyaltyCard": false,
+    "isFullyCoveredByNonPaymentTender": false,
+    "isGuestPurchase": false,
+    "isVisible": true,
+    "loyaltyAListTotal": 0.0,
+    "loyaltyBenefitTotal": 0.0,
+    "sightlineWaiverTotal": 0.0,
+    "membershipWaiverTotal": 0.0,
+    "membershipSavingsTotal": 0.0,
+    "sightlineDiscountTotal": 0.0,
+    "loyaltyDiscounts": [],
+    "loyaltyProgramName": "Marcus Rewards Program",
+    "loyaltyRedemptionTotal": 0.0,
+    "loyaltyRewardTotal": 0.0,
+    "offers": [
+      {
+        "id": "287",
+        "isApplicable": false,
+        "isLoyaltyOffer": true,
+        "total": 0.0
+      }
+    ],
+    "promoTotal": 0.0,
+    "purchaseTotal": 0.0,
+    "savedCCEdited": false,
+    "savedNewCC": false,
+    "savedCCUsed": false,
+    "serviceFeeTotal": 0.0,
+    "surcharges": [],
+    "showLoyaltyAppliedMessage": false,
+    "taxBreakdownData": {
+      "convenienceFeeAmt": "0.00",
+      "convenienceFeeTaxAmt": "0.00",
+      "convenienceFeeTotalAmt": "0.00",
+      "salesTaxRate": "9.25"
+    },
+    "tickets": [],
+    "titledClaimCodes": [],
+    "totalGrossFeeRevenue": 0.0,
+    "totalGrossRevenue": 0.0,
+    "totalGrossRevenueMinusFees": 0.0
+  },
+  "showtime": {
+    "amenities": [
+      {
+        "name": "Reserved seating",
+        "description": "This showtime allows you to reserve your seats ahead of time.",
+        "group": ""
+      }
+    ],
+    "auditoriumId": "11",
+    "auditoriumName": "Theatre 11",
+    "isReservedShowtime": false,
+    "lateNightShowtimeMessage": "",
+    "reservedSeatingNumbers": [
+      ""
+    ],
+    "showDateTime": "2025-11-13T16:00:00",
+    "showtimeId": 523447898,
+    "utcShowDateTime": "2025-11-13T16:00:00Z"
+  },
+  "theater": {
+    "_version": "thtr-mdl-bld:info:1.0.0(m2)",
+    "address": {
+      "address1": "201 N. Highway 190",
+      "city": "Covington",
+      "state": "LA",
+      "zip": "70433"
+    },
+    "agePolicyMarkup": "<p>Child Ticket Policy: The Marcus Theatres policy for a Child\u2019s ticket is age 3 to 11. Children under 3 and may not occupy their own reserved seat. Children pricing does not apply for Rated R Films. Generally, it is not appropriate for parents to bring their young children with them to R-rated motion pictures. Children under the age of 6 are not admitted to R-rated movies at any time as these features are intended for mature audiences. For more details please see our Ratings Policies\r\nSenior Citizen Ticket Policy: Senior Citizen\u2019s ticket is age 60 and over. We offer a \u201cYoung At Heart\u201d Discount ticket on Fridays (offered also on Wednesdays at select locations. Restrictions may apply, see Young At Heart details here. \r\nYouth Escourt Policy: For all movies starting after 6PM, guests under 18 years of age must be accompanied by a parent or legal guardian 25 years of age or older at the following locations: BistroPlex Southridge (WI), Gurnee Mills (IL), Hulen (TX), Little Rock (AR), Menomonee Falls (WI), Movie Tavern Brookfield Square (WI), O'Fallon (IL), and Pickerington (OH). </p>",
+    "amenities": [
+      "MobileTicket",
+      "DineIn",
+      "Kiosk",
+      "PrintAtHome",
+      "WheelChair",
+      "ListeningDevices",
+      "Cafe",
+      "AllStadiumSeating",
+      "ReservedSeating",
+      "DigitalProjection",
+      "CreditCardPickup",
+      "Loyalty"
+    ],
+    "chainCode": "MRCS",
+    "chainName": "Marcus Theatres",
+    "chainId": 545,
+    "hasKiosk": false,
+    "isAmcAList": false,
+    "isCaymanIslandTheater": false,
+    "isCreditCardPickupEnabled": false,
+    "kioskType": 0,
+    "logoUrl": "https://images.fandango.com/r2.0.1.1266//images/theaterlogos/tlp_movietavern_new200x74.png",
+    "name": "Movie Tavern Covington",
+    "phoneNumber": "985-247-0757",
+    "theaterId": "9689",
+    "theaterTmsId": "AAXHO",
+    "theaterMessageMarkup": "",
+    "tqpMessageMarkup": "Bag & Package Policy\r\nBags or packages with any dimensions measuring larger than 12\u201d X 12\u201d X 6\u201d will not be permitted into the theatre. This includes but is not limited to purses, backpacks and totes. Exception: Medical equipment bags and diaper bags."
+  }
+}

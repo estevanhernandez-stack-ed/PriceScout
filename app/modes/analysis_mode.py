@@ -1,5 +1,5 @@
 import streamlit as st
-from app import database
+from app import db_adapter as database
 import pandas as pd
 import datetime
 import altair as alt

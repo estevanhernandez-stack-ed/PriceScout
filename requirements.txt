@@ -22,8 +22,18 @@ thefuzz[speedup]==0.22.1  # Fuzzy string matching for theater names
 python-Levenshtein==0.27.1  # Required by thefuzz[speedup]
 RapidFuzz==3.14.1  # Required by thefuzz
 
+# === DATABASE ===
+# SQLAlchemy ORM for PostgreSQL migration (Phase 1)
+SQLAlchemy==2.0.23  # ORM and database abstraction
+psycopg2-binary==2.9.9  # PostgreSQL adapter
+alembic==1.13.1  # Database migrations (optional)
+
 # === SECURITY ===
 bcrypt==4.3.0  # Password hashing
+
+# === AZURE CLOUD (Phase 3) ===
+azure-identity==1.15.0  # Azure authentication
+azure-keyvault-secrets==4.7.0  # Key Vault integration
 
 # === DATE/TIME ===
 pytz==2025.2

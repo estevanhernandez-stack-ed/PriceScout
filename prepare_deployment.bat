@@ -11,6 +11,15 @@ echo   Price Scout Deployment Preparation
 echo ========================================
 echo.
 
+REM ====================================================================
+REM Configuration - SET THESE VALUES BEFORE RUNNING
+REM ====================================================================
+set SERVER_IP=134.199.207.21
+set APP_USER=pricescout
+set APP_DIR=/home/%APP_USER%/pricescout-v2
+set APP_DOMAIN=v2.marketpricescout.com
+set APP_PORT=8502
+
 REM Set the deployment folder name
 set DEPLOY_FOLDER=deployment_pricescout_v2
 set TIMESTAMP=%DATE:~-4%%DATE:~4,2%%DATE:~7,2%_%TIME:~0,2%%TIME:~3,2%%TIME:~6,2%
@@ -77,11 +86,12 @@ echo Description=Price Scout v2 Streamlit Application >> "%DEPLOY_FOLDER%\config
 echo After=network.target >> "%DEPLOY_FOLDER%\config\pricescout-v2.service"
 echo. >> "%DEPLOY_FOLDER%\config\pricescout-v2.service"
 echo [Service] >> "%DEPLOY_FOLDER%\config\pricescout-v2.service"
-echo User=root >> "%DEPLOY_FOLDER%\config\pricescout-v2.service"
-echo WorkingDirectory=/root/pricescout-v2/app >> "%DEPLOY_FOLDER%\config\pricescout-v2.service"
-echo ExecStart=/usr/local/bin/streamlit run price_scout_app.py --server.port=8502 --server.headless=true >> "%DEPLOY_FOLDER%\config\pricescout-v2.service"
+echo User=%APP_USER% >> "%DEPLOY_FOLDER%\config\pricescout-v2.service"
+echo Group=%APP_USER% >> "%DEPLOY_FOLDER%\config\pricescout-v2.service"
+echo WorkingDirectory=%APP_DIR%/app >> "%DEPLOY_FOLDER%\config\pricescout-v2.service"
+echo ExecStart=/home/%APP_USER%/.local/bin/streamlit run price_scout_app.py --server.port=%APP_PORT% --server.headless=true >> "%DEPLOY_FOLDER%\config\pricescout-v2.service"
 echo Restart=always >> "%DEPLOY_FOLDER%\config\pricescout-v2.service"
-echo RestartSec=10 >> "%DEPLOY_FOLDER%\config\pricescout-v2.service"
+echo RestartSec=5 >> "%DEPLOY_FOLDER%\config\pricescout-v2.service"
 echo. >> "%DEPLOY_FOLDER%\config\pricescout-v2.service"
 echo [Install] >> "%DEPLOY_FOLDER%\config\pricescout-v2.service"
 echo WantedBy=multi-user.target >> "%DEPLOY_FOLDER%\config\pricescout-v2.service"
@@ -89,11 +99,11 @@ echo WantedBy=multi-user.target >> "%DEPLOY_FOLDER%\config\pricescout-v2.service
 REM Create Nginx configuration file
 echo server { > "%DEPLOY_FOLDER%\config\pricescout-v2.conf"
 echo     # Subdomain for Price Scout v2 >> "%DEPLOY_FOLDER%\config\pricescout-v2.conf"
-echo     server_name v2.marketpricescout.com; >> "%DEPLOY_FOLDER%\config\pricescout-v2.conf"
+echo     server_name %APP_DOMAIN%; >> "%DEPLOY_FOLDER%\config\pricescout-v2.conf"
 echo. >> "%DEPLOY_FOLDER%\config\pricescout-v2.conf"
 echo     location / { >> "%DEPLOY_FOLDER%\config\pricescout-v2.conf"
-echo         # Proxy to the Streamlit app on port 8502 >> "%DEPLOY_FOLDER%\config\pricescout-v2.conf"
-echo         proxy_pass http://localhost:8502; >> "%DEPLOY_FOLDER%\config\pricescout-v2.conf"
+echo         # Proxy to the Streamlit app on port %APP_PORT% >> "%DEPLOY_FOLDER%\config\pricescout-v2.conf"
+echo         proxy_pass http://localhost:%APP_PORT%; >> "%DEPLOY_FOLDER%\config\pricescout-v2.conf"
 echo         proxy_http_version 1.1; >> "%DEPLOY_FOLDER%\config\pricescout-v2.conf"
 echo         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; >> "%DEPLOY_FOLDER%\config\pricescout-v2.conf"
 echo         proxy_set_header Host $host; >> "%DEPLOY_FOLDER%\config\pricescout-v2.conf"
@@ -114,24 +124,26 @@ echo ========================================== > "%DEPLOY_FOLDER%\DEPLOYMENT_IN
 echo   PRICE SCOUT V2 DEPLOYMENT INSTRUCTIONS >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo ========================================== >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo. >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
-echo Droplet IP: 134.199.207.21 >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
+echo Droplet IP: %SERVER_IP% >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo App Name: pricescout-v2 >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
-echo Port: 8502 >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
-echo Subdomain: v2.marketpricescout.com >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
+echo Port: %APP_PORT% >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
+echo Subdomain: %APP_DOMAIN% >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
+echo App User: %APP_USER% >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
+echo App Directory: %APP_DIR% >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo. >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo ========================================== >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo STEP 1: UPLOAD FILES TO DROPLET >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo ========================================== >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo. >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
-echo 1. Create the directory on your droplet: >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
-echo    ssh root@134.199.207.21 >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
-echo    mkdir -p /root/pricescout-v2/app >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
-echo    exit >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
+echo 1. (One-time only) Create a non-root user for the app on your droplet: >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
+echo    ssh root@%SERVER_IP% >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
+echo    adduser %APP_USER% >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
+echo    usermod -aG sudo %APP_USER% >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
+echo    su - %APP_USER% >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo. >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
-echo 2. Upload the files using SCP: >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
-echo    scp -r %DEPLOY_FOLDER%\app\* root@134.199.207.21:/root/pricescout-v2/app/ >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
-echo    scp %DEPLOY_FOLDER%\requirements*.txt root@134.199.207.21:/root/pricescout-v2/ >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
-echo    scp %DEPLOY_FOLDER%\*.json root@134.199.207.21:/root/pricescout-v2/ 2^>nul >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
+echo 2. Archive the deployment folder and upload it. On your local machine, run: >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
+echo    tar -czvf %DEPLOY_FOLDER%.tar.gz %DEPLOY_FOLDER% >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
+echo    scp %DEPLOY_FOLDER%.tar.gz %APP_USER%@%SERVER_IP%:/tmp/ >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo. >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo ========================================== >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo STEP 2: INSTALL DEPENDENCIES ON DROPLET >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
@@ -139,10 +151,14 @@ echo ========================================== >> "%DEPLOY_FOLDER%\DEPLOYMENT_I
 echo. >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo SSH into your droplet and run: >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo    ssh root@134.199.207.21 >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
-echo    cd /root/pricescout-v2 >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
-echo    pip3 install -r requirements.txt >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
-echo    playwright install chromium >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
-echo    playwright install-deps chromium >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
+echo    su - %APP_USER% >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
+echo    mkdir -p %APP_DIR% >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
+echo    tar -xzvf /tmp/%DEPLOY_FOLDER%.tar.gz -C %APP_DIR% --strip-components=1 >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
+echo    cd %APP_DIR% >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
+echo    python3 -m venv venv >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
+echo    source venv/bin/activate >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
+echo    pip install -r requirements.txt >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
+echo    playwright install --with-deps chromium >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo. >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo ========================================== >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo STEP 3: CONFIGURE SYSTEMD SERVICE >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
@@ -150,7 +166,7 @@ echo ========================================== >> "%DEPLOY_FOLDER%\DEPLOYMENT_I
 echo. >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo 1. Upload and install the service file: >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo    scp %DEPLOY_FOLDER%\config\pricescout-v2.service root@134.199.207.21:/etc/systemd/system/ >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
-echo. >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
+echo    ^^^ (Note: This command must be run as root) >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo 2. On the droplet, enable and start the service: >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo    sudo systemctl daemon-reload >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo    sudo systemctl enable pricescout-v2 >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
@@ -162,11 +178,11 @@ echo STEP 4: CONFIGURE NGINX >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo ========================================== >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo. >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo 1. Upload the Nginx configuration: >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
-echo    scp %DEPLOY_FOLDER%\config\pricescout-v2.conf root@134.199.207.21:/etc/nginx/sites-available/v2.marketpricescout.com >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
-echo. >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
+echo    scp %DEPLOY_FOLDER%\config\pricescout-v2.conf root@134.199.207.21:/etc/nginx/sites-available/%APP_DOMAIN% >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
+echo    ^^^ (Note: This command must be run as root) >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo 2. On the droplet, enable the site: >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
-echo    sudo ln -s /etc/nginx/sites-available/v2.marketpricescout.com /etc/nginx/sites-enabled/ >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
-echo    sudo nginx -t >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
+echo    sudo ln -s /etc/nginx/sites-available/%APP_DOMAIN% /etc/nginx/sites-enabled/ >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
+echo    sudo nginx -t >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt" # Test config
 echo    sudo systemctl restart nginx >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo. >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo ========================================== >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
@@ -176,7 +192,7 @@ echo. >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo Go to your DNS provider and add: >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo    Type: A Record >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo    Host: v2 >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
-echo    Value: 134.199.207.21 >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
+echo    Value: %SERVER_IP% >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo    TTL: 3600 (or default) >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo. >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo Wait 5-10 minutes for DNS propagation. >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
@@ -186,7 +202,7 @@ echo STEP 6: ENABLE SSL WITH CERTBOT >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS
 echo ========================================== >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo. >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo After DNS propagates, on the droplet run: >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
-echo    sudo certbot --nginx -d v2.marketpricescout.com >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
+echo    sudo certbot --nginx -d %APP_DOMAIN% >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo. >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo Follow the prompts to complete SSL setup. >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo. >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
@@ -197,10 +213,10 @@ echo. >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo 1. Check service status: >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo    sudo systemctl status pricescout-v2 >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo. >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
-echo 2. Check if app is responding on port 8502: >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
-echo    curl http://localhost:8502 >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
+echo 2. Check if app is responding on port %APP_PORT%: >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
+echo    curl http://localhost:%APP_PORT% >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo. >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
-echo 3. Visit https://v2.marketpricescout.com in your browser >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
+echo 3. Visit https://%APP_DOMAIN% in your browser >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo. >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo ========================================== >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo TROUBLESHOOTING >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
@@ -216,41 +232,22 @@ echo Check Nginx error logs: >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo    sudo tail -f /var/log/nginx/error.log >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 echo. >> "%DEPLOY_FOLDER%\DEPLOYMENT_INSTRUCTIONS.txt"
 
-REM Create a quick reference file
-echo ========================================== > "%DEPLOY_FOLDER%\QUICK_COMMANDS.txt"
-echo   QUICK COMMAND REFERENCE >> "%DEPLOY_FOLDER%\QUICK_COMMANDS.txt"
-echo ========================================== >> "%DEPLOY_FOLDER%\QUICK_COMMANDS.txt"
-echo. >> "%DEPLOY_FOLDER%\QUICK_COMMANDS.txt"
-echo Upload all files at once: >> "%DEPLOY_FOLDER%\QUICK_COMMANDS.txt"
-echo   scp -r %DEPLOY_FOLDER%\app\* root@134.199.207.21:/root/pricescout-v2/app/ >> "%DEPLOY_FOLDER%\QUICK_COMMANDS.txt"
-echo   scp %DEPLOY_FOLDER%\*.txt root@134.199.207.21:/root/pricescout-v2/ >> "%DEPLOY_FOLDER%\QUICK_COMMANDS.txt"
-echo   scp %DEPLOY_FOLDER%\config\pricescout-v2.service root@134.199.207.21:/etc/systemd/system/ >> "%DEPLOY_FOLDER%\QUICK_COMMANDS.txt"
-echo   scp %DEPLOY_FOLDER%\config\pricescout-v2.conf root@134.199.207.21:/etc/nginx/sites-available/v2.marketpricescout.com >> "%DEPLOY_FOLDER%\QUICK_COMMANDS.txt"
-echo. >> "%DEPLOY_FOLDER%\QUICK_COMMANDS.txt"
-echo On droplet - Complete setup: >> "%DEPLOY_FOLDER%\QUICK_COMMANDS.txt"
-echo   cd /root/pricescout-v2 ^&^& pip3 install -r requirements.txt ^&^& playwright install chromium ^&^& playwright install-deps chromium >> "%DEPLOY_FOLDER%\QUICK_COMMANDS.txt"
-echo   sudo systemctl daemon-reload ^&^& sudo systemctl enable pricescout-v2 ^&^& sudo systemctl start pricescout-v2 >> "%DEPLOY_FOLDER%\QUICK_COMMANDS.txt"
-echo   sudo ln -s /etc/nginx/sites-available/v2.marketpricescout.com /etc/nginx/sites-enabled/ >> "%DEPLOY_FOLDER%\QUICK_COMMANDS.txt"
-echo   sudo nginx -t ^&^& sudo systemctl restart nginx >> "%DEPLOY_FOLDER%\QUICK_COMMANDS.txt"
-echo   sudo certbot --nginx -d v2.marketpricescout.com >> "%DEPLOY_FOLDER%\QUICK_COMMANDS.txt"
-echo. >> "%DEPLOY_FOLDER%\QUICK_COMMANDS.txt"
-
 echo.
 echo ========================================
 echo   DEPLOYMENT FOLDER CREATED SUCCESSFULLY!
 echo ========================================
 echo.
 echo Folder location: %CD%\%DEPLOY_FOLDER%
+echo A compressed archive has been created: %CD%\%DEPLOY_FOLDER%.tar.gz
 echo.
 echo Next steps:
 echo   1. Review the files in the deployment folder
 echo   2. Read DEPLOYMENT_INSTRUCTIONS.txt for detailed steps
-echo   3. Use QUICK_COMMANDS.txt for copy-paste commands
 echo.
 echo Configuration details:
 echo   - App name: pricescout-v2
-echo   - Port: 8502
-echo   - Subdomain: v2.marketpricescout.com
+echo   - Port: %APP_PORT%
+echo   - Subdomain: %APP_DOMAIN%
 echo   - Service file: config\pricescout-v2.service
 echo   - Nginx config: config\pricescout-v2.conf
 echo.

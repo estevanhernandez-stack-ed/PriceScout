@@ -10,7 +10,7 @@ import glob
 import tempfile
 from app.scraper import Scraper
 from app.utils import run_async_in_thread, get_error_message
-from app import database, config, security_config
+from app import db_adapter as database, config, security_config
 from app.box_office_mojo_scraper import BoxOfficeMojoScraper
 from app.omdb_client import OMDbClient
 from thefuzz import fuzz

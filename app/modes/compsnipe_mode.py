@@ -144,7 +144,7 @@ def render_compsnipe_mode(scout, all_theaters_list_unique, IS_DISABLED, save_ope
                     all_showings_by_date = {scrape_date_cs.strftime('%Y-%m-%d'): result}
                     st.session_state.all_showings = all_showings_by_date
                     # --- NEW: Save showtimes to DB immediately ---
-                    from app import database
+                    from app import db_adapter as database
                     database.upsert_showings(result, scrape_date_cs)
                     # --- NEW: Log the runtime of the showtime discovery scrape ---
                     num_showings_found = sum(len(s) for s in result.values())

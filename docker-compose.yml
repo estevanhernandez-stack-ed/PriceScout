@@ -1,0 +1,154 @@
+# PriceScout Docker Compose Configuration
+# Version: 1.0.0
+# Date: November 13, 2025
+#
+# This file defines services for local development and testing with Docker.
+# Includes PostgreSQL database and PriceScout application.
+#
+# Usage:
+#   docker-compose up -d              # Start services in background
+#   docker-compose logs -f pricescout # View application logs
+#   docker-compose down               # Stop and remove containers
+#   docker-compose down -v            # Stop and remove containers + volumes
+
+version: '3.8'
+
+services:
+  # ===========================================================================
+  # PostgreSQL Database
+  # ===========================================================================
+  postgres:
+    image: postgres:14-alpine
+    container_name: pricescout-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: pricescout_app
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev_password_change_me}
+      POSTGRES_DB: pricescout_db
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=en_US.UTF-8"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pricescout_app -d pricescout_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - pricescout-network
+
+  # ===========================================================================
+  # PriceScout Application
+  # ===========================================================================
+  pricescout:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        BUILD_DATE: ${BUILD_DATE:-2025-11-13}
+        VCS_REF: ${VCS_REF:-local}
+        VERSION: ${VERSION:-1.0.0}
+    container_name: pricescout-app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Database configuration
+      DATABASE_URL: postgresql://pricescout_app:${POSTGRES_PASSWORD:-dev_password_change_me}@postgres:5432/pricescout_db
+      
+      # Application configuration
+      ENVIRONMENT: development
+      DEBUG: "false"
+      LOG_LEVEL: INFO
+      HOST: 0.0.0.0
+      PORT: 8000
+      
+      # Security (change in production!)
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-key-change-in-production}
+      SESSION_TIMEOUT_MINUTES: 60
+      
+      # Playwright configuration
+      PLAYWRIGHT_HEADLESS: "true"
+      PLAYWRIGHT_TIMEOUT: 30000
+      
+      # Feature flags
+      ENABLE_ADMIN_MODE: "true"
+      ENABLE_DATA_EXPORT: "true"
+      
+      # Optional: OMDB API key
+      OMDB_API_KEY: ${OMDB_API_KEY:-}
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount data directories for persistence
+      - ./data:/app/data
+      - ./reports:/app/reports
+      - ./logs:/app/logs
+      - ./debug_snapshots:/app/debug_snapshots
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - pricescout-network
+
+  # ===========================================================================
+  # Optional: Redis Cache (for production scaling)
+  # ===========================================================================
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: pricescout-redis
+  #   restart: unless-stopped
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis_data:/data
+  #   healthcheck:
+  #     test: ["CMD", "redis-cli", "ping"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #   networks:
+  #     - pricescout-network
+
+  # ===========================================================================
+  # Optional: pgAdmin for database management
+  # ===========================================================================
+  # pgadmin:
+  #   image: dpage/pgadmin4:latest
+  #   container_name: pricescout-pgadmin
+  #   restart: unless-stopped
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: admin@pricescout.local
+  #     PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+  #   ports:
+  #     - "5050:80"
+  #   volumes:
+  #     - pgadmin_data:/var/lib/pgadmin
+  #   networks:
+  #     - pricescout-network
+
+# =============================================================================
+# VOLUMES
+# =============================================================================
+volumes:
+  postgres_data:
+    driver: local
+  # redis_data:
+  #   driver: local
+  # pgadmin_data:
+  #   driver: local
+
+# =============================================================================
+# NETWORKS
+# =============================================================================
+networks:
+  pricescout-network:
+    driver: bridge
+    name: pricescout-network

@@ -10,6 +10,14 @@ from datetime import datetime, timedelta
 from app import security_config
 from app.config import PROJECT_DIR
 
+# Import PostgreSQL support
+try:
+    import psycopg2
+    from psycopg2.extras import RealDictCursor
+    POSTGRES_AVAILABLE = True
+except ImportError:
+    POSTGRES_AVAILABLE = False
+
 DB_FILE = os.path.join(PROJECT_DIR, "users.db")  # Use absolute path to avoid confusion
 ROLE_PERMISSIONS_FILE = os.path.join(PROJECT_DIR, "role_permissions.json")
 
@@ -65,12 +73,54 @@ def save_role_permissions(permissions):
     security_config.log_security_event("role_permissions_updated", "system", 
                                       {"permissions": permissions})
 
+def _use_postgresql():
+    """Check if we should use PostgreSQL instead of SQLite"""
+    return POSTGRES_AVAILABLE and os.getenv('DATABASE_URL')
+
 def get_db_connection():
-    conn = sqlite3.connect(DB_FILE, detect_types=sqlite3.PARSE_DECLTYPES)
-    conn.row_factory = sqlite3.Row
-    return conn
+    """Get database connection - PostgreSQL if available, otherwise SQLite"""
+    if _use_postgresql():
+        # Use PostgreSQL
+        conn = psycopg2.connect(os.getenv('DATABASE_URL'))
+        return conn
+    else:
+        # Use SQLite
+        conn = sqlite3.connect(DB_FILE, detect_types=sqlite3.PARSE_DECLTYPES)
+        conn.row_factory = sqlite3.Row
+        return conn
+
+class DictRow:
+    """Wrapper to make PostgreSQL rows work like SQLite rows"""
+    def __init__(self, data):
+        self._data = data
+    
+    def __getitem__(self, key):
+        return self._data[key]
+    
+    def __contains__(self, key):
+        return key in self._data
+    
+    def get(self, key, default=None):
+        return self._data.get(key, default)
+    
+    def keys(self):
+        return self._data.keys()
 
 def init_database():
+    """Initialize database - handles both PostgreSQL and SQLite"""
+    if _use_postgresql():
+        # PostgreSQL database is already initialized via schema.sql
+        # Just verify the connection works
+        try:
+            with get_db_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT COUNT(*) FROM users;")
+                cursor.fetchone()
+        except Exception as e:
+            print(f"Warning: Could not verify PostgreSQL users table: {e}")
+        return
+    
+    # SQLite initialization (legacy)
     with get_db_connection() as conn:
         cursor = conn.cursor()
         cursor.execute("""
@@ -190,21 +240,59 @@ def create_user(username, password, is_admin=False, company=None, default_compan
     password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
     with get_db_connection() as conn:
         try:
-            conn.execute("""
-                INSERT INTO users (username, password_hash, is_admin, role, company, default_company, allowed_modes, home_location_type, home_location_value, must_change_password) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (username, password_hash.decode('utf-8'), is_admin, role, company, default_company, json.dumps(allowed_modes), home_location_type, home_location_value, 1))
+            cursor = conn.cursor()
+            
+            if _use_postgresql():
+                # PostgreSQL: Need to get company_id first (default to 1 for System company)
+                company_id = 1
+                cursor.execute("""
+                    INSERT INTO users (username, password_hash, company_id, role, allowed_modes, is_active, must_change_password) 
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                """, (username, password_hash.decode('utf-8'), company_id, role, json.dumps(allowed_modes), True, True))
+            else:
+                # SQLite
+                cursor.execute("""
+                    INSERT INTO users (username, password_hash, is_admin, role, company, default_company, allowed_modes, home_location_type, home_location_value, must_change_password) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (username, password_hash.decode('utf-8'), is_admin, role, company, default_company, json.dumps(allowed_modes), home_location_type, home_location_value, 1))
+            
             conn.commit()
             security_config.log_security_event("user_created", username, 
                                               {"role": role, "allowed_modes": allowed_modes})
             return True, "User created successfully."
-        except sqlite3.IntegrityError:
-            return False, "Username already exists."
+        except (sqlite3.IntegrityError, Exception) as e:
+            return False, f"Error creating user: {str(e)}"
 
 def get_user(username):
+    """Get user by username - works with both PostgreSQL and SQLite"""
     with get_db_connection() as conn:
-        user = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
-        return user
+        cursor = conn.cursor()
+        
+        if _use_postgresql():
+            # PostgreSQL uses %s placeholders and has different schema
+            cursor.execute("""
+                SELECT u.*, c.company_name 
+                FROM users u 
+                LEFT JOIN companies c ON u.company_id = c.company_id 
+                WHERE u.username = %s AND u.is_active = true
+            """, (username,))
+            row = cursor.fetchone()
+            if row:
+                # Convert to dict-like object and map fields for compatibility
+                columns = [desc[0] for desc in cursor.description]
+                user_dict = dict(zip(columns, row))
+                
+                # Map PostgreSQL fields to SQLite-compatible names
+                user_dict['is_admin'] = (user_dict.get('role') == 'admin')
+                user_dict['company'] = user_dict.get('company_name')
+                user_dict['default_company'] = user_dict.get('company_name')
+                
+                return DictRow(user_dict)
+            return None
+        else:
+            # SQLite uses ? placeholders
+            user = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
+            return user
 
 def verify_user(username, password):
     """
@@ -227,11 +315,17 @@ def verify_user(username, password):
         return None
     
     user = get_user(username)
-    if user and bcrypt.checkpw(password.encode('utf-8'), user['password_hash'].encode('utf-8')):
-        # Successful login - reset attempt counter
-        security_config.reset_login_attempts(username)
-        security_config.log_security_event("login_success", username)
-        return user
+    if user:
+        # Handle password hash - might be string or bytes
+        stored_hash = user['password_hash']
+        if isinstance(stored_hash, str):
+            stored_hash = stored_hash.encode('utf-8')
+        
+        if bcrypt.checkpw(password.encode('utf-8'), stored_hash):
+            # Successful login - reset attempt counter
+            security_config.reset_login_attempts(username)
+            security_config.log_security_event("login_success", username)
+            return user
     
     # Failed login - record attempt
     if user:  # Only record if user exists (don't reveal non-existent users)
@@ -242,11 +336,20 @@ def verify_user(username, password):
 
 def get_all_users():
     with get_db_connection() as conn:
-        users = conn.execute("""
-            SELECT id, username, is_admin, role, company, default_company, allowed_modes, home_location_type, home_location_value 
-            FROM users
-        """).fetchall()
-        return users
+        cursor = conn.cursor()
+        if _use_postgresql():
+            cursor.execute("""
+                SELECT user_id, username, is_admin, role, company_id, default_company_id, 
+                       allowed_modes, home_location_type, home_location_value 
+                FROM users WHERE is_active = true
+            """)
+        else:
+            cursor.execute("""
+                SELECT id, username, is_admin, role, company, default_company, 
+                       allowed_modes, home_location_type, home_location_value 
+                FROM users
+            """)
+        return cursor.fetchall()
 
 def update_user(user_id, username, is_admin, company, default_company, role=None, allowed_modes=None, home_location_type=None, home_location_value=None):
     """
@@ -284,11 +387,23 @@ def update_user(user_id, username, is_admin, company, default_company, role=None
     is_admin = (role == ROLE_ADMIN)
     
     with get_db_connection() as conn:
-        conn.execute("""
-            UPDATE users 
-            SET username = ?, is_admin = ?, role = ?, company = ?, default_company = ?, allowed_modes = ?, home_location_type = ?, home_location_value = ? 
-            WHERE id = ?
-        """, (username, is_admin, role, company, default_company, json.dumps(allowed_modes), home_location_type, home_location_value, user_id))
+        cursor = conn.cursor()
+        if _use_postgresql():
+            cursor.execute("""
+                UPDATE users 
+                SET username = %s, is_admin = %s, role = %s, company_id = %s, default_company_id = %s, 
+                    allowed_modes = %s, home_location_type = %s, home_location_value = %s 
+                WHERE user_id = %s
+            """, (username, is_admin, role, company, default_company, json.dumps(allowed_modes), 
+                  home_location_type, home_location_value, user_id))
+        else:
+            cursor.execute("""
+                UPDATE users 
+                SET username = ?, is_admin = ?, role = ?, company = ?, default_company = ?, 
+                    allowed_modes = ?, home_location_type = ?, home_location_value = ? 
+                WHERE id = ?
+            """, (username, is_admin, role, company, default_company, json.dumps(allowed_modes), 
+                  home_location_type, home_location_value, user_id))
         conn.commit()
         
         security_config.log_security_event("user_updated", username, 
@@ -296,7 +411,11 @@ def update_user(user_id, username, is_admin, company, default_company, role=None
 
 def delete_user(user_id):
     with get_db_connection() as conn:
-        conn.execute("DELETE FROM users WHERE id = ?", (user_id,))
+        cursor = conn.cursor()
+        if _use_postgresql():
+            cursor.execute("DELETE FROM users WHERE user_id = %s", (user_id,))
+        else:
+            cursor.execute("DELETE FROM users WHERE id = ?", (user_id,))
         conn.commit()
 
 def change_password(username, old_password, new_password):
@@ -324,8 +443,13 @@ def change_password(username, old_password, new_password):
     # Hash and update password
     new_hash = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
     with get_db_connection() as conn:
-        conn.execute("UPDATE users SET password_hash = ?, must_change_password = 0 WHERE username = ?", 
-                     (new_hash.decode('utf-8'), username))
+        cursor = conn.cursor()
+        if _use_postgresql():
+            cursor.execute("UPDATE users SET password_hash = %s, must_change_password = false WHERE username = %s", 
+                         (new_hash.decode('utf-8'), username))
+        else:
+            cursor.execute("UPDATE users SET password_hash = ?, must_change_password = 0 WHERE username = ?", 
+                         (new_hash.decode('utf-8'), username))
         conn.commit()
     
     security_config.log_security_event("password_changed", username)
@@ -568,11 +692,19 @@ def generate_reset_code(username):
     expiry_timestamp = int((datetime.now() + timedelta(minutes=RESET_CODE_EXPIRY_MINUTES)).timestamp())
     
     with get_db_connection() as conn:
-        conn.execute("""
-            UPDATE users 
-            SET reset_code = ?, reset_code_expiry = ?, reset_attempts = 0
-            WHERE username = ?
-        """, (code_hash.decode('utf-8'), expiry_timestamp, username))
+        cursor = conn.cursor()
+        if _use_postgresql():
+            cursor.execute("""
+                UPDATE users 
+                SET reset_code = %s, reset_code_expiry = %s, reset_attempts = 0
+                WHERE username = %s
+            """, (code_hash.decode('utf-8'), expiry_timestamp, username))
+        else:
+            cursor.execute("""
+                UPDATE users 
+                SET reset_code = ?, reset_code_expiry = ?, reset_attempts = 0
+                WHERE username = ?
+            """, (code_hash.decode('utf-8'), expiry_timestamp, username))
         conn.commit()
     
     security_config.log_security_event("password_reset_requested", username, 
@@ -604,11 +736,19 @@ def verify_reset_code(username, code):
     if attempts >= RESET_CODE_MAX_ATTEMPTS:
         # Clear the reset code
         with get_db_connection() as conn:
-            conn.execute("""
-                UPDATE users 
-                SET reset_code = NULL, reset_code_expiry = NULL, reset_attempts = 0
-                WHERE username = ?
-            """, (username,))
+            cursor = conn.cursor()
+            if _use_postgresql():
+                cursor.execute("""
+                    UPDATE users 
+                    SET reset_code = NULL, reset_code_expiry = NULL, reset_attempts = 0
+                    WHERE username = %s
+                """, (username,))
+            else:
+                cursor.execute("""
+                    UPDATE users 
+                    SET reset_code = NULL, reset_code_expiry = NULL, reset_attempts = 0
+                    WHERE username = ?
+                """, (username,))
             conn.commit()
         security_config.log_security_event("password_reset_max_attempts", username)
         return False, "Too many attempts. Please request a new code."
@@ -616,11 +756,19 @@ def verify_reset_code(username, code):
     # Check expiry
     if int(time.time()) > user['reset_code_expiry']:
         with get_db_connection() as conn:
-            conn.execute("""
-                UPDATE users 
-                SET reset_code = NULL, reset_code_expiry = NULL, reset_attempts = 0
-                WHERE username = ?
-            """, (username,))
+            cursor = conn.cursor()
+            if _use_postgresql():
+                cursor.execute("""
+                    UPDATE users 
+                    SET reset_code = NULL, reset_code_expiry = NULL, reset_attempts = 0
+                    WHERE username = %s
+                """, (username,))
+            else:
+                cursor.execute("""
+                    UPDATE users 
+                    SET reset_code = NULL, reset_code_expiry = NULL, reset_attempts = 0
+                    WHERE username = ?
+                """, (username,))
             conn.commit()
         security_config.log_security_event("password_reset_expired", username)
         return False, "Reset code has expired. Please request a new one."
@@ -629,22 +777,38 @@ def verify_reset_code(username, code):
     if bcrypt.checkpw(code.encode('utf-8'), user['reset_code'].encode('utf-8')):
         # Code is valid - clear it
         with get_db_connection() as conn:
-            conn.execute("""
-                UPDATE users 
-                SET reset_code = NULL, reset_code_expiry = NULL, reset_attempts = 0
-                WHERE username = ?
-            """, (username,))
+            cursor = conn.cursor()
+            if _use_postgresql():
+                cursor.execute("""
+                    UPDATE users 
+                    SET reset_code = NULL, reset_code_expiry = NULL, reset_attempts = 0
+                    WHERE username = %s
+                """, (username,))
+            else:
+                cursor.execute("""
+                    UPDATE users 
+                    SET reset_code = NULL, reset_code_expiry = NULL, reset_attempts = 0
+                    WHERE username = ?
+                """, (username,))
             conn.commit()
         security_config.log_security_event("password_reset_code_verified", username)
         return True, "Code verified. You may now reset your password."
     else:
         # Increment attempts
         with get_db_connection() as conn:
-            conn.execute("""
-                UPDATE users 
-                SET reset_attempts = reset_attempts + 1
-                WHERE username = ?
-            """, (username,))
+            cursor = conn.cursor()
+            if _use_postgresql():
+                cursor.execute("""
+                    UPDATE users 
+                    SET reset_attempts = reset_attempts + 1
+                    WHERE username = %s
+                """, (username,))
+            else:
+                cursor.execute("""
+                    UPDATE users 
+                    SET reset_attempts = reset_attempts + 1
+                    WHERE username = ?
+                """, (username,))
             conn.commit()
         security_config.log_security_event("password_reset_invalid_code", username)
         return False, f"Invalid code. {RESET_CODE_MAX_ATTEMPTS - attempts - 1} attempts remaining."
@@ -674,11 +838,19 @@ def reset_password_with_code(username, code, new_password):
     # Update password
     password_hash = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
     with get_db_connection() as conn:
-        conn.execute("""
-            UPDATE users 
-            SET password_hash = ?, must_change_password = 0
-            WHERE username = ?
-        """, (password_hash.decode('utf-8'), username))
+        cursor = conn.cursor()
+        if _use_postgresql():
+            cursor.execute("""
+                UPDATE users 
+                SET password_hash = %s, must_change_password = false
+                WHERE username = %s
+            """, (password_hash.decode('utf-8'), username))
+        else:
+            cursor.execute("""
+                UPDATE users 
+                SET password_hash = ?, must_change_password = 0
+                WHERE username = ?
+            """, (password_hash.decode('utf-8'), username))
         conn.commit()
     
     security_config.log_security_event("password_reset_completed", username)

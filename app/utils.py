@@ -12,7 +12,10 @@ from unittest.mock import MagicMock
 import sqlite3
 import copy
 import streamlit as st
-from app import database, security_config
+
+# Local application imports (ensure no leading indentation to avoid IndentationError)
+from app import db_adapter as database
+from app import security_config
 from app import config
 
 def run_async_in_thread(coro, *args, **kwargs):
@@ -391,16 +394,12 @@ def process_and_save_operating_hours(results_by_date, context, duration=None, si
     all_theaters = list(set(item['Theater'] for item in operating_hours_data))
     all_dates = list(set(datetime.datetime.strptime(item['Date'], '%Y-%m-%d').date() for item in operating_hours_data))
 
-    with database._get_db_connection() as conn:
-        for date_obj in all_dates:
-            database.delete_operating_hours(all_theaters, date_obj, conn)
-
-        cursor = conn.cursor()
-        run_timestamp = datetime.datetime.now()
-        cursor.execute('INSERT INTO scrape_runs (run_timestamp, mode, run_context) VALUES (?, ?, ?)', (run_timestamp, "Operating Hours", context))
-        run_id = cursor.lastrowid
-        database.save_operating_hours(run_id, operating_hours_data, conn)
-        conn.commit()
+    # Delete old operating hours for these theaters and dates
+    for date_obj in all_dates:
+        database.delete_operating_hours(all_theaters, date_obj, None)
+    
+    # Save new operating hours using db_adapter
+    database.save_operating_hours(None, operating_hours_data, None)
 
     if not silent:
         success_message = "Operating hours saved to database."

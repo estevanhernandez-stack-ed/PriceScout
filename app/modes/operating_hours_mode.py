@@ -2,7 +2,7 @@ import streamlit as st
 import datetime
 import pandas as pd
 from app.utils import run_async_in_thread, is_run_allowed, get_error_message, format_theater_name_for_display, estimate_scrape_time, normalize_time_string, to_excel, to_excel_multi_sheet, _extract_company_name, format_time_to_human_readable
-from app import database
+from app import db_adapter as database
 import json
 import os
 from app.config import SCRIPT_DIR, DATA_DIR

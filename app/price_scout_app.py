@@ -18,7 +18,7 @@ from app import config
 from app import security_config
 
 from app.config import SCRIPT_DIR, PROJECT_DIR, DEBUG_DIR, DATA_DIR, CACHE_FILE, CACHE_EXPIRATION_DAYS
-from app import database
+from app import db_adapter as database
 from app import users
 from app.utils import run_async_in_thread, format_price_change, style_price_change_v2, check_cache_status, get_report_path, log_runtime, clear_workflow_state, reset_session, style_price_change, to_excel, to_csv, get_error_message, estimate_scrape_time, generate_human_readable_summary
 from app.ui_components import render_daypart_selector, apply_daypart_auto_selection, render_film_and_showtime_selection
@@ -180,6 +180,12 @@ def login():
                 st.session_state.is_admin = user['is_admin']
                 st.session_state.company = user['company']
                 st.session_state.default_company = user['default_company'] # --- FIX: sqlite3.Row uses key access, not .get() ---
+
+                # Set current company context for database operations
+                # sqlite3.Row doesn't have .get(), so we use bracket access with fallback
+                company_name = user['company'] or user['default_company'] or 'System'
+                database.set_current_company(company_name)
+                
                 st.rerun()
             else:
                 st.error("❌ Incorrect username or password. Please try again.")
@@ -457,15 +463,23 @@ def handle_scrape_confirmation():
     showtime_count = 0
     # --- FIX: Correctly count the total number of individual showings, not just unique times ---
     selected_showtimes = st.session_state.get('selected_showtimes', {})
+
+    print(f"\n[CONFIRMATION] Handling scrape confirmation")
+    print(f"[CONFIRMATION] selected_showtimes keys: {list(selected_showtimes.keys())}")
+
     for daily_selections in selected_showtimes.values():
         for theater_selections in daily_selections.values():
             for film_selections in theater_selections.values():
                 for showings_at_time in film_selections.values():
                     showtime_count += len(showings_at_time)
 
+    print(f"[CONFIRMATION] Total showtime count: {showtime_count}")
+
     estimated_time = estimate_scrape_time(showtime_count, mode_filter='price')
+    print(f"[CONFIRMATION] Estimated time: {estimated_time} seconds")
 
     if estimated_time != -1 and estimated_time < 30:
+        print(f"[CONFIRMATION] Auto-proceeding (estimated time < 30s)")
         st.session_state.report_running = True
         st.session_state.confirm_scrape = False
     else:
@@ -473,9 +487,10 @@ def handle_scrape_confirmation():
             confirm_message = f"This scrape involves {showtime_count} showings and is estimated to take about {format_time_to_human_readable(estimated_time)}. Do you want to proceed?"
         else:
             confirm_message = ui_config['scraper']['confirm_message']
-        
+
         st.info(confirm_message)
         if st.button(ui_config['scraper']['proceed_button'], use_container_width=True, type="primary"):
+            print(f"[CONFIRMATION] User clicked proceed button")
             st.session_state.report_running = True
             st.session_state.confirm_scrape = False
             st.rerun() # Rerun immediately after setting the state
@@ -549,20 +564,31 @@ def _finalize_scrape_session():
 
 def _initialize_scrape_session():
     """Initializes the session state for a new scrape run."""
+    print(f"\n[INIT_SCRAPE] Initializing scrape session")
+    print(f"[INIT_SCRAPE] Search mode: {st.session_state.search_mode}")
+
+    selected_showtimes = st.session_state.get('selected_showtimes', {})
+    print(f"[INIT_SCRAPE] selected_showtimes structure: {list(selected_showtimes.keys())}")
+
     theaters_to_scrape = []
     if st.session_state.search_mode == "Market Mode":
         # In Market Mode, selected_theaters is a list of names. We need the full objects.
         all_theaters_in_context = st.session_state.get('theaters', [])
         selected_names = st.session_state.get('selected_theaters', [])
+        print(f"[INIT_SCRAPE] Market Mode: {len(selected_names)} theaters selected")
         theaters_to_scrape = [t for t in all_theaters_in_context if t.get('name') in selected_names]
     elif st.session_state.search_mode == "CompSnipe Mode":
         # In CompSnipe Mode, compsnipe_theaters is already a list of theater objects.
         theaters_to_scrape = st.session_state.get('compsnipe_theaters', [])
+        print(f"[INIT_SCRAPE] CompSnipe Mode: {len(theaters_to_scrape)} theaters")
     elif st.session_state.search_mode == "Poster Board":
         # In Poster Board, selected_theaters is a list of names. We need the full objects.
         all_theaters_in_context = st.session_state.get('theaters', [])
         selected_names = st.session_state.get('selected_theaters', [])
+        print(f"[INIT_SCRAPE] Poster Board: {len(selected_names)} theaters selected")
         theaters_to_scrape = [t for t in all_theaters_in_context if t['name'] in selected_names]
+
+    print(f"[INIT_SCRAPE] theaters_to_scrape: {[t.get('name', 'Unknown') for t in theaters_to_scrape]}")
 
     st.session_state.scrape_queue = theaters_to_scrape
     st.session_state.scrape_results = []
@@ -577,7 +603,13 @@ def _process_single_theater_scrape(scout):
     """Manages the async task of scraping a single theater and updating the UI."""
     theater = st.session_state.scrape_queue[st.session_state.scrape_current_index]
 
+    print(f"\n[PROCESS_THEATER] Processing theater: {theater.get('name', 'Unknown')}")
+
     if 'scrape_thread' not in st.session_state:
+        print(f"[PROCESS_THEATER] Creating scrape thread")
+        print(f"[PROCESS_THEATER] Theater: {theater}")
+        print(f"[PROCESS_THEATER] selected_showtimes keys: {list(st.session_state.selected_showtimes.keys())}")
+
         st.session_state.scrape_status_container = ["Initializing..."]
         thread, get_results = run_async_in_thread(
             scout.scrape_details,
@@ -587,20 +619,39 @@ def _process_single_theater_scrape(scout):
         )
         st.session_state.scrape_thread = thread
         st.session_state.get_scrape_results = get_results
+        print(f"[PROCESS_THEATER] Thread created, rerunning")
         st.rerun()
     else:
         status_container = st.session_state.scrape_status_container
         thread = st.session_state.scrape_thread
+        print(f"[PROCESS_THEATER] Thread exists, checking status")
+        print(f"[PROCESS_THEATER] Thread alive: {thread.is_alive()}")
+
         with st.status(f"Scraping {theater['name']}: {status_container[0]}", expanded=True) as status_ui:
             if thread.is_alive():
+                print(f"[PROCESS_THEATER] Thread still running, waiting...")
                 time.sleep(1.5)
                 st.rerun()
             else:
+                print(f"[PROCESS_THEATER] Thread completed, getting results")
                 status, value, log, duration = st.session_state.get_scrape_results()
+                print(f"[PROCESS_THEATER] Status: {status}")
+                print(f"[PROCESS_THEATER] Duration: {duration}")
+                print(f"[PROCESS_THEATER] Log length: {len(log)}")
+
+                if status == 'error':
+                    print(f"[PROCESS_THEATER] ERROR VALUE: {value}")
+                    print(f"[PROCESS_THEATER] ERROR TYPE: {type(value)}")
+                    import traceback
+                    if isinstance(value, Exception):
+                        print(f"[PROCESS_THEATER] Exception traceback:")
+                        traceback.print_exception(type(value), value, value.__traceback__)
+
                 st.session_state.last_run_log += log
                 st.session_state.scrape_total_duration += duration
                 if status == 'success':
                     result, showings_scraped = value
+                    print(f"[PROCESS_THEATER] Success! Result count: {len(result) if result else 0}")
                     if result:
                         st.session_state.scrape_results.extend(result)
                         st.session_state.scraped_showings.extend(showings_scraped)
@@ -619,14 +670,20 @@ def _process_single_theater_scrape(scout):
 
 def execute_scrape(scout):
     """Runs the main scraping logic by orchestrating initialization, progress, and finalization steps."""
+    print(f"\n[EXECUTE_SCRAPE] execute_scrape() called")
+    print(f"[EXECUTE_SCRAPE] scrape_queue in session_state: {'scrape_queue' in st.session_state}")
+
     if 'scrape_queue' not in st.session_state:
+        print(f"[EXECUTE_SCRAPE] Initializing scrape session")
         _initialize_scrape_session()
 
     _render_scrape_progress()
 
     if st.session_state.get('cancel_scrape') or st.session_state.scrape_current_index >= len(st.session_state.scrape_queue):
+        print(f"[EXECUTE_SCRAPE] Finalizing scrape session")
         _finalize_scrape_session()
     else:
+        print(f"[EXECUTE_SCRAPE] Processing theater {st.session_state.scrape_current_index + 1}/{len(st.session_state.scrape_queue)}")
         _process_single_theater_scrape(scout)
 
 def render_report():
@@ -834,6 +891,12 @@ def main():
     if not login():
         return
 
+    # Set company context for database operations after successful login
+    if st.session_state.get('logged_in'):
+        company_name = st.session_state.get('company') or st.session_state.get('default_company') or 'System'
+        if company_name:
+            database.set_current_company(company_name)
+
     st.title(ui_config['main']['title'])
     theming.theme_selector_component() # <-- ADD THIS LINE
     
@@ -970,9 +1033,17 @@ def main():
     st.divider()
 
     # --- Main Application Logic (State Machine) ---
+    print(f"\n[MAIN] State machine check:")
+    print(f"[MAIN]   confirm_scrape: {st.session_state.get('confirm_scrape')}")
+    print(f"[MAIN]   report_running: {st.session_state.get('report_running')}")
+    print(f"[MAIN]   run_diagnostic: {st.session_state.get('run_diagnostic')}")
+    print(f"[MAIN]   stage: {st.session_state.get('stage')}")
+
     if st.session_state.get('confirm_scrape'):
+        print(f"[MAIN] Calling handle_scrape_confirmation()")
         handle_scrape_confirmation()
     elif st.session_state.report_running and not st.session_state.get('run_diagnostic'):
+        print(f"[MAIN] Calling execute_scrape()")
         execute_scrape(scout)
     elif st.session_state.get('stage') == 'report_generated' and 'final_df' in st.session_state and not st.session_state.final_df.empty:
         render_report()
