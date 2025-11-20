@@ -6,6 +6,24 @@ import os
 import json
 import shutil
 
+def _normalize_company_name(company_name):
+    """
+    Normalize company names to match cache_data format.
+    markets_data uses: "Marcus Theatres", "AMC Theatres"
+    cache_data uses: "Marcus", "AMC", etc.
+    """
+    if not company_name:
+        return company_name
+
+    # Mapping from markets_data format to cache_data format
+    company_mapping = {
+        "Marcus Theatres": "Marcus",
+        "AMC Theatres": "AMC",
+    }
+
+    return company_mapping.get(company_name, company_name)
+
+
 def _get_home_location_options(cache_data, selected_company):
     """
     Extract all markets and theaters for a given company from cache_data.
@@ -13,6 +31,9 @@ def _get_home_location_options(cache_data, selected_company):
     """
     if not selected_company or selected_company == "All Companies" or not cache_data:
         return {'directors': [], 'markets': [], 'theaters': []}
+
+    # Normalize company name to match cache_data format
+    normalized_company = _normalize_company_name(selected_company)
 
     # Extract from cache_data structure: cache_data['markets'][market_name]['theaters']
     markets = []
@@ -22,7 +43,7 @@ def _get_home_location_options(cache_data, selected_company):
         # Get company-specific theaters if company is selected
         market_theaters = []
         for theater in market_data.get('theaters', []):
-            if theater.get('company') == selected_company:
+            if theater.get('company') == normalized_company:
                 theater_name = theater.get('name', '')
                 if theater_name:
                     market_theaters.append(theater_name)
