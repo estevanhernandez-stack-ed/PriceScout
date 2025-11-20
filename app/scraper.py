@@ -346,75 +346,63 @@ class Scraper:
                                     gc_text = grandchild.get_text(strip=True)[:60]
                                     print(f"      └─ {grandchild.name}.{gc_classes}: '{gc_text}'")
 
-                # Look for variant title or format indicators
-                # Try multiple selectors that might contain format info
-                variant_title = None
-                variant_selectors = [
-                    '.movie-variant-title',  # Old selector
-                    '.fd-movie__variant-group-name',  # New Fandango structure
-                    '[class*="variant"]',  # Any element with "variant" in class
-                ]
-                for selector in variant_selectors:
-                    variant_title_elem = movie_block.select_one(selector)
-                    if variant_title_elem:
-                        variant_title = variant_title_elem.get_text(strip=True)
-                        break
-                
-                # Get all showtime buttons for this movie
-                showtime_links = movie_block.select('a.showtime-btn')
-                
-                for link in showtime_links:
-                    # Extract time from aria-label (e.g., "Buy tickets for 7 o'clock PM showtime")
-                    aria_label = link.get('aria-label', '')
-                    time_match = re.search(r'(\d{1,2}(?::\d{2})?\s*(?:o\'clock\s*)?(?:AM|PM|am|pm))', aria_label, re.IGNORECASE)
-                    
-                    if time_match:
-                        time_str = time_match.group(1).replace("o'clock", "").strip()
-                        # Normalize time format
-                        time_str = re.sub(r'\s+', '', time_str)  # Remove spaces
-                        if not ':' in time_str:
-                            # Add :00 if missing minutes
-                            time_str = re.sub(r'(\d{1,2})(am|pm)', r'\1:00\2', time_str, flags=re.IGNORECASE)
-                    else:
-                        # Fallback: try to find time in button text
-                        time_label_elem = link.select_one('.showtime-btn-label')
-                        time_str = time_label_elem.get_text(strip=True) if time_label_elem else link.get_text(strip=True)
-                    
-                    # Get format/amenity info
-                    # Priority: button amenity > variant title > default "2D"
-                    amenity_elem = link.select_one('.showtime-btn-amenity')
-                    if amenity_elem:
-                        movie_format = amenity_elem.get_text(strip=True)
-                    elif variant_title and variant_title.strip():
-                        movie_format = variant_title.strip()
-                    else:
-                        movie_format = "2D"
+                # NEW STRUCTURE: Loop through format groups (each group = one format with its showtimes)
+                # Each movie can have multiple formats (Standard, IMAX, UltraScreen, etc.)
+                amenity_groups = movie_block.select('section.shared-showtimes__amenity-group')
 
-                    # Debug: print what we found for format (only for first showing to avoid spam)
-                    if len(showings) == 0:
-                        print(f"    [DEBUG FORMAT] Film: {film_title[:30]}, Format: '{movie_format}', Variant: '{variant_title}', Amenity: {amenity_elem is not None}")
+                for amenity_group in amenity_groups:
+                    # Extract the format from the h4 title element
+                    format_title_elem = amenity_group.select_one('h4.shared-showtimes__title')
+                    if format_title_elem:
+                        movie_format = format_title_elem.get_text(strip=True)
+                    else:
+                        movie_format = "2D"  # Default fallback
 
-                    href = link.get('href')
-                    if href and isinstance(href, str):
-                        # Handle both full URLs and relative paths
-                        if href.startswith('http'):
-                            ticket_url = href
-                        elif 'jump.aspx' in href:
-                            ticket_url_suffix = href.split('jump.aspx')[-1]
-                            ticket_url = "https://tickets.fandango.com/transaction/ticketing/mobile/jump.aspx" + ticket_url_suffix
+                    # Get all showtime buttons within this specific format group
+                    showtime_links = amenity_group.select('a.showtime-btn')
+
+                    for link in showtime_links:
+                        # Extract time from aria-label (e.g., "Buy tickets for 7 o'clock PM showtime")
+                        aria_label = link.get('aria-label', '')
+                        time_match = re.search(r'(\d{1,2}(?::\d{2})?\s*(?:o\'clock\s*)?(?:AM|PM|am|pm))', aria_label, re.IGNORECASE)
+
+                        if time_match:
+                            time_str = time_match.group(1).replace("o'clock", "").strip()
+                            # Normalize time format
+                            time_str = re.sub(r'\s+', '', time_str)  # Remove spaces
+                            if not ':' in time_str:
+                                # Add :00 if missing minutes
+                                time_str = re.sub(r'(\d{1,2})(am|pm)', r'\1:00\2', time_str, flags=re.IGNORECASE)
                         else:
-                            ticket_url = "https://tickets.fandango.com" + href
-                        
-                        if film_title != "Unknown Title" and time_str and ticket_url:
-                            # Validate time format
-                            if re.match(r'\d{1,2}:\d{2}\s*[ap]m?', time_str, re.IGNORECASE):
-                                showings.append({
-                                    "film_title": film_title,
-                                    "format": movie_format,
-                                    "showtime": time_str,
-                                    "daypart": self._classify_daypart(time_str),
-                                    "ticket_url": ticket_url
-                                })
+                            # Fallback: try to find time in button text
+                            time_label_elem = link.select_one('.showtime-btn-label')
+                            time_str = time_label_elem.get_text(strip=True) if time_label_elem else link.get_text(strip=True)
+
+                        # Debug: print what we found for format (only for first showing to avoid spam)
+                        if len(showings) == 0:
+                            print(f"    [DEBUG FORMAT] Film: {film_title[:30]}, Format: '{movie_format}' (from format group)")
+
+                        href = link.get('href')
+                        if href and isinstance(href, str):
+                            # Handle both full URLs and relative paths
+                            if href.startswith('http'):
+                                ticket_url = href
+                            elif 'jump.aspx' in href:
+                                ticket_url_suffix = href.split('jump.aspx')[-1]
+                                ticket_url = "https://tickets.fandango.com/transaction/ticketing/mobile/jump.aspx" + ticket_url_suffix
+                            else:
+                                ticket_url = "https://tickets.fandango.com" + href
+
+                            if film_title != "Unknown Title" and time_str and ticket_url:
+                                # Validate time format
+                                if re.match(r'\d{1,2}:\d{2}\s*[ap]m?', time_str, re.IGNORECASE):
+                                    showings.append({
+                                        "film_title": film_title,
+                                        "format": movie_format,
+                                        "showtime": time_str,
+                                        "daypart": self._classify_daypart(time_str),
+                                        "ticket_url": ticket_url
+                                    })
             
             print(f"  [SCRAPER] Found {len(showings)} showings for {theater['name']}")
             return showings
