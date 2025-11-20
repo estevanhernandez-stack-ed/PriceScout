@@ -23,8 +23,8 @@ def render_daily_lineup_mode(cache_data, selected_company):
     # Get all unique theaters from cache
     all_theaters = []
     if cache_data:
-        for market in cache_data.get('markets', []):
-            all_theaters.extend(market.get('theaters', []))
+        for market_name, market_data in cache_data.get('markets', {}).items():
+            all_theaters.extend(market_data.get('theaters', []))
 
     theater_names = sorted([t['name'] for t in all_theaters if 'name' in t])
 
