@@ -9,8 +9,10 @@ from streamlit_cookies_manager import EncryptedCookieManager
 import os
 
 # Cookie settings
-COOKIE_NAME_USERNAME = "pricescout_username"
-COOKIE_NAME_TOKEN = "pricescout_session_token"
+# NOTE: The EncryptedCookieManager adds the "pricescout_" prefix automatically,
+# so these keys should NOT include the prefix
+COOKIE_NAME_USERNAME = "username"
+COOKIE_NAME_TOKEN = "session_token"
 COOKIE_EXPIRY_DAYS = 30
 
 def get_cookie_manager():
