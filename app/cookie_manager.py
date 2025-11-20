@@ -18,23 +18,28 @@ def get_cookie_manager():
     Get or create the cookie manager instance.
 
     Returns:
-        EncryptedCookieManager instance
+        EncryptedCookieManager instance or None if not ready
     """
-    # Use a secret key from environment or generate a default one
-    # In production, this should be set via environment variable
-    password = os.getenv('COOKIE_PASSWORD', 'pricescout_default_cookie_secret_change_in_production')
+    try:
+        # Use a secret key from environment or generate a default one
+        # In production, this should be set via environment variable
+        password = os.getenv('COOKIE_PASSWORD', 'pricescout_default_cookie_secret_change_in_production')
 
-    if 'cookie_manager' not in st.session_state:
-        st.session_state.cookie_manager = EncryptedCookieManager(
-            prefix="pricescout_",
-            password=password
-        )
+        if 'cookie_manager' not in st.session_state:
+            st.session_state.cookie_manager = EncryptedCookieManager(
+                prefix="pricescout_",
+                password=password
+            )
 
-    # Ensure cookies are ready
-    if not st.session_state.cookie_manager.ready():
-        st.stop()
+        # Check if cookies are ready - if not, return None gracefully
+        if not st.session_state.cookie_manager.ready():
+            return None
 
-    return st.session_state.cookie_manager
+        return st.session_state.cookie_manager
+    except Exception as e:
+        # If cookie manager fails, log and return None (app will work without persistence)
+        print(f"Cookie manager initialization failed: {e}")
+        return None
 
 def save_login_cookie(username, session_token):
     """
@@ -46,6 +51,10 @@ def save_login_cookie(username, session_token):
     """
     try:
         cookies = get_cookie_manager()
+        if cookies is None:
+            # Cookies not ready yet, skip silently
+            return
+
         cookies[COOKIE_NAME_USERNAME] = username
         cookies[COOKIE_NAME_TOKEN] = session_token
         cookies.save()
@@ -62,6 +71,10 @@ def get_saved_login():
     """
     try:
         cookies = get_cookie_manager()
+        if cookies is None:
+            # Cookies not ready yet
+            return None, None
+
         username = cookies.get(COOKIE_NAME_USERNAME)
         token = cookies.get(COOKIE_NAME_TOKEN)
 
@@ -78,6 +91,10 @@ def clear_login_cookie():
     """
     try:
         cookies = get_cookie_manager()
+        if cookies is None:
+            # Cookies not ready yet, skip silently
+            return
+
         if COOKIE_NAME_USERNAME in cookies:
             del cookies[COOKIE_NAME_USERNAME]
         if COOKIE_NAME_TOKEN in cookies:
