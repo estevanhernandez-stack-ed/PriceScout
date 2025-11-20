@@ -6,7 +6,7 @@ Generates printable daily lineups for individual theaters with blank columns for
 import streamlit as st
 import pandas as pd
 from datetime import datetime, date, timedelta
-from app import database
+from app import db_adapter as database
 from app.utils import run_async_in_thread
 
 
@@ -127,23 +127,45 @@ def scrape_and_generate(theater_obj, theater_name, date_str, date_obj):
 def generate_daily_lineup(theater_name, date_str, date_obj):
     """Generate and display the daily lineup"""
 
-    # Query showings for this theater and date
-    with database._get_db_connection() as conn:
-        query = '''
-            SELECT
-                film_title,
-                showtime,
-                format,
-                daypart
-            FROM showings
-            WHERE theater_name = ? AND play_date = ?
-            ORDER BY film_title, showtime
-        '''
-        df = pd.read_sql_query(query, conn, params=(theater_name, date_str))
+    # Query showings for this theater and date using SQLAlchemy
+    from app.db_adapter import get_session, Showing, config
+    from datetime import datetime as dt
 
-    if df.empty:
-        st.warning(f"No showtimes found for {theater_name} on {date_str}")
-        return
+    # Convert date_str to date object if needed
+    if isinstance(date_str, str):
+        play_date = dt.strptime(date_str, '%Y-%m-%d').date()
+    else:
+        play_date = date_str
+
+    with get_session() as session:
+        company_id = getattr(config, 'CURRENT_COMPANY_ID', None)
+
+        query = session.query(
+            Showing.film_title,
+            Showing.showtime,
+            Showing.format,
+            Showing.daypart
+        )
+
+        if company_id:
+            query = query.filter(Showing.company_id == company_id)
+
+        query = query.filter(
+            Showing.theater_name == theater_name,
+            Showing.play_date == play_date
+        ).order_by(Showing.film_title, Showing.showtime)
+
+        results = query.all()
+
+        if not results:
+            st.warning(f"No showtimes found for {theater_name} on {date_str}")
+            return
+
+        # Convert to DataFrame
+        df = pd.DataFrame(
+            results,
+            columns=['film_title', 'showtime', 'format', 'daypart']
+        )
 
     # Process the data to group showtimes by film
     lineup_data = []
