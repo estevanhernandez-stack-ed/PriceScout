@@ -5,18 +5,19 @@ Generates printable daily lineups for individual theaters with blank columns for
 
 import streamlit as st
 import pandas as pd
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from app import database
+from app.utils import run_async_in_thread
 
 
 def render_daily_lineup_mode(cache_data, selected_company):
     """
     Main render function for Daily Lineup Mode.
-    Allows theater staff to generate print-ready daily film schedules.
+    Allows theater staff to scrape and generate print-ready daily film schedules.
     """
     st.title("📋 Daily Lineup - Theater Schedule")
     st.info(
-        "Generate a print-ready daily film lineup for your theater. "
+        "Scrape your theater's showtimes and generate a print-ready daily film lineup. "
         "Perfect for posting schedules or distribution to staff."
     )
 
@@ -31,7 +32,7 @@ def render_daily_lineup_mode(cache_data, selected_company):
     theater_names = sorted([t['name'] for t in company_theaters if 'name' in t])
 
     if not theater_names:
-        st.warning("No theaters found in cache. Please build the theater cache first.")
+        st.warning("No Marcus or Movie Tavern theaters found in cache. Please build the theater cache first.")
         return
 
     # Theater selection
@@ -52,12 +53,27 @@ def render_daily_lineup_mode(cache_data, selected_company):
         help="Select the theater to generate a lineup for"
     )
 
-    # Get available dates for selected theater
+    # Get theater object
+    selected_theater_obj = next((t for t in company_theaters if t['name'] == selected_theater), None)
+
+    if not selected_theater_obj:
+        st.error("Theater not found in cache.")
+        return
+
+    st.divider()
+
+    # Scrape button
+    if st.button("🔄 Get Latest Showtimes", type="primary", use_container_width=True):
+        scrape_theater_showtimes(selected_theater_obj)
+
+    # Check if we have data for this theater
     available_dates = database.get_dates_for_theater(selected_theater)
 
     if not available_dates:
-        st.warning(f"No showtime data found for {selected_theater}. Please scrape this theater first.")
+        st.info(f"No showtime data found for {selected_theater}. Click 'Get Latest Showtimes' to scrape.")
         return
+
+    st.success(f"✅ Data available for {len(available_dates)} date(s)")
 
     # Date selection
     st.subheader("Select Date")
@@ -83,8 +99,62 @@ def render_daily_lineup_mode(cache_data, selected_company):
 
     # Generate button
     st.divider()
-    if st.button("📄 Generate Daily Lineup", type="primary", use_container_width=True):
+    if st.button("📄 Generate Daily Lineup", type="secondary", use_container_width=True):
         generate_daily_lineup(selected_theater, selected_date, selected_date_obj)
+
+
+def scrape_theater_showtimes(theater_obj):
+    """Scrape showtimes for a single theater for the next 7 days"""
+    from app.scraper import Scraper
+
+    theater_name = theater_obj['name']
+    theater_url = theater_obj.get('url', '')
+
+    if not theater_url:
+        st.error(f"No URL found for {theater_name}")
+        return
+
+    st.subheader(f"Scraping {theater_name}")
+    progress_bar = st.progress(0)
+    status_text = st.empty()
+
+    # Get next 7 days
+    today = date.today()
+    dates_to_scrape = [(today + timedelta(days=i)).strftime('%Y-%m-%d') for i in range(7)]
+
+    scout = Scraper(capture_html_on_failure=False)
+
+    for i, date_str in enumerate(dates_to_scrape):
+        status_text.text(f"Scraping {date_str}...")
+        progress_bar.progress((i + 1) / len(dates_to_scrape))
+
+        # Scrape this theater for this date
+        thread, result_func = run_async_in_thread(
+            scout.get_all_showings_for_theaters,
+            [theater_obj],
+            date_str
+        )
+        thread.join()
+        status, result, _, _ = result_func()
+
+        if status == 'success' and result:
+            # Save to database
+            for theater, showings in result.items():
+                for showing in showings:
+                    database.save_showing(
+                        theater_name=theater,
+                        film_title=showing['film_title'],
+                        showtime=showing['showtime'],
+                        play_date=date_str,
+                        price=showing.get('price'),
+                        format_type=showing.get('format', ''),
+                        daypart=showing.get('daypart', '')
+                    )
+
+    progress_bar.progress(1.0)
+    status_text.empty()
+    st.success(f"✅ Successfully scraped {len(dates_to_scrape)} days for {theater_name}")
+    st.rerun()
 
 
 def generate_daily_lineup(theater_name, date_str, date_obj):
