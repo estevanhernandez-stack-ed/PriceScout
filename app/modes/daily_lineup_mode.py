@@ -62,71 +62,42 @@ def render_daily_lineup_mode(cache_data, selected_company):
 
     st.divider()
 
-    # Scrape button
-    if st.button("🔄 Get Latest Showtimes", type="primary", use_container_width=True):
-        scrape_theater_showtimes(selected_theater_obj)
-
-    # Check if we have data for this theater
-    available_dates = database.get_dates_for_theater(selected_theater)
-
-    if not available_dates:
-        st.info(f"No showtime data found for {selected_theater}. Click 'Get Latest Showtimes' to scrape.")
-        return
-
-    st.success(f"✅ Data available for {len(available_dates)} date(s)")
-
-    # Date selection
+    # Date picker
     st.subheader("Select Date")
 
-    # Convert string dates to date objects for better UI
-    date_options = [datetime.strptime(d, '%Y-%m-%d').date() for d in available_dates]
-
-    # Default to today or the most recent date
-    default_date_index = 0
     today = date.today()
-    if today in date_options:
-        default_date_index = date_options.index(today)
-
-    selected_date_obj = st.selectbox(
+    selected_date_obj = st.date_input(
         "Date",
-        options=date_options,
-        index=default_date_index,
-        format_func=lambda d: d.strftime('%A, %B %d, %Y'),
-        help="Select the date to generate the lineup for"
+        value=today,
+        min_value=today,
+        max_value=today + timedelta(days=30),
+        help="Select the date to scrape and generate the lineup for"
     )
 
     selected_date = selected_date_obj.strftime('%Y-%m-%d')
 
-    # Generate button
     st.divider()
-    if st.button("📄 Generate Daily Lineup", type="secondary", use_container_width=True):
-        generate_daily_lineup(selected_theater, selected_date, selected_date_obj)
+
+    # Scrape and Generate button
+    if st.button("🔄 Get Latest Showtimes & Generate Lineup", type="primary", use_container_width=True):
+        scrape_and_generate(selected_theater_obj, selected_theater, selected_date, selected_date_obj)
 
 
-def scrape_theater_showtimes(theater_obj):
-    """Scrape showtimes for a single theater for the next 7 days"""
+def scrape_and_generate(theater_obj, theater_name, date_str, date_obj):
+    """Scrape showtimes for a single theater for one date and generate lineup"""
     from app.scraper import Scraper
 
-    theater_name = theater_obj['name']
     theater_url = theater_obj.get('url', '')
 
     if not theater_url:
         st.error(f"No URL found for {theater_name}")
         return
 
-    st.subheader(f"Scraping {theater_name}")
-    progress_bar = st.progress(0)
-    status_text = st.empty()
+    st.subheader(f"🔄 Scraping {theater_name} for {date_obj.strftime('%A, %B %d, %Y')}")
 
-    # Get next 7 days
-    today = date.today()
-    dates_to_scrape = [(today + timedelta(days=i)).strftime('%Y-%m-%d') for i in range(7)]
-
-    scout = Scraper(capture_html_on_failure=False)
-
-    for i, date_str in enumerate(dates_to_scrape):
-        status_text.text(f"Scraping {date_str}...")
-        progress_bar.progress((i + 1) / len(dates_to_scrape))
+    with st.spinner(f"Fetching latest showtimes..."):
+        # Initialize scraper
+        scout = Scraper()
 
         # Scrape this theater for this date
         thread, result_func = run_async_in_thread(
@@ -150,11 +121,14 @@ def scrape_theater_showtimes(theater_obj):
                         format_type=showing.get('format', ''),
                         daypart=showing.get('daypart', '')
                     )
+            st.success(f"✅ Successfully scraped {len(showings)} showtimes")
+        else:
+            st.error(f"Failed to scrape showtimes for {date_str}")
+            return
 
-    progress_bar.progress(1.0)
-    status_text.empty()
-    st.success(f"✅ Successfully scraped {len(dates_to_scrape)} days for {theater_name}")
-    st.rerun()
+    # Generate the lineup
+    st.divider()
+    generate_daily_lineup(theater_name, date_str, date_obj)
 
 
 def generate_daily_lineup(theater_name, date_str, date_obj):
