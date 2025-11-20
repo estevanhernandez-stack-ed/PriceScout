@@ -165,6 +165,35 @@ def _render_add_user_form(companies, cache_data):
         st.warning("No companies found. Please add company data first.")
         return
 
+    # Home Location selection (OUTSIDE form for dynamic updates)
+    st.write("**Optional: Set Home Location**")
+    col_loc1, col_loc2, col_loc3 = st.columns(3)
+
+    with col_loc1:
+        location_company = st.selectbox("Company for Home Location", options=real_companies, key="home_loc_company")
+
+    with col_loc2:
+        location_type = st.selectbox("Home Location Type", options=["None", "Director", "Market", "Theater"], key="new_user_loc_type")
+
+    with col_loc3:
+        # Get location options based on selected company - updates dynamically
+        home_options = _get_home_location_options(cache_data, location_company)
+
+        if location_type == "Director":
+            location_options = [""] + home_options['directors']
+        elif location_type == "Market":
+            location_options = [""] + home_options['markets']
+        elif location_type == "Theater":
+            location_options = [""] + home_options['theaters']
+        else:
+            location_options = [""]
+
+        location_value = st.selectbox("Home Location", options=location_options, key="new_user_loc_value",
+                                     help=f"Found {len(location_options)-1} {location_type.lower()}s for {location_company}")
+
+    st.divider()
+
+    # Main form for user creation
     with st.form("add_user_form"):
         col1, col2 = st.columns(2)
 
@@ -177,29 +206,6 @@ def _render_add_user_form(companies, cache_data):
             company = st.selectbox("Assigned Company", options=real_companies)
             default_company = st.selectbox("Default Company on Login", options=real_companies)
 
-        # Home Location row
-        st.write("**Optional: Set Home Location**")
-        col3, col4 = st.columns(2)
-
-        with col3:
-            location_type = st.selectbox("Home Location Type", options=["None", "Director", "Market", "Theater"], key="new_user_loc_type")
-
-        with col4:
-            # Get location options based on selected company
-            # Since "All Companies" is no longer an option, company will always be a real company
-            home_options = _get_home_location_options(cache_data, company)
-            
-            if location_type == "Director":
-                location_options = [""] + home_options['directors']
-            elif location_type == "Market":
-                location_options = [""] + home_options['markets']
-            elif location_type == "Theater":
-                location_options = [""] + home_options['theaters']
-            else:
-                location_options = [""]
-            
-            location_value = st.selectbox("Home Location", options=location_options, key="new_user_loc_value")
-        
         submitted = st.form_submit_button("Add User")
 
         if submitted:
