@@ -109,19 +109,12 @@ def scrape_and_generate(theater_obj, theater_name, date_str, date_obj):
         status, result, _, _ = result_func()
 
         if status == 'success' and result:
-            # Save to database
-            for theater, showings in result.items():
-                for showing in showings:
-                    database.save_showing(
-                        theater_name=theater,
-                        film_title=showing['film_title'],
-                        showtime=showing['showtime'],
-                        play_date=date_str,
-                        price=showing.get('price'),
-                        format_type=showing.get('format', ''),
-                        daypart=showing.get('daypart', '')
-                    )
-            st.success(f"✅ Successfully scraped {len(showings)} showtimes")
+            # Save to database using upsert_showings
+            database.upsert_showings(result, date_str)
+
+            # Count total showings
+            total_showings = sum(len(showings) for showings in result.values())
+            st.success(f"✅ Successfully scraped {total_showings} showtimes")
         else:
             st.error(f"Failed to scrape showtimes for {date_str}")
             return
