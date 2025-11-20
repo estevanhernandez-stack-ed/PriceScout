@@ -155,6 +155,19 @@ def login():
                 cookie_manager.clear_login_cookie()
 
     if st.session_state.get("logged_in"):
+        # Save session token to cookie if we have a pending one
+        if st.session_state.get('pending_session_token') and st.session_state.get('pending_username'):
+            try:
+                cookie_manager.save_login_cookie(
+                    st.session_state.pending_username,
+                    st.session_state.pending_session_token
+                )
+                # Clear pending flags
+                del st.session_state.pending_session_token
+                del st.session_state.pending_username
+            except Exception as e:
+                print(f"Warning: Failed to save login cookie: {e}")
+
         # Check session timeout for logged-in users
         if not security_config.check_session_timeout():
             # Session expired - logout handled by check_session_timeout
@@ -216,13 +229,14 @@ def login():
                 company_name = user['company'] or user['default_company'] or 'System'
                 database.set_current_company(company_name)
 
-                # Create and save session token for persistent login
+                # Create session token and mark that we need to save it to cookie
                 try:
                     session_token = users.create_session_token(user['username'])
-                    cookie_manager.save_login_cookie(user['username'], session_token)
+                    st.session_state.pending_session_token = session_token
+                    st.session_state.pending_username = user['username']
                 except Exception as e:
-                    # Cookie errors shouldn't break login
-                    print(f"Warning: Failed to create persistent session: {e}")
+                    # Token creation errors shouldn't break login
+                    print(f"Warning: Failed to create session token: {e}")
 
                 st.rerun()
             else:
