@@ -3,6 +3,8 @@
 
 [server]
 # Server security settings
+address = "0.0.0.0"  # Listen on all interfaces for remote access
+port = 8501
 enableCORS = false
 enableXsrfProtection = true
 maxUploadSize = 50  # MB - matches security_config.MAX_FILE_SIZE_MB
@@ -18,8 +20,6 @@ toolbarMode = "minimal"
 [browser]
 # Browser settings
 gatherUsageStats = false
-serverAddress = "localhost"  # Use "0.0.0.0" if deploying to remote server
-serverPort = 8501
 
 [runner]
 # Runner settings for production stability
