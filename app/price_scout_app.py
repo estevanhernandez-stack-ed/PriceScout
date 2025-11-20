@@ -131,6 +131,23 @@ def render_password_change_form():
 def login():
     users.init_database() # Ensure the database is initialized
 
+    # Initialize cookie manager early so component can render
+    # This ensures the iframe component gets registered properly
+    cookies = cookie_manager.get_cookie_manager()
+
+    # If cookies aren't ready yet on first load, wait for them
+    if cookies is None:
+        print(f"DEBUG: Cookie manager not ready yet, waiting...")
+        # Show loading message only if we haven't shown login form yet
+        if 'login_form_shown' not in st.session_state:
+            with st.spinner("Initializing secure session..."):
+                import time
+                time.sleep(0.5)  # Give component time to initialize
+            st.rerun()  # Rerun to check if ready now
+        # If we've shown login form, cookies will initialize in background
+    else:
+        print(f"DEBUG: Cookie manager is ready")
+
     # Try to restore session from cookie if not already logged in
     if not st.session_state.get("logged_in"):
         # Try to get saved login - will return None if cookies not ready
@@ -196,7 +213,10 @@ def login():
         return True
 
     st.image(os.path.join(SCRIPT_DIR, 'PriceScoutLogo.png'), width=300)
-    
+
+    # Mark that we've shown the login form
+    st.session_state.login_form_shown = True
+
     with st.form("login_form"):
         username = st.text_input("Username")
         password = st.text_input("Password", type="password")
