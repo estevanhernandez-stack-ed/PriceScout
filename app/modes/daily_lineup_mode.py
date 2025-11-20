@@ -153,7 +153,7 @@ def generate_daily_lineup(theater_name, date_str, date_obj):
         query = query.filter(
             Showing.theater_name == theater_name,
             Showing.play_date == play_date
-        ).order_by(Showing.film_title, Showing.showtime)
+        ).order_by(Showing.showtime, Showing.film_title)
 
         results = query.all()
 
@@ -167,26 +167,21 @@ def generate_daily_lineup(theater_name, date_str, date_obj):
             columns=['film_title', 'showtime', 'format', 'daypart']
         )
 
-    # Process the data to group showtimes by film
+    # Process the data - create one row per showtime (chronological)
     lineup_data = []
 
-    for film_title, film_group in df.groupby('film_title', sort=False):
-        # Get all showtimes for this film
-        showtimes = sorted(film_group['showtime'].tolist())
+    for _, row in df.iterrows():
+        # Format showtime (remove seconds if present)
+        formatted_time = format_showtime(row['showtime'])
 
-        # Format showtimes (remove seconds if present)
-        formatted_times = [format_showtime(st) for st in showtimes]
-        showtimes_str = ', '.join(formatted_times)
-
-        # Get format indicators (3D, IMAX, PLF, etc.)
-        formats = film_group['format'].unique()
-        format_indicators = get_format_indicators(formats)
+        # Get format indicator for this specific showing
+        format_indicator = get_format_indicators([row['format']])
 
         lineup_data.append({
             'Theater #': '',  # Blank column for manual entry
-            'Film Title': film_title,
-            'Showtimes': showtimes_str,
-            'Format': format_indicators
+            'Showtime': formatted_time,
+            'Film Title': row['film_title'],
+            'Format': format_indicator
         })
 
     # Create DataFrame for display
@@ -207,12 +202,12 @@ def generate_daily_lineup(theater_name, date_str, date_obj):
                 width='small',
                 help='Leave blank for manual entry'
             ),
+            'Showtime': st.column_config.TextColumn(
+                'Showtime',
+                width='small'
+            ),
             'Film Title': st.column_config.TextColumn(
                 'Film Title',
-                width='large'
-            ),
-            'Showtimes': st.column_config.TextColumn(
-                'Showtimes',
                 width='large'
             ),
             'Format': st.column_config.TextColumn(
@@ -319,9 +314,10 @@ def generate_daily_lineup(theater_name, date_str, date_obj):
     st.divider()
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.metric("Total Films", len(lineup_df))
+        unique_films = lineup_df['Film Title'].nunique()
+        st.metric("Total Films", unique_films)
     with col2:
-        total_showtimes = sum(len(row['Showtimes'].split(',')) for _, row in lineup_df.iterrows())
+        total_showtimes = len(lineup_df)
         st.metric("Total Showtimes", total_showtimes)
     with col3:
         # Count premium formats
@@ -351,25 +347,40 @@ def get_format_indicators(formats):
     indicators = []
 
     for fmt in formats:
-        if fmt and fmt.strip() and fmt.upper() != 'STANDARD':
-            # Common format mappings
-            fmt_upper = fmt.upper()
-            if '3D' in fmt_upper:
-                indicators.append('3D')
-            if 'IMAX' in fmt_upper:
-                indicators.append('IMAX')
-            if 'UltraScreen'.upper() in fmt_upper or 'ULTRASCREEN' in fmt_upper:
-                indicators.append('UltraScreen')
-            if 'PLF' in fmt_upper or 'SUPERSCREEN' in fmt_upper:
-                indicators.append('PLF')
-            if 'DFX' in fmt_upper:
-                indicators.append('DFX')
-            if 'DOLBY' in fmt_upper:
-                indicators.append('Dolby')
+        # Handle None, empty, or whitespace-only values
+        if not fmt or (isinstance(fmt, str) and not fmt.strip()):
+            continue
 
-            # If no specific format matched but it's not standard, show the original
-            if not indicators and fmt_upper != 'STANDARD':
-                indicators.append(fmt)
+        fmt_str = str(fmt).strip()
+        fmt_upper = fmt_str.upper()
+
+        # Skip standard 2D formats
+        if fmt_upper in ['STANDARD', '2D', 'STANDARD 2D']:
+            continue
+
+        # Common format mappings
+        if '3D' in fmt_upper:
+            indicators.append('3D')
+        if 'IMAX' in fmt_upper:
+            indicators.append('IMAX')
+        if 'ULTRASCREEN' in fmt_upper:
+            indicators.append('UltraScreen')
+        if 'PLF' in fmt_upper or 'SUPERSCREEN' in fmt_upper or 'PREMIUM' in fmt_upper:
+            indicators.append('PLF')
+        if 'DFX' in fmt_upper:
+            indicators.append('DFX')
+        if 'DOLBY' in fmt_upper:
+            indicators.append('Dolby')
+        if 'XD' in fmt_upper:
+            indicators.append('XD')
+        if 'RPX' in fmt_upper:
+            indicators.append('RPX')
+        if 'DBOX' in fmt_upper or 'D-BOX' in fmt_upper:
+            indicators.append('D-BOX')
+
+        # If no specific format matched but it's not standard/2D, show the original
+        if not indicators and fmt_upper not in ['STANDARD', '2D', 'STANDARD 2D']:
+            indicators.append(fmt_str)
 
     if not indicators:
         return 'Standard'

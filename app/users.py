@@ -26,6 +26,10 @@ RESET_CODE_LENGTH = 6
 RESET_CODE_EXPIRY_MINUTES = 15
 RESET_CODE_MAX_ATTEMPTS = 3
 
+# Session token settings
+SESSION_TOKEN_EXPIRY_DAYS = 30  # Persistent login for 30 days
+SESSION_TOKEN_LENGTH = 32  # 32-byte hex string = 64 characters
+
 # Role definitions
 ROLE_ADMIN = "admin"
 ROLE_MANAGER = "manager"
