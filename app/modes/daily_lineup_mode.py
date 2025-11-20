@@ -20,13 +20,15 @@ def render_daily_lineup_mode(cache_data, selected_company):
         "Perfect for posting schedules or distribution to staff."
     )
 
-    # Get all unique theaters from cache
+    # Get Marcus and Movie Tavern theaters from cache
     all_theaters = []
     if cache_data:
         for market_name, market_data in cache_data.get('markets', {}).items():
             all_theaters.extend(market_data.get('theaters', []))
 
-    theater_names = sorted([t['name'] for t in all_theaters if 'name' in t])
+    # Filter to only Marcus and Movie Tavern theaters
+    company_theaters = [t for t in all_theaters if t.get('company') in ['Marcus', 'Movie Tavern']]
+    theater_names = sorted([t['name'] for t in company_theaters if 'name' in t])
 
     if not theater_names:
         st.warning("No theaters found in cache. Please build the theater cache first.")
