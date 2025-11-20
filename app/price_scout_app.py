@@ -162,17 +162,24 @@ def login():
 
     if st.session_state.get("logged_in"):
         # Save session token to cookie if we have a pending one
+        # Keep trying until cookie manager is ready
         if st.session_state.get('pending_session_token') and st.session_state.get('pending_username'):
             print(f"DEBUG: Attempting to save pending token for user: {st.session_state.pending_username}")
             try:
-                cookie_manager.save_login_cookie(
-                    st.session_state.pending_username,
-                    st.session_state.pending_session_token
-                )
-                print("DEBUG: Pending token saved to cookie successfully")
-                # Clear pending flags
-                del st.session_state.pending_session_token
-                del st.session_state.pending_username
+                # Check if cookie manager is actually ready
+                cookies = cookie_manager.get_cookie_manager()
+                if cookies is not None:
+                    # Cookie manager is ready, save now
+                    cookie_manager.save_login_cookie(
+                        st.session_state.pending_username,
+                        st.session_state.pending_session_token
+                    )
+                    print("DEBUG: Pending token ACTUALLY saved to cookie successfully")
+                    # Clear pending flags only after successful save
+                    del st.session_state.pending_session_token
+                    del st.session_state.pending_username
+                else:
+                    print("DEBUG: Cookie manager still not ready, will retry on next render")
             except Exception as e:
                 print(f"Warning: Failed to save login cookie: {e}")
 
