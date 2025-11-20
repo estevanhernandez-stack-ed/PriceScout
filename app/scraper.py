@@ -331,10 +331,20 @@ class Scraper:
                             child_text = child.get_text(strip=True)[:80]
                             print(f"    {child.name}.{child_classes}: {child_text}")
 
-                        # Sample one showtime button
-                        sample_btn = block.select_one('a.showtime-btn')
-                        if sample_btn:
-                            print(f"  Sample showtime button: {str(sample_btn)[:200]}")
+                        # Inspect the showtimes section in detail
+                        showtimes_section = block.select_one('section.shared-movie-showtimes__showtimes')
+                        if showtimes_section:
+                            print(f"\n  Showtimes section children:")
+                            for elem in showtimes_section.find_all(recursive=False):
+                                elem_classes = ' '.join(elem.get('class', []))
+                                elem_text = elem.get_text(strip=True)[:60]
+                                print(f"    {elem.name}.{elem_classes}: '{elem_text}'")
+
+                                # Show grandchildren too
+                                for grandchild in elem.find_all(recursive=False):
+                                    gc_classes = ' '.join(grandchild.get('class', []))
+                                    gc_text = grandchild.get_text(strip=True)[:60]
+                                    print(f"      └─ {grandchild.name}.{gc_classes}: '{gc_text}'")
 
                 # Look for variant title or format indicators
                 # Try multiple selectors that might contain format info
