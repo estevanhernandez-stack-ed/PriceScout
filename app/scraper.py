@@ -329,7 +329,14 @@ class Scraper:
                     amenity_elem = link.select_one('.showtime-btn-amenity')
                     amenity_str = amenity_elem.get_text(strip=True) if amenity_elem else variant_title
                     movie_format = amenity_str if amenity_str else "2D"
-                    
+
+                    # Debug: print what we found for format
+                    if film_title == sorted(list(set([m[0] for m in movies])))[0]:  # Only log first film to avoid spam
+                        if amenity_elem:
+                            print(f"    [DEBUG FORMAT] Amenity elem found: '{amenity_str}'")
+                        else:
+                            print(f"    [DEBUG FORMAT] No amenity elem, variant_title: '{variant_title}', final: '{movie_format}'")
+
                     href = link.get('href')
                     if href and isinstance(href, str):
                         # Handle both full URLs and relative paths
