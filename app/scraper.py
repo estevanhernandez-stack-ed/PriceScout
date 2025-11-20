@@ -301,50 +301,6 @@ class Scraper:
                 film_title_elem = movie_block.select_one('h3.shared-movie-showtimes__movie-title a')
                 film_title = film_title_elem.get_text(strip=True) if film_title_elem else "Unknown Title"
 
-                # DEBUG: Print HTML structure for first TWO movie blocks to see format variations
-                if len(showings) == 0:
-                    print(f"\n[DEBUG HTML] Analyzing movie block structure...")
-                    print(f"  Total movie blocks found: {len(movie_blocks)}")
-
-                    # Print first 2 movie blocks to see if different formats are separate blocks
-                    for block_idx in range(min(2, len(movie_blocks))):
-                        block = movie_blocks[block_idx]
-                        title_elem = block.select_one('h3.shared-movie-showtimes__movie-title a')
-                        title = title_elem.get_text(strip=True) if title_elem else "Unknown"
-
-                        print(f"\n  === Movie Block {block_idx + 1}: {title} ===")
-
-                        # Check all text in the movie block to find format indicators
-                        block_text = block.get_text(separator='|', strip=True)
-                        print(f"  Full block text (first 200 chars): {block_text[:200]}")
-
-                        # Look for specific format keywords in the text
-                        format_keywords = ['3D', 'IMAX', 'UltraScreen', 'Dolby', 'XD', 'RPX', 'PLF', 'DFX', 'D-BOX']
-                        found_keywords = [kw for kw in format_keywords if kw.lower() in block_text.lower()]
-                        if found_keywords:
-                            print(f"  Format keywords found: {found_keywords}")
-
-                        # Print the movie block's direct children structure
-                        print(f"  Direct children of movie block:")
-                        for child in block.find_all(recursive=False):
-                            child_classes = ' '.join(child.get('class', []))
-                            child_text = child.get_text(strip=True)[:80]
-                            print(f"    {child.name}.{child_classes}: {child_text}")
-
-                        # Inspect the showtimes section in detail
-                        showtimes_section = block.select_one('section.shared-movie-showtimes__showtimes')
-                        if showtimes_section:
-                            print(f"\n  Showtimes section children:")
-                            for elem in showtimes_section.find_all(recursive=False):
-                                elem_classes = ' '.join(elem.get('class', []))
-                                elem_text = elem.get_text(strip=True)[:60]
-                                print(f"    {elem.name}.{elem_classes}: '{elem_text}'")
-
-                                # Show grandchildren too
-                                for grandchild in elem.find_all(recursive=False):
-                                    gc_classes = ' '.join(grandchild.get('class', []))
-                                    gc_text = grandchild.get_text(strip=True)[:60]
-                                    print(f"      └─ {grandchild.name}.{gc_classes}: '{gc_text}'")
 
                 # NEW STRUCTURE: Loop through format groups (each group = one format with its showtimes)
                 # Each movie can have multiple formats (Standard, IMAX, UltraScreen, etc.)
@@ -377,10 +333,6 @@ class Scraper:
                             # Fallback: try to find time in button text
                             time_label_elem = link.select_one('.showtime-btn-label')
                             time_str = time_label_elem.get_text(strip=True) if time_label_elem else link.get_text(strip=True)
-
-                        # Debug: print what we found for format (only for first showing to avoid spam)
-                        if len(showings) == 0:
-                            print(f"    [DEBUG FORMAT] Film: {film_title[:30]}, Format: '{movie_format}' (from format group)")
 
                         href = link.get('href')
                         if href and isinstance(href, str):
