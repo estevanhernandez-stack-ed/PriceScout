@@ -300,7 +300,29 @@ class Scraper:
                 # Get film title from new structure
                 film_title_elem = movie_block.select_one('h3.shared-movie-showtimes__movie-title a')
                 film_title = film_title_elem.get_text(strip=True) if film_title_elem else "Unknown Title"
-                
+
+                # DEBUG: Print HTML structure for first movie block
+                if len(showings) == 0:
+                    print(f"\n[DEBUG HTML] First movie block structure:")
+                    print(f"  Movie: {film_title}")
+
+                    # Check for any headings or format indicators in the movie block
+                    print(f"\n  Movie block headings and structure:")
+                    for heading in movie_block.find_all(['h3', 'h4', 'h5', 'div'], class_=True):
+                        classes = ' '.join(heading.get('class', []))
+                        if any(keyword in classes.lower() for keyword in ['variant', 'format', 'amenity', 'type', 'experience']):
+                            print(f"    {heading.name}.{classes}: {heading.get_text(strip=True)[:80]}")
+
+                    # Get first few showtime buttons to inspect
+                    sample_buttons = movie_block.select('a.showtime-btn')[:2]
+                    for i, btn in enumerate(sample_buttons):
+                        print(f"\n  Showtime button {i+1}:")
+                        print(f"    Classes: {btn.get('class', [])}")
+                        print(f"    HTML: {str(btn)[:300]}")
+                        # Look for any child elements
+                        for child in btn.find_all(recursive=False):
+                            print(f"      Child: {child.name}, classes: {child.get('class', [])}, text: {child.get_text(strip=True)[:50]}")
+
                 # Look for variant title or format indicators
                 # Try multiple selectors that might contain format info
                 variant_title = None
