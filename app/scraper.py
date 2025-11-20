@@ -306,7 +306,11 @@ class Scraper:
                 # Each movie can have multiple formats (Standard, IMAX, UltraScreen, etc.)
                 amenity_groups = movie_block.select('section.shared-showtimes__amenity-group')
 
-                for amenity_group in amenity_groups:
+                # DEBUG: Log amenity group count for first movie
+                if len(showings) == 0:
+                    print(f"\n[DEBUG] Movie '{film_title}' has {len(amenity_groups)} amenity groups")
+
+                for group_idx, amenity_group in enumerate(amenity_groups):
                     # Extract the format from the h4 title element
                     format_title_elem = amenity_group.select_one('h4.shared-showtimes__title')
                     if format_title_elem:
@@ -316,6 +320,10 @@ class Scraper:
 
                     # Get all showtime buttons within this specific format group
                     showtime_links = amenity_group.select('a.showtime-btn')
+
+                    # DEBUG: Log button count for first movie's first amenity group
+                    if len(showings) == 0 and group_idx == 0:
+                        print(f"[DEBUG] Amenity group '{movie_format}' has {len(showtime_links)} showtime buttons")
 
                     for link in showtime_links:
                         # Extract time from aria-label (e.g., "Buy tickets for 7 o'clock PM showtime")
