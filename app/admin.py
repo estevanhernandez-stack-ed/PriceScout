@@ -6,43 +6,47 @@ import os
 import json
 import shutil
 
-def _get_home_location_options(markets_data, selected_company):
+def _get_home_location_options(cache_data, selected_company):
     """
-    Extract all directors, markets, and theaters for a given company.
+    Extract all markets and theaters for a given company from cache_data.
     Returns dict with 'directors', 'markets', 'theaters' lists.
     """
-    if not selected_company or selected_company == "All Companies" or not markets_data:
+    if not selected_company or selected_company == "All Companies" or not cache_data:
         return {'directors': [], 'markets': [], 'theaters': []}
-    
-    company_data = markets_data.get(selected_company, {})
-    
-    directors = list(company_data.keys())
+
+    # Extract from cache_data structure: cache_data['markets'][market_name]['theaters']
     markets = []
     theaters = []
-    
-    for director, director_markets in company_data.items():
-        for market, market_data in director_markets.items():
-            markets.append(f"{director} > {market}")
-            for theater in market_data.get('theaters', []):
+
+    for market_name, market_data in cache_data.get('markets', {}).items():
+        # Get company-specific theaters if company is selected
+        market_theaters = []
+        for theater in market_data.get('theaters', []):
+            if theater.get('company') == selected_company:
                 theater_name = theater.get('name', '')
                 if theater_name:
-                    theaters.append(f"{director} > {market} > {theater_name}")
-    
+                    market_theaters.append(theater_name)
+                    theaters.append(theater_name)
+
+        # Only add market if it has theaters for this company
+        if market_theaters:
+            markets.append(market_name)
+
     return {
-        'directors': directors,
-        'markets': markets,
-        'theaters': theaters
+        'directors': [],  # Not used in current cache structure
+        'markets': sorted(markets),
+        'theaters': sorted(theaters)
     }
 
-def _render_user_row(user, companies, markets_data):
+def _render_user_row(user, companies, cache_data):
     """Renders a single row in the user management list with role-based access control."""
     with st.container():
         # First row: basic info
         col1, col2, col3, col4 = st.columns([2, 1.5, 1.5, 1.5])
-        
+
         with col1:
             new_username = st.text_input("Username", value=user['username'], key=f"username_{user['id']}")
-        
+
         with col2:
             # Role selection (modes determined by role permissions)
             role_options = ["admin", "manager", "user"]
@@ -51,7 +55,7 @@ def _render_user_row(user, companies, markets_data):
                 current_role = 'user'  # Fallback
             role_index = role_options.index(current_role)
             selected_role = st.selectbox("Role", options=role_options, index=role_index, key=f"role_{user['id']}")
-        
+
         with col3:
             # Company assignment
             try:
@@ -59,7 +63,7 @@ def _render_user_row(user, companies, markets_data):
             except (ValueError, TypeError):
                 company_index = 0
             selected_company = st.selectbox("Company", options=companies, index=company_index, key=f"company_{user['id']}")
-        
+
         with col4:
             # Default Company Selector
             try:
@@ -67,10 +71,10 @@ def _render_user_row(user, companies, markets_data):
             except (ValueError, TypeError):
                 default_index = 0
             selected_default_company = st.selectbox("Default Co.", options=companies, index=default_index, key=f"default_company_{user['id']}")
-        
+
         # Second row: home location
         col5, col6, col7, col8 = st.columns([2, 2, 2, 2])
-        
+
         with col5:
             location_types = ["None", "Director", "Market", "Theater"]
             # sqlite3.Row uses dictionary-style access
@@ -78,21 +82,21 @@ def _render_user_row(user, companies, markets_data):
                 current_type = user['home_location_type'] if 'home_location_type' in user.keys() else None
             except (KeyError, TypeError):
                 current_type = None
-            
+
             if current_type is None:
                 current_type = "None"
             else:
                 current_type = current_type.capitalize()
-            
+
             if current_type not in location_types:
                 current_type = "None"
-            
+
             type_index = location_types.index(current_type)
             selected_location_type = st.selectbox("Home Location Type", options=location_types, index=type_index, key=f"loc_type_{user['id']}")
-        
+
         with col6:
             # Get location options based on selected company
-            home_options = _get_home_location_options(markets_data, selected_company)
+            home_options = _get_home_location_options(cache_data, selected_company)
             
             if selected_location_type == "Director":
                 options = [""] + home_options['directors']
@@ -142,41 +146,41 @@ def _render_user_row(user, companies, markets_data):
         
         st.divider()
 
-def _render_user_management(companies, markets_data):
+def _render_user_management(companies, cache_data):
     """Renders the user management section."""
     st.subheader("User Management")
     all_users = users.get_all_users()
     for user in all_users:
-        _render_user_row(user, companies, markets_data)
+        _render_user_row(user, companies, cache_data)
 
-def _render_add_user_form(companies, markets_data):
+def _render_add_user_form(companies, cache_data):
     """Renders the form for adding a new user with role selection."""
     st.subheader("Add New User")
     st.write("User modes are determined by role permissions. Configure role permissions above.")
-    
+
     with st.form("add_user_form"):
         col1, col2 = st.columns(2)
-        
+
         with col1:
             new_username = st.text_input("New Username")
             new_password = st.text_input("New Password", type="password")
             role = st.selectbox("Role", options=["admin", "manager", "user"], index=2)
-        
+
         with col2:
             company = st.selectbox("Assigned Company", options=companies)
             default_company = st.selectbox("Default Company on Login", options=companies)
-        
+
         # Home Location row
         st.write("**Optional: Set Home Location**")
         col3, col4 = st.columns(2)
-        
+
         with col3:
             location_type = st.selectbox("Home Location Type", options=["None", "Director", "Market", "Theater"], key="new_user_loc_type")
-        
+
         with col4:
             # Get location options based on selected company
             selected_company_for_options = company if company != "All Companies" else None
-            home_options = _get_home_location_options(markets_data, selected_company_for_options)
+            home_options = _get_home_location_options(cache_data, selected_company_for_options)
             
             if location_type == "Director":
                 location_options = [""] + home_options['directors']
@@ -439,7 +443,7 @@ bdoe,Pass456!,user,Marcus''', language='csv')
   ]
 }''', language='json')
 
-def admin_page(markets_data):
+def admin_page(markets_data, cache_data):
     """Main function to render the admin page."""
     st.title("Admin Page")
 
@@ -453,8 +457,8 @@ def admin_page(markets_data):
     st.divider()
     _render_bulk_import()
     st.divider()
-    _render_user_management(companies_with_all, markets_data)
+    _render_user_management(companies_with_all, cache_data)
     st.divider()
-    _render_add_user_form(companies_with_all, markets_data)
+    _render_add_user_form(companies_with_all, cache_data)
     st.divider()
     _render_company_management(markets_data)

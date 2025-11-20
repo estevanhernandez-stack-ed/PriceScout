@@ -533,7 +533,7 @@ def render_main_content(scout, markets_data, cache_data, all_theaters_list_uniqu
         from app.theater_matching_tool import main as theater_matching_main
         theater_matching_main()
     elif mode == "Admin":
-        admin_page(markets_data)
+        admin_page(markets_data, cache_data)
 
 def handle_scrape_confirmation():
     """Renders the confirmation dialog for long scrapes."""
