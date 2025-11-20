@@ -16,6 +16,7 @@
     { "name": "Market Mode", "requires_cache": true },
     { "name": "Operating Hours Mode", "requires_cache": true },
     { "name": "CompSnipe Mode", "requires_cache": false },
+    { "name": "Daily Lineup", "requires_cache": true },
     { "name": "Historical Data and Analysis", "requires_cache": true },
     { "name": "Data Management", "requires_cache": false, "admin_only": true },
     {

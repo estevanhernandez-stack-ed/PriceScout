@@ -28,6 +28,7 @@ from app.modes.compsnipe_mode import render_compsnipe_mode
 from app.utils import process_and_save_operating_hours, save_operating_hours_from_all_showings
 from app.modes.analysis_mode import render_analysis_mode
 from app.modes.poster_mode import render_poster_mode
+from app.modes.daily_lineup_mode import render_daily_lineup_mode
 from app.admin import admin_page
 
 def load_ui_config():
@@ -441,6 +442,8 @@ def render_main_content(scout, markets_data, cache_data, all_theaters_list_uniqu
         render_operating_hours_mode(scout, markets_data, cache_data, is_disabled, process_and_save_operating_hours)
     elif mode == "CompSnipe Mode":
         render_compsnipe_mode(scout, all_theaters_list_unique, is_disabled, save_operating_hours_from_all_showings, markets_data, cache_data)
+    elif mode == "Daily Lineup":
+        render_daily_lineup_mode(cache_data, st.session_state.selected_company)
     elif mode == "Historical Data and Analysis":
         render_analysis_mode(markets_data, cache_data)
     elif mode == "Data Management":
