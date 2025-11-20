@@ -158,6 +158,13 @@ def _render_add_user_form(companies, cache_data):
     st.subheader("Add New User")
     st.write("User modes are determined by role permissions. Configure role permissions above.")
 
+    # Remove "All Companies" from options for new users - users must be assigned to a specific company
+    real_companies = [c for c in companies if c != "All Companies"]
+
+    if not real_companies:
+        st.warning("No companies found. Please add company data first.")
+        return
+
     with st.form("add_user_form"):
         col1, col2 = st.columns(2)
 
@@ -167,8 +174,8 @@ def _render_add_user_form(companies, cache_data):
             role = st.selectbox("Role", options=["admin", "manager", "user"], index=2)
 
         with col2:
-            company = st.selectbox("Assigned Company", options=companies)
-            default_company = st.selectbox("Default Company on Login", options=companies)
+            company = st.selectbox("Assigned Company", options=real_companies)
+            default_company = st.selectbox("Default Company on Login", options=real_companies)
 
         # Home Location row
         st.write("**Optional: Set Home Location**")
@@ -179,8 +186,8 @@ def _render_add_user_form(companies, cache_data):
 
         with col4:
             # Get location options based on selected company
-            selected_company_for_options = company if company != "All Companies" else None
-            home_options = _get_home_location_options(cache_data, selected_company_for_options)
+            # Since "All Companies" is no longer an option, company will always be a real company
+            home_options = _get_home_location_options(cache_data, company)
             
             if location_type == "Director":
                 location_options = [""] + home_options['directors']
@@ -194,11 +201,12 @@ def _render_add_user_form(companies, cache_data):
             location_value = st.selectbox("Home Location", options=location_options, key="new_user_loc_value")
         
         submitted = st.form_submit_button("Add User")
-        
+
         if submitted:
             if new_username and new_password:
-                selected_company = company if company != "All Companies" else None
-                selected_default = default_company if default_company != "All Companies" else None
+                # Since "All Companies" is no longer an option, use the selected companies directly
+                selected_company = company
+                selected_default = default_company
                 is_admin = (role == "admin")
                 
                 # Prepare home location
