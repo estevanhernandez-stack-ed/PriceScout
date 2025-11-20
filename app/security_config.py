@@ -165,6 +165,17 @@ def check_session_timeout() -> bool:
     
     # Check if session expired
     if idle_time > timedelta(minutes=SESSION_TIMEOUT_MINUTES):
+        # Clear session token and cookie
+        username = st.session_state.get('user_name')
+        if username:
+            try:
+                from app import users
+                from app import cookie_manager
+                users.clear_session_token(username)
+                cookie_manager.clear_login_cookie()
+            except Exception:
+                pass  # Ignore errors during cleanup
+
         # Clear session
         st.session_state.clear()
         st.warning(

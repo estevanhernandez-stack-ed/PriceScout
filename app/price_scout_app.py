@@ -30,6 +30,7 @@ from app.modes.analysis_mode import render_analysis_mode
 from app.modes.poster_mode import render_poster_mode
 from app.modes.daily_lineup_mode import render_daily_lineup_mode
 from app.admin import admin_page
+from app import cookie_manager
 
 def load_ui_config():
     with open(os.path.join(SCRIPT_DIR, 'ui_config.json'), 'r', encoding='utf-8') as f:
@@ -118,23 +119,51 @@ def render_password_change_form():
     # Logout option
     st.markdown("---")
     if st.button("🚪 Logout Instead"):
+        # Clear session token from database
+        if st.session_state.get('user_name'):
+            users.clear_session_token(st.session_state.user_name)
+        # Clear cookie
+        cookie_manager.clear_login_cookie()
+        # Clear session state
         st.session_state.clear()
         st.rerun()
 
 def login():
     users.init_database() # Ensure the database is initialized
 
+    # Try to restore session from cookie if not already logged in
+    if not st.session_state.get("logged_in"):
+        saved_username, saved_token = cookie_manager.get_saved_login()
+        if saved_username and saved_token:
+            # Try to authenticate with saved credentials
+            user = users.verify_session_token(saved_username, saved_token)
+            if user:
+                # Session token is valid, restore session
+                st.session_state.logged_in = True
+                st.session_state.user_name = user['username']
+                st.session_state.is_admin = user['is_admin']
+                st.session_state.company = user['company']
+                st.session_state.default_company = user['default_company']
+
+                company_name = user['company'] or user['default_company'] or 'System'
+                database.set_current_company(company_name)
+
+                st.rerun()
+            else:
+                # Token invalid or expired, clear cookie
+                cookie_manager.clear_login_cookie()
+
     if st.session_state.get("logged_in"):
         # Check session timeout for logged-in users
         if not security_config.check_session_timeout():
             # Session expired - logout handled by check_session_timeout
             return False
-        
+
         # Check if password change is required (default password)
         if users.force_password_change_required(st.session_state.user_name):
             render_password_change_form()
             return False
-        
+
         return True
 
     st.image(os.path.join(SCRIPT_DIR, 'PriceScoutLogo.png'), width=300)
@@ -180,13 +209,20 @@ def login():
                 st.session_state.user_name = user['username']
                 st.session_state.is_admin = user['is_admin']
                 st.session_state.company = user['company']
-                st.session_state.default_company = user['default_company'] # --- FIX: sqlite3.Row uses key access, not .get() ---
+                st.session_state.default_company = user['default_company']
 
                 # Set current company context for database operations
-                # sqlite3.Row doesn't have .get(), so we use bracket access with fallback
                 company_name = user['company'] or user['default_company'] or 'System'
                 database.set_current_company(company_name)
-                
+
+                # Create and save session token for persistent login
+                try:
+                    session_token = users.create_session_token(user['username'])
+                    cookie_manager.save_login_cookie(user['username'], session_token)
+                except Exception as e:
+                    # Cookie errors shouldn't break login
+                    print(f"Warning: Failed to create persistent session: {e}")
+
                 st.rerun()
             else:
                 st.error("❌ Incorrect username or password. Please try again.")
@@ -381,6 +417,17 @@ def setup_application(markets_data):
         return False
 
     st.sidebar.info(f"User: **{st.session_state.user_name}**\n\nCompany: **{st.session_state.selected_company}**")
+
+    # Logout button
+    if st.sidebar.button("🚪 Logout", use_container_width=True):
+        # Clear session token from database
+        if st.session_state.get('user_name'):
+            users.clear_session_token(st.session_state.user_name)
+        # Clear cookie
+        cookie_manager.clear_login_cookie()
+        # Clear session state
+        st.session_state.clear()
+        st.rerun()
 
     # --- Set Dynamic Paths ---
     selected_company_path = os.path.join(DATA_DIR, st.session_state.selected_company)

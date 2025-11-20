@@ -189,6 +189,12 @@ def init_database():
         if 'reset_attempts' not in columns:
             cursor.execute("ALTER TABLE users ADD COLUMN reset_attempts INTEGER DEFAULT 0")
 
+        # Add session token columns for persistent login
+        if 'session_token' not in columns:
+            cursor.execute("ALTER TABLE users ADD COLUMN session_token TEXT")
+        if 'session_token_expiry' not in columns:
+            cursor.execute("ALTER TABLE users ADD COLUMN session_token_expiry INTEGER")
+
         # Add a default admin user if one doesn't exist
         cursor.execute("SELECT * FROM users WHERE username = ?", ("admin",))
         if not cursor.fetchone():
@@ -860,3 +866,109 @@ def reset_password_with_code(username, code, new_password):
     
     security_config.log_security_event("password_reset_completed", username)
     return True, "Password successfully reset. You may now log in with your new password."
+
+def create_session_token(username):
+    """
+    Create a new session token for persistent login.
+
+    Args:
+        username: Username to create session for
+
+    Returns:
+        Session token string (64-character hex)
+    """
+    # Generate secure random token
+    token = secrets.token_hex(SESSION_TOKEN_LENGTH)
+
+    # Set expiry timestamp
+    expiry_timestamp = int((datetime.now() + timedelta(days=SESSION_TOKEN_EXPIRY_DAYS)).timestamp())
+
+    # Hash the token before storing (like passwords)
+    token_hash = bcrypt.hashpw(token.encode('utf-8'), bcrypt.gensalt())
+
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        if _use_postgresql():
+            cursor.execute("""
+                UPDATE users
+                SET session_token = %s, session_token_expiry = %s
+                WHERE username = %s
+            """, (token_hash.decode('utf-8'), expiry_timestamp, username))
+        else:
+            cursor.execute("""
+                UPDATE users
+                SET session_token = ?, session_token_expiry = ?
+                WHERE username = ?
+            """, (token_hash.decode('utf-8'), expiry_timestamp, username))
+        conn.commit()
+
+    security_config.log_security_event("session_token_created", username,
+                                      {"expiry_days": SESSION_TOKEN_EXPIRY_DAYS})
+
+    return token
+
+def verify_session_token(username, token):
+    """
+    Verify a session token for persistent login.
+
+    Args:
+        username: Username attempting to authenticate
+        token: Session token to verify
+
+    Returns:
+        User record if valid, None if invalid or expired
+    """
+    user = get_user(username)
+    if not user:
+        return None
+
+    # Check if token exists
+    if not user.get('session_token') or not user.get('session_token_expiry'):
+        return None
+
+    # Check expiry
+    if int(time.time()) > user['session_token_expiry']:
+        # Token expired, clear it
+        clear_session_token(username)
+        security_config.log_security_event("session_token_expired", username)
+        return None
+
+    # Verify token
+    try:
+        stored_hash = user['session_token']
+        if isinstance(stored_hash, str):
+            stored_hash = stored_hash.encode('utf-8')
+
+        if bcrypt.checkpw(token.encode('utf-8'), stored_hash):
+            security_config.log_security_event("session_token_verified", username)
+            return user
+    except Exception as e:
+        security_config.log_security_event("session_token_verification_error", username,
+                                          {"error": str(e)})
+
+    return None
+
+def clear_session_token(username):
+    """
+    Clear session token for a user (logout).
+
+    Args:
+        username: Username to clear session for
+    """
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        if _use_postgresql():
+            cursor.execute("""
+                UPDATE users
+                SET session_token = NULL, session_token_expiry = NULL
+                WHERE username = %s
+            """, (username,))
+        else:
+            cursor.execute("""
+                UPDATE users
+                SET session_token = NULL, session_token_expiry = NULL
+                WHERE username = ?
+            """, (username,))
+        conn.commit()
+
+    security_config.log_security_event("session_token_cleared", username)
