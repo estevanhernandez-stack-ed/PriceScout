@@ -133,6 +133,16 @@ def login():
 
     # Try to restore session from cookie if not already logged in
     if not st.session_state.get("logged_in"):
+        # Check if cookie manager is ready
+        try:
+            cookies = cookie_manager.get_cookie_manager()
+            if cookies is None:
+                # Cookies not ready yet, show a loading message and wait
+                st.info("Loading...")
+                st.stop()
+        except Exception:
+            pass  # Continue without cookies if there's an error
+
         saved_username, saved_token = cookie_manager.get_saved_login()
         if saved_username and saved_token:
             # Try to authenticate with saved credentials
