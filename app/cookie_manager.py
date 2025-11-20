@@ -53,11 +53,13 @@ def save_login_cookie(username, session_token):
         cookies = get_cookie_manager()
         if cookies is None:
             # Cookies not ready yet, skip silently
+            print("DEBUG cookie_manager: Cookie manager not ready, cannot save")
             return
 
         cookies[COOKIE_NAME_USERNAME] = username
         cookies[COOKIE_NAME_TOKEN] = session_token
         cookies.save()
+        print(f"DEBUG cookie_manager: Saved cookie for user: {username}")
     except Exception as e:
         # Cookie errors shouldn't break login, just log them
         print(f"Warning: Failed to save login cookie: {e}")
@@ -73,13 +75,17 @@ def get_saved_login():
         cookies = get_cookie_manager()
         if cookies is None:
             # Cookies not ready yet
+            print("DEBUG cookie_manager: Cookie manager not ready, cannot read")
             return None, None
 
         username = cookies.get(COOKIE_NAME_USERNAME)
         token = cookies.get(COOKIE_NAME_TOKEN)
 
         if username and token:
+            print(f"DEBUG cookie_manager: Found saved login for user: {username}")
             return username, token
+        else:
+            print(f"DEBUG cookie_manager: No saved login found (username={username}, token={'set' if token else 'not set'})")
     except Exception as e:
         print(f"Warning: Failed to read login cookie: {e}")
 
