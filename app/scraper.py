@@ -304,11 +304,23 @@ class Scraper:
 
                 # NEW STRUCTURE: Loop through format groups (each group = one format with its showtimes)
                 # Each movie can have multiple formats (Standard, IMAX, UltraScreen, etc.)
-                amenity_groups = movie_block.select('section.shared-showtimes__amenity-group')
+                # First, get the showtimes section, then get amenity groups from there (prevents finding nested/duplicate groups)
+                showtimes_section = movie_block.select_one('section.shared-movie-showtimes__showtimes')
+                if not showtimes_section:
+                    # Fallback if structure is different
+                    showtimes_section = movie_block
+
+                # Get amenity groups - these should be direct children of the showtimes section
+                amenity_groups = [child for child in showtimes_section.find_all('section', class_='shared-showtimes__amenity-group', recursive=False)]
+
+                # If no direct children found, try deeper search as fallback
+                if not amenity_groups:
+                    amenity_groups = showtimes_section.select('section.shared-showtimes__amenity-group')
 
                 # DEBUG: Log amenity group count for first movie
                 if len(showings) == 0:
                     print(f"\n[DEBUG] Movie '{film_title}' has {len(amenity_groups)} amenity groups")
+                    print(f"[DEBUG] Showtimes section found: {showtimes_section is not movie_block}")
 
                 for group_idx, amenity_group in enumerate(amenity_groups):
                     # Extract the format from the h4 title element
