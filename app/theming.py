@@ -35,8 +35,9 @@ def theme_selector_component():
     Uses session state to remember the user's choice.
     """
     # Initialize dark mode in session state if it's not already there.
+    # Default to True (dark mode enabled by default)
     if 'dark_mode' not in st.session_state:
-        st.session_state.dark_mode = False
+        st.session_state.dark_mode = True
 
     # Display dark mode toggle
     st.sidebar.divider()
@@ -116,11 +117,15 @@ def theme_selector_component():
     }
     """
 
-    # --- NEW: Fix for st.metric text color ---
-    # This ensures that the text inside metric components is always dark and readable.
-    metric_text_override_css = """
-    div[data-testid="stMetric"] div {
-        color: #31333F !important;
-    }
-    """
+    # --- Fix for st.metric text color ---
+    # Only apply dark text in light mode; in dark mode, metrics are already styled
+    if not st.session_state.dark_mode:
+        metric_text_override_css = """
+        div[data-testid="stMetric"] div {
+            color: #31333F !important;
+        }
+        """
+    else:
+        metric_text_override_css = ""
+
     apply_css(theme_css + primary_button_override_css + metric_text_override_css)

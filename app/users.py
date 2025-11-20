@@ -38,6 +38,7 @@ ALL_SIDEBAR_MODES = [
     "Market Mode",
     "Operating Hours Mode",
     "CompSnipe Mode",
+    "Daily Lineup",
     "Historical Data and Analysis",
     "Data Management",
     "Theater Matching",
@@ -47,8 +48,8 @@ ALL_SIDEBAR_MODES = [
 
 # Default modes by role (can be overridden by role_permissions.json)
 ADMIN_DEFAULT_MODES = ALL_SIDEBAR_MODES  # Admin gets everything
-MANAGER_DEFAULT_MODES = ["Market Mode", "Operating Hours Mode", "CompSnipe Mode", "Historical Data and Analysis", "Poster Board"]
-USER_DEFAULT_MODES = ["Market Mode", "CompSnipe Mode", "Poster Board"]
+MANAGER_DEFAULT_MODES = ["Market Mode", "Operating Hours Mode", "CompSnipe Mode", "Daily Lineup", "Historical Data and Analysis", "Poster Board"]
+USER_DEFAULT_MODES = ["Market Mode", "CompSnipe Mode", "Daily Lineup", "Poster Board"]
 
 def load_role_permissions():
     """Load role permissions from JSON file, or return defaults"""
