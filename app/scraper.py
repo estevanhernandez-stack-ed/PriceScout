@@ -317,7 +317,30 @@ class Scraper:
                 if not amenity_groups:
                     amenity_groups = showtimes_section.select('section.shared-showtimes__amenity-group')
 
-                # DEBUG: Log amenity group count and formats for first movie
+                # DEBUG: Track all showtimes across all amenity groups to detect combined formats
+                # (e.g., same showtime appearing in both "3D" and "Premium Format" groups)
+                from collections import defaultdict
+                time_to_formats = defaultdict(list)  # Maps showtime -> list of formats
+
+                # First pass: collect all times and their formats
+                for amenity_group in amenity_groups:
+                    format_title_elem = amenity_group.select_one('h4.shared-showtimes__title')
+                    movie_format = format_title_elem.get_text(strip=True) if format_title_elem else "2D"
+
+                    showtime_links = amenity_group.select('a.showtime-btn')
+                    for link in showtime_links:
+                        # Extract time from aria-label
+                        aria_label = link.get('aria-label', '')
+                        time_match = re.search(r'(\d{1,2}(?::\d{2})?\s*(?:o\'clock\s*)?(?:AM|PM|am|pm))', aria_label, re.IGNORECASE)
+
+                        if time_match:
+                            time_str = time_match.group(1).replace("o'clock", "").strip()
+                            time_str = re.sub(r'\s+', '', time_str)  # Normalize
+                            if not ':' in time_str:
+                                time_str = re.sub(r'(\d{1,2})(am|pm)', r'\1:00\2', time_str, flags=re.IGNORECASE)
+                            time_to_formats[time_str].append(movie_format)
+
+                # DEBUG: Log amenity group count and detect combined formats for first movie
                 if len(showings) == 0:
                     print(f"\n[DEBUG] Movie '{film_title}' has {len(amenity_groups)} amenity groups")
                     print(f"[DEBUG] Showtimes section found: {showtimes_section is not movie_block}")
@@ -327,6 +350,16 @@ class Scraper:
                         btn_count = len(ag.select('a.showtime-btn'))
                         print(f"[DEBUG]   Group {idx+1}: '{fmt_text}' with {btn_count} buttons")
 
+                    # Check for combined formats (same time in multiple groups)
+                    combined = {time: fmts for time, fmts in time_to_formats.items() if len(fmts) > 1}
+                    if combined:
+                        print(f"[DEBUG] Found {len(combined)} showtimes with combined formats:")
+                        for time, fmts in sorted(combined.items()):
+                            print(f"[DEBUG]   {time}: {fmts}")
+                    else:
+                        print(f"[DEBUG] No combined formats detected (each showtime in only one group)")
+
+                # Second pass: process amenity groups and combine formats when needed
                 for amenity_group in amenity_groups:
                     # Extract the format from the h4 title element
                     format_title_elem = amenity_group.select_one('h4.shared-showtimes__title')
