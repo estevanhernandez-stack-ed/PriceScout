@@ -1,98 +1,59 @@
 """
-Cookie Manager for PriceScout Persistent Sessions
+Session Manager for PriceScout Persistent Sessions
 
-Handles cookie-based session persistence using extra-streamlit-components.
+Uses URL query parameters for reliable session persistence across page refreshes.
+This is the standard approach for Streamlit authentication.
 """
 
 import streamlit as st
-import extra_streamlit_components as stx
 
-# Cookie settings
-COOKIE_NAME_USERNAME = "pricescout_username"
-COOKIE_NAME_TOKEN = "pricescout_session_token"
-COOKIE_EXPIRY_DAYS = 30
-
-def get_cookie_manager():
-    """
-    Get or create the cookie manager instance.
-
-    Returns:
-        CookieManager instance
-    """
-    try:
-        # Create cookie manager - this library doesn't need manual ready() checks
-        return stx.CookieManager()
-    except Exception as e:
-        print(f"Cookie manager initialization failed: {e}")
-        return None
+# Session parameter name
+SESSION_PARAM = "session"
 
 def save_login_cookie(username, session_token):
     """
-    Save login credentials to cookies for persistent session.
+    Save login session by adding token to URL query parameters.
 
     Args:
-        username: Username to save
+        username: Username (for logging only)
         session_token: Session token to save
     """
     try:
-        cookie_manager = get_cookie_manager()
-        if cookie_manager is None:
-            print("DEBUG cookie_manager: Failed to get cookie manager")
-            return
-
-        # Set cookies with expiry
-        import datetime
-        expiry_date = datetime.datetime.now() + datetime.timedelta(days=COOKIE_EXPIRY_DAYS)
-
-        cookie_manager.set(COOKIE_NAME_USERNAME, username, expires_at=expiry_date)
-        cookie_manager.set(COOKIE_NAME_TOKEN, session_token, expires_at=expiry_date)
-
-        print(f"DEBUG cookie_manager: Saved cookies for user: {username}")
+        # Set the session token in query params
+        st.query_params[SESSION_PARAM] = session_token
+        print(f"DEBUG cookie_manager: Saved session token to URL for user: {username}")
     except Exception as e:
-        # Cookie errors shouldn't break login, just log them
-        print(f"Warning: Failed to save login cookie: {e}")
+        print(f"Warning: Failed to save session token to URL: {e}")
 
 def get_saved_login():
     """
-    Get saved login credentials from cookies.
+    Get saved session token from URL query parameters.
 
     Returns:
-        Tuple of (username, token) or (None, None) if not found
+        Session token string or None if not found
     """
     try:
-        cookie_manager = get_cookie_manager()
-        if cookie_manager is None:
-            print("DEBUG cookie_manager: Failed to get cookie manager")
-            return None, None
+        # Get session token from query params
+        token = st.query_params.get(SESSION_PARAM)
 
-        # Get all cookies
-        all_cookies = cookie_manager.get_all()
-
-        username = all_cookies.get(COOKIE_NAME_USERNAME)
-        token = all_cookies.get(COOKIE_NAME_TOKEN)
-
-        if username and token:
-            print(f"DEBUG cookie_manager: Found saved login for user: {username}")
-            return username, token
+        if token:
+            print(f"DEBUG cookie_manager: Found session token in URL")
+            return token
         else:
-            print(f"DEBUG cookie_manager: No saved login found (username={username}, token={'set' if token else 'not set'})")
+            print(f"DEBUG cookie_manager: No session token found in URL")
+            return None
     except Exception as e:
-        print(f"Warning: Failed to read login cookie: {e}")
-
-    return None, None
+        print(f"Warning: Failed to read session token from URL: {e}")
+        return None
 
 def clear_login_cookie():
     """
-    Clear saved login credentials from cookies.
+    Clear saved session token from URL query parameters.
     """
     try:
-        cookie_manager = get_cookie_manager()
-        if cookie_manager is None:
-            return
-
-        cookie_manager.delete(COOKIE_NAME_USERNAME)
-        cookie_manager.delete(COOKIE_NAME_TOKEN)
-
-        print("DEBUG cookie_manager: Cleared login cookies")
+        # Remove session param from URL
+        if SESSION_PARAM in st.query_params:
+            del st.query_params[SESSION_PARAM]
+        print("DEBUG cookie_manager: Cleared session token from URL")
     except Exception as e:
-        print(f"Warning: Failed to clear login cookie: {e}")
+        print(f"Warning: Failed to clear session token from URL: {e}")

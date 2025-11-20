@@ -30,7 +30,6 @@ alembic==1.13.1  # Database migrations (optional)
 
 # === SECURITY ===
 bcrypt==4.3.0  # Password hashing
-extra-streamlit-components==0.1.71  # Persistent session cookies (CookieManager)
 
 # === AZURE CLOUD (Phase 3) ===
 azure-identity==1.15.0  # Azure authentication

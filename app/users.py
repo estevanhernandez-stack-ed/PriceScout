@@ -948,6 +948,62 @@ def verify_session_token(username, token):
 
     return None
 
+def find_user_by_session_token(token):
+    """
+    Find a user by their session token (for URL-based sessions).
+
+    Args:
+        token: Session token to verify
+
+    Returns:
+        User record if valid token found, None otherwise
+    """
+    # Get all users and check their tokens
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+
+        if _use_postgresql():
+            cursor.execute("""
+                SELECT u.*, c.company_name
+                FROM users u
+                LEFT JOIN companies c ON u.company_id = c.company_id
+                WHERE u.session_token IS NOT NULL
+                  AND u.session_token_expiry > %s
+                  AND u.is_active = true
+            """, (int(time.time()),))
+        else:
+            cursor.execute("""
+                SELECT * FROM users
+                WHERE session_token IS NOT NULL
+                  AND session_token_expiry > ?
+            """, (int(time.time()),))
+
+        rows = cursor.fetchall()
+
+        for row in rows:
+            if _use_postgresql():
+                columns = [desc[0] for desc in cursor.description]
+                user_dict = dict(zip(columns, row))
+                user_dict['is_admin'] = (user_dict.get('role') == 'admin')
+                user_dict['company'] = user_dict.get('company_name')
+                user_dict['default_company'] = user_dict.get('company_name')
+                user = DictRow(user_dict)
+            else:
+                user = row
+
+            try:
+                stored_hash = user['session_token']
+                if isinstance(stored_hash, str):
+                    stored_hash = stored_hash.encode('utf-8')
+
+                if bcrypt.checkpw(token.encode('utf-8'), stored_hash):
+                    security_config.log_security_event("session_token_verified", user['username'])
+                    return user
+            except Exception as e:
+                continue
+
+    return None
+
 def clear_session_token(username):
     """
     Clear session token for a user (logout).

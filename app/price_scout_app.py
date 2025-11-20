@@ -131,14 +131,14 @@ def render_password_change_form():
 def login():
     users.init_database() # Ensure the database is initialized
 
-    # Try to restore session from cookie if not already logged in
+    # Try to restore session from URL query params if not already logged in
     if not st.session_state.get("logged_in"):
-        # Try to get saved login
-        saved_username, saved_token = cookie_manager.get_saved_login()
-        print(f"DEBUG: Cookie restore attempt - username: {saved_username}, token: {'***' if saved_token else None}")
-        if saved_username and saved_token:
-            # Try to authenticate with saved credentials
-            user = users.verify_session_token(saved_username, saved_token)
+        # Try to get saved session token from URL
+        saved_token = cookie_manager.get_saved_login()
+        print(f"DEBUG: Session restore attempt - token: {'***' if saved_token else None}")
+        if saved_token:
+            # Find user by session token
+            user = users.find_user_by_session_token(saved_token)
             print(f"DEBUG: Token verification result: {bool(user)}")
             if user:
                 # Session token is valid, restore session
@@ -154,11 +154,11 @@ def login():
                 print(f"DEBUG: Session restored from cookie for user: {user['username']}")
                 st.rerun()
             else:
-                # Token invalid or expired, clear cookie
-                print("DEBUG: Token verification failed, clearing cookie")
+                # Token invalid or expired, clear from URL
+                print("DEBUG: Token verification failed, clearing from URL")
                 cookie_manager.clear_login_cookie()
         else:
-            print(f"DEBUG: No saved login found in cookie")
+            print(f"DEBUG: No saved session token found in URL")
 
     if st.session_state.get("logged_in"):
         # Save session token to cookie if we have a pending one
