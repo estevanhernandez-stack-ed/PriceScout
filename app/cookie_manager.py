@@ -1,18 +1,15 @@
 """
 Cookie Manager for PriceScout Persistent Sessions
 
-Handles cookie-based session persistence using streamlit-cookies-manager.
+Handles cookie-based session persistence using extra-streamlit-components.
 """
 
 import streamlit as st
-from streamlit_cookies_manager import EncryptedCookieManager
-import os
+import extra_streamlit_components as stx
 
 # Cookie settings
-# NOTE: The EncryptedCookieManager adds the "pricescout_" prefix automatically,
-# so these keys should NOT include the prefix
-COOKIE_NAME_USERNAME = "username"
-COOKIE_NAME_TOKEN = "session_token"
+COOKIE_NAME_USERNAME = "pricescout_username"
+COOKIE_NAME_TOKEN = "pricescout_session_token"
 COOKIE_EXPIRY_DAYS = 30
 
 def get_cookie_manager():
@@ -20,26 +17,12 @@ def get_cookie_manager():
     Get or create the cookie manager instance.
 
     Returns:
-        EncryptedCookieManager instance or None if not ready
+        CookieManager instance
     """
     try:
-        # Use a secret key from environment or generate a default one
-        # In production, this should be set via environment variable
-        password = os.getenv('COOKIE_PASSWORD', 'pricescout_default_cookie_secret_change_in_production')
-
-        if 'cookie_manager' not in st.session_state:
-            st.session_state.cookie_manager = EncryptedCookieManager(
-                prefix="pricescout_",
-                password=password
-            )
-
-        # Check if cookies are ready - if not, return None gracefully
-        if not st.session_state.cookie_manager.ready():
-            return None
-
-        return st.session_state.cookie_manager
+        # Create cookie manager - this library doesn't need manual ready() checks
+        return stx.CookieManager()
     except Exception as e:
-        # If cookie manager fails, log and return None (app will work without persistence)
         print(f"Cookie manager initialization failed: {e}")
         return None
 
@@ -52,16 +35,19 @@ def save_login_cookie(username, session_token):
         session_token: Session token to save
     """
     try:
-        cookies = get_cookie_manager()
-        if cookies is None:
-            # Cookies not ready yet, skip silently
-            print("DEBUG cookie_manager: Cookie manager not ready, cannot save")
+        cookie_manager = get_cookie_manager()
+        if cookie_manager is None:
+            print("DEBUG cookie_manager: Failed to get cookie manager")
             return
 
-        cookies[COOKIE_NAME_USERNAME] = username
-        cookies[COOKIE_NAME_TOKEN] = session_token
-        cookies.save()
-        print(f"DEBUG cookie_manager: Saved cookie for user: {username}")
+        # Set cookies with expiry
+        import datetime
+        expiry_date = datetime.datetime.now() + datetime.timedelta(days=COOKIE_EXPIRY_DAYS)
+
+        cookie_manager.set(COOKIE_NAME_USERNAME, username, expires_at=expiry_date)
+        cookie_manager.set(COOKIE_NAME_TOKEN, session_token, expires_at=expiry_date)
+
+        print(f"DEBUG cookie_manager: Saved cookies for user: {username}")
     except Exception as e:
         # Cookie errors shouldn't break login, just log them
         print(f"Warning: Failed to save login cookie: {e}")
@@ -74,14 +60,16 @@ def get_saved_login():
         Tuple of (username, token) or (None, None) if not found
     """
     try:
-        cookies = get_cookie_manager()
-        if cookies is None:
-            # Cookies not ready yet
-            print("DEBUG cookie_manager: Cookie manager not ready, cannot read")
+        cookie_manager = get_cookie_manager()
+        if cookie_manager is None:
+            print("DEBUG cookie_manager: Failed to get cookie manager")
             return None, None
 
-        username = cookies.get(COOKIE_NAME_USERNAME)
-        token = cookies.get(COOKIE_NAME_TOKEN)
+        # Get all cookies
+        all_cookies = cookie_manager.get_all()
+
+        username = all_cookies.get(COOKIE_NAME_USERNAME)
+        token = all_cookies.get(COOKIE_NAME_TOKEN)
 
         if username and token:
             print(f"DEBUG cookie_manager: Found saved login for user: {username}")
@@ -98,15 +86,13 @@ def clear_login_cookie():
     Clear saved login credentials from cookies.
     """
     try:
-        cookies = get_cookie_manager()
-        if cookies is None:
-            # Cookies not ready yet, skip silently
+        cookie_manager = get_cookie_manager()
+        if cookie_manager is None:
             return
 
-        if COOKIE_NAME_USERNAME in cookies:
-            del cookies[COOKIE_NAME_USERNAME]
-        if COOKIE_NAME_TOKEN in cookies:
-            del cookies[COOKIE_NAME_TOKEN]
-        cookies.save()
+        cookie_manager.delete(COOKIE_NAME_USERNAME)
+        cookie_manager.delete(COOKIE_NAME_TOKEN)
+
+        print("DEBUG cookie_manager: Cleared login cookies")
     except Exception as e:
         print(f"Warning: Failed to clear login cookie: {e}")
