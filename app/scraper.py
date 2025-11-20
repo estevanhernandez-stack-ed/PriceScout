@@ -301,27 +301,40 @@ class Scraper:
                 film_title_elem = movie_block.select_one('h3.shared-movie-showtimes__movie-title a')
                 film_title = film_title_elem.get_text(strip=True) if film_title_elem else "Unknown Title"
 
-                # DEBUG: Print HTML structure for first movie block
+                # DEBUG: Print HTML structure for first TWO movie blocks to see format variations
                 if len(showings) == 0:
-                    print(f"\n[DEBUG HTML] First movie block structure:")
-                    print(f"  Movie: {film_title}")
+                    print(f"\n[DEBUG HTML] Analyzing movie block structure...")
+                    print(f"  Total movie blocks found: {len(movie_blocks)}")
 
-                    # Check for any headings or format indicators in the movie block
-                    print(f"\n  Movie block headings and structure:")
-                    for heading in movie_block.find_all(['h3', 'h4', 'h5', 'div'], class_=True):
-                        classes = ' '.join(heading.get('class', []))
-                        if any(keyword in classes.lower() for keyword in ['variant', 'format', 'amenity', 'type', 'experience']):
-                            print(f"    {heading.name}.{classes}: {heading.get_text(strip=True)[:80]}")
+                    # Print first 2 movie blocks to see if different formats are separate blocks
+                    for block_idx in range(min(2, len(movie_blocks))):
+                        block = movie_blocks[block_idx]
+                        title_elem = block.select_one('h3.shared-movie-showtimes__movie-title a')
+                        title = title_elem.get_text(strip=True) if title_elem else "Unknown"
 
-                    # Get first few showtime buttons to inspect
-                    sample_buttons = movie_block.select('a.showtime-btn')[:2]
-                    for i, btn in enumerate(sample_buttons):
-                        print(f"\n  Showtime button {i+1}:")
-                        print(f"    Classes: {btn.get('class', [])}")
-                        print(f"    HTML: {str(btn)[:300]}")
-                        # Look for any child elements
-                        for child in btn.find_all(recursive=False):
-                            print(f"      Child: {child.name}, classes: {child.get('class', [])}, text: {child.get_text(strip=True)[:50]}")
+                        print(f"\n  === Movie Block {block_idx + 1}: {title} ===")
+
+                        # Check all text in the movie block to find format indicators
+                        block_text = block.get_text(separator='|', strip=True)
+                        print(f"  Full block text (first 200 chars): {block_text[:200]}")
+
+                        # Look for specific format keywords in the text
+                        format_keywords = ['3D', 'IMAX', 'UltraScreen', 'Dolby', 'XD', 'RPX', 'PLF', 'DFX', 'D-BOX']
+                        found_keywords = [kw for kw in format_keywords if kw.lower() in block_text.lower()]
+                        if found_keywords:
+                            print(f"  Format keywords found: {found_keywords}")
+
+                        # Print the movie block's direct children structure
+                        print(f"  Direct children of movie block:")
+                        for child in block.find_all(recursive=False):
+                            child_classes = ' '.join(child.get('class', []))
+                            child_text = child.get_text(strip=True)[:80]
+                            print(f"    {child.name}.{child_classes}: {child_text}")
+
+                        # Sample one showtime button
+                        sample_btn = block.select_one('a.showtime-btn')
+                        if sample_btn:
+                            print(f"  Sample showtime button: {str(sample_btn)[:200]}")
 
                 # Look for variant title or format indicators
                 # Try multiple selectors that might contain format info
