@@ -478,13 +478,57 @@ def change_password(username, old_password, new_password):
     security_config.log_security_event("password_changed", username)
     return True, "Password changed successfully."
 
+def admin_reset_password(username, new_password, force_change=False):
+    """
+    Admin function to reset a user's password without requiring the old password.
+
+    Args:
+        username: Username to reset password for (case-insensitive)
+        new_password: New password to set
+        force_change: If True, user must change password on next login
+
+    Returns:
+        (success, message) tuple
+    """
+    # Normalize username to lowercase for case-insensitive matching
+    username = username.lower().strip()
+
+    # Check if user exists
+    user = get_user(username)
+    if not user:
+        return False, f"User '{username}' not found."
+
+    # Validate new password strength
+    is_valid, error_msg = security_config.validate_password_strength(new_password)
+    if not is_valid:
+        return False, f"Password validation failed: {error_msg}"
+
+    # Hash and update password
+    new_hash = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        if _use_postgresql():
+            cursor.execute(
+                "UPDATE users SET password_hash = %s, must_change_password = %s WHERE username = %s",
+                (new_hash.decode('utf-8'), force_change, username)
+            )
+        else:
+            cursor.execute(
+                "UPDATE users SET password_hash = ?, must_change_password = ? WHERE username = ?",
+                (new_hash.decode('utf-8'), 1 if force_change else 0, username)
+            )
+        conn.commit()
+
+    security_config.log_security_event("password_reset_by_admin", username)
+    return True, f"Password reset successfully for user '{username}'."
+
 def is_using_default_password(username):
     """
     Check if user is still using the default password.
-    
+
     Args:
         username: Username to check
-        
+
     Returns:
         True if using default password (admin/admin)
     """

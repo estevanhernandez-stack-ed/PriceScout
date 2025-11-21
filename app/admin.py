@@ -118,7 +118,7 @@ def _render_user_row(user, companies, cache_data):
         with col6:
             # Get location options based on selected company
             home_options = _get_home_location_options(cache_data, selected_company)
-            
+
             if selected_location_type == "Director":
                 options = [""] + home_options['directors']
             elif selected_location_type == "Market":
@@ -127,44 +127,91 @@ def _render_user_row(user, companies, cache_data):
                 options = [""] + home_options['theaters']
             else:
                 options = [""]
-            
+
             # sqlite3.Row uses dictionary-style access
             try:
                 current_value = user['home_location_value'] if 'home_location_value' in user.keys() else ''
             except (KeyError, TypeError):
                 current_value = ''
-            
+
             if current_value is None:
                 current_value = ''
-            
+
             if current_value not in options:
                 current_value = ""
-            
+
             value_index = options.index(current_value) if current_value in options else 0
             selected_location_value = st.selectbox("Home Location", options=options, index=value_index, key=f"loc_value_{user['id']}")
-        
+
         with col7:
             if st.button("Update", key=f"update_{user['id']}"):
                 company = selected_company if selected_company != "All Companies" else None
                 default_company = selected_default_company if selected_default_company != "All Companies" else None
                 is_admin = (selected_role == "admin")
-                
+
                 # Prepare home location values
                 home_type = selected_location_type.lower() if selected_location_type != "None" else None
                 home_value = selected_location_value if selected_location_value else None
-                
-                users.update_user(user['id'], new_username, is_admin, company, default_company, 
-                                role=selected_role, allowed_modes=None, 
+
+                users.update_user(user['id'], new_username, is_admin, company, default_company,
+                                role=selected_role, allowed_modes=None,
                                 home_location_type=home_type, home_location_value=home_value)
                 st.success(f"User {new_username} updated.")
                 st.rerun()
-        
+
         with col8:
             if st.button("Delete", key=f"delete_{user['id']}"):
                 users.delete_user(user['id'])
                 st.success(f"User {user['username']} deleted.")
                 st.rerun()
-        
+
+        # Third row: action buttons
+        col9, col10, col11, col12 = st.columns([2, 2, 2, 2])
+
+        with col9:
+            if st.button("🔑 Reset Password", key=f"reset_pwd_{user['id']}"):
+                st.session_state[f"reset_password_user_{user['id']}"] = True
+                st.rerun()
+
+        # Password reset form (if button was clicked)
+        if st.session_state.get(f"reset_password_user_{user['id']}", False):
+            st.markdown(f"**Reset Password for: {user['username']}**")
+
+            col_pwd1, col_pwd2, col_pwd3 = st.columns([3, 1, 1])
+
+            with col_pwd1:
+                new_password = st.text_input(
+                    "New Password",
+                    type="password",
+                    key=f"new_pwd_{user['id']}",
+                    help="Must be 8+ characters with uppercase, lowercase, number, and special character"
+                )
+                st.caption("📋 Password must contain: 8+ characters, uppercase letter, lowercase letter, number, special character (!@#$%...)")
+
+            with col_pwd2:
+                force_change = st.checkbox(
+                    "Force Change on Login",
+                    key=f"force_change_{user['id']}",
+                    help="If checked, user must change password on next login"
+                )
+
+            with col_pwd3:
+                if st.button("✅ Set", key=f"confirm_reset_{user['id']}", type="primary"):
+                    if new_password:
+                        success, message = users.admin_reset_password(user['username'], new_password, force_change)
+                        if success:
+                            st.success(message)
+                            del st.session_state[f"reset_password_user_{user['id']}"]
+                            st.rerun()
+                        else:
+                            st.error(message)
+                    else:
+                        st.error("Please enter a new password.")
+
+                if st.button("❌ Cancel", key=f"cancel_reset_{user['id']}"):
+                    del st.session_state[f"reset_password_user_{user['id']}"]
+                    st.rerun()
+
         st.divider()
 
 def _render_user_management(companies, cache_data):
