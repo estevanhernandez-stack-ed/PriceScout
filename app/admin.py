@@ -219,13 +219,17 @@ def _render_add_user_form(companies, cache_data):
         col1, col2 = st.columns(2)
 
         with col1:
-            new_username = st.text_input("New Username")
-            new_password = st.text_input("New Password", type="password")
+            new_username = st.text_input("New Username", help="Usernames are case-insensitive")
+            new_password = st.text_input("New Password", type="password",
+                                        help="Must be 8+ characters with uppercase, lowercase, number, and special character (!@#$%...)")
             role = st.selectbox("Role", options=["admin", "manager", "user"], index=2)
 
         with col2:
             company = st.selectbox("Assigned Company", options=real_companies)
             default_company = st.selectbox("Default Company on Login", options=real_companies)
+
+        # Password requirements reminder
+        st.caption("📋 Password must contain: 8+ characters, uppercase letter, lowercase letter, number, special character (!@#$%...)")
 
         submitted = st.form_submit_button("Add User")
 

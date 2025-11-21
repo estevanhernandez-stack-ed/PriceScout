@@ -209,9 +209,9 @@ def init_database():
 def create_user(username, password, is_admin=False, company=None, default_company=None, role=None, allowed_modes=None, home_location_type=None, home_location_value=None):
     """
     Create a new user with password validation and role-based access control.
-    
+
     Args:
-        username: Username for the new user
+        username: Username for the new user (will be converted to lowercase)
         password: Plain text password (will be hashed)
         is_admin: Whether user has admin privileges (legacy, use role instead)
         company: Company affiliation
@@ -220,10 +220,13 @@ def create_user(username, password, is_admin=False, company=None, default_compan
         allowed_modes: List of modes user can access (overrides role default)
         home_location_type: 'director', 'market', or 'theater'
         home_location_value: The actual director/market/theater name
-        
+
     Returns:
         (success, message) tuple
     """
+    # Normalize username to lowercase for case-insensitive matching
+    username = username.lower().strip()
+
     # Validate password strength
     is_valid, error_msg = security_config.validate_password_strength(password)
     if not is_valid:
@@ -275,16 +278,19 @@ def create_user(username, password, is_admin=False, company=None, default_compan
             return False, f"Error creating user: {str(e)}"
 
 def get_user(username):
-    """Get user by username - works with both PostgreSQL and SQLite"""
+    """Get user by username (case-insensitive) - works with both PostgreSQL and SQLite"""
+    # Normalize username to lowercase for case-insensitive matching
+    username = username.lower().strip()
+
     with get_db_connection() as conn:
         cursor = conn.cursor()
-        
+
         if _use_postgresql():
             # PostgreSQL uses %s placeholders and has different schema
             cursor.execute("""
-                SELECT u.*, c.company_name 
-                FROM users u 
-                LEFT JOIN companies c ON u.company_id = c.company_id 
+                SELECT u.*, c.company_name
+                FROM users u
+                LEFT JOIN companies c ON u.company_id = c.company_id
                 WHERE u.username = %s AND u.is_active = true
             """, (username,))
             row = cursor.fetchone()
@@ -292,12 +298,12 @@ def get_user(username):
                 # Convert to dict-like object and map fields for compatibility
                 columns = [desc[0] for desc in cursor.description]
                 user_dict = dict(zip(columns, row))
-                
+
                 # Map PostgreSQL fields to SQLite-compatible names
                 user_dict['is_admin'] = (user_dict.get('role') == 'admin')
                 user_dict['company'] = user_dict.get('company_name')
                 user_dict['default_company'] = user_dict.get('company_name')
-                
+
                 return DictRow(user_dict)
             return None
         else:
@@ -308,41 +314,47 @@ def get_user(username):
 def verify_user(username, password):
     """
     Verifies a user's password with rate limiting protection.
-    
+
     Args:
-        username: Username to verify
+        username: Username to verify (case-insensitive)
         password: Password to check
-        
+
     Returns:
         User record if valid, None if invalid or rate limited
-        
+
     Side Effects:
         Records failed login attempts for rate limiting
     """
+    # Normalize username to lowercase for case-insensitive matching
+    username = username.lower().strip()
+
     # Check rate limiting BEFORE attempting verification
     if not security_config.check_login_attempts(username):
         # User is locked out, return None
         security_config.log_security_event("login_locked", username)
         return None
-    
+
     user = get_user(username)
     if user:
         # Handle password hash - might be string or bytes
         stored_hash = user['password_hash']
         if isinstance(stored_hash, str):
             stored_hash = stored_hash.encode('utf-8')
-        
+
         if bcrypt.checkpw(password.encode('utf-8'), stored_hash):
             # Successful login - reset attempt counter
             security_config.reset_login_attempts(username)
             security_config.log_security_event("login_success", username)
             return user
-    
-    # Failed login - record attempt
-    if user:  # Only record if user exists (don't reveal non-existent users)
-        security_config.record_failed_login(username)
+
+    # SECURITY FIX: Always record failed login attempts, even for non-existent users
+    # This prevents username enumeration via different error messages or lockout behavior
+    security_config.record_failed_login(username)
+    if user:
         security_config.log_security_event("login_failed", username)
-    
+    else:
+        security_config.log_security_event("login_attempt_nonexistent_user", username)
+
     return None
 
 def get_all_users():
