@@ -11,7 +11,7 @@ from app import db_adapter as database
 from app.utils import run_async_in_thread
 
 
-def compact_film_title(title, remove_year=True, remove_articles=False):
+def compact_film_title(title, remove_year=True, remove_articles=False, max_words=None):
     """
     Make film titles more compact for narrow column display.
 
@@ -19,6 +19,7 @@ def compact_film_title(title, remove_year=True, remove_articles=False):
         title: Original film title
         remove_year: Remove bracketed year like "(2024)" from end
         remove_articles: Remove leading articles (The, A, An)
+        max_words: Limit title to first N words (None = no limit)
 
     Returns:
         Compacted title string
@@ -35,6 +36,12 @@ def compact_film_title(title, remove_year=True, remove_articles=False):
     # Optionally remove leading articles
     if remove_articles:
         result = re.sub(r'^(The|A|An)\s+', '', result, flags=re.IGNORECASE)
+
+    # Limit to max words if specified
+    if max_words and max_words > 0:
+        words = result.split()
+        if len(words) > max_words:
+            result = ' '.join(words[:max_words])
 
     return result.strip()
 
@@ -109,7 +116,7 @@ def render_daily_lineup_mode(cache_data, selected_company):
 
     # Display options
     st.subheader("Display Options")
-    col_opt1, col_opt2 = st.columns(2)
+    col_opt1, col_opt2, col_opt3 = st.columns(3)
 
     with col_opt1:
         compact_titles = st.checkbox(
@@ -125,15 +132,24 @@ def render_daily_lineup_mode(cache_data, selected_company):
             help="Remove 'The', 'A', 'An' from start of titles (e.g., 'The Wild Robot' → 'Wild Robot')"
         )
 
+    with col_opt3:
+        max_words = st.selectbox(
+            "Max Words",
+            options=[0, 2, 3, 4, 5],
+            index=2,  # Default to 3 words
+            format_func=lambda x: "No limit" if x == 0 else f"{x} words",
+            help="Limit titles to first N words (e.g., 'Now You See Me: Now You Don't' → 'Now You See')"
+        )
+
     st.divider()
 
     # Scrape and Generate button
     if st.button("🔄 Get Latest Showtimes & Generate Lineup", type="primary", use_container_width=True):
         scrape_and_generate(selected_theater_obj, selected_theater, selected_date, selected_date_obj,
-                          compact_titles=compact_titles, remove_articles=remove_articles)
+                          compact_titles=compact_titles, remove_articles=remove_articles, max_words=max_words if max_words > 0 else None)
 
 
-def scrape_and_generate(theater_obj, theater_name, date_str, date_obj, compact_titles=True, remove_articles=False):
+def scrape_and_generate(theater_obj, theater_name, date_str, date_obj, compact_titles=True, remove_articles=False, max_words=None):
     """Scrape showtimes for a single theater for one date and generate lineup"""
     from app.scraper import Scraper
 
@@ -171,10 +187,10 @@ def scrape_and_generate(theater_obj, theater_name, date_str, date_obj, compact_t
 
     # Generate the lineup
     st.divider()
-    generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=compact_titles, remove_articles=remove_articles)
+    generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=compact_titles, remove_articles=remove_articles, max_words=max_words)
 
 
-def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True, remove_articles=False):
+def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True, remove_articles=False, max_words=None):
     """Generate and display the daily lineup"""
 
     # Query showings for this theater and date using SQLAlchemy
@@ -229,8 +245,8 @@ def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True,
 
         # Apply title compacting if enabled
         film_title = row['film_title']
-        if compact_titles or remove_articles:
-            film_title = compact_film_title(film_title, remove_year=compact_titles, remove_articles=remove_articles)
+        if compact_titles or remove_articles or max_words:
+            film_title = compact_film_title(film_title, remove_year=compact_titles, remove_articles=remove_articles, max_words=max_words)
 
         lineup_data.append({
             'Theater #': '',  # Blank column for manual entry
