@@ -5,9 +5,38 @@ Generates printable daily lineups for individual theaters with blank columns for
 
 import streamlit as st
 import pandas as pd
+import re
 from datetime import datetime, date, timedelta
 from app import db_adapter as database
 from app.utils import run_async_in_thread
+
+
+def compact_film_title(title, remove_year=True, remove_articles=False):
+    """
+    Make film titles more compact for narrow column display.
+
+    Args:
+        title: Original film title
+        remove_year: Remove bracketed year like "(2024)" from end
+        remove_articles: Remove leading articles (The, A, An)
+
+    Returns:
+        Compacted title string
+    """
+    if not title:
+        return title
+
+    result = title.strip()
+
+    # Remove bracketed year at end (e.g., "(2024)", "(2025)")
+    if remove_year:
+        result = re.sub(r'\s*\(\d{4}\)\s*$', '', result)
+
+    # Optionally remove leading articles
+    if remove_articles:
+        result = re.sub(r'^(The|A|An)\s+', '', result, flags=re.IGNORECASE)
+
+    return result.strip()
 
 
 def render_daily_lineup_mode(cache_data, selected_company):
@@ -78,12 +107,33 @@ def render_daily_lineup_mode(cache_data, selected_company):
 
     st.divider()
 
+    # Display options
+    st.subheader("Display Options")
+    col_opt1, col_opt2 = st.columns(2)
+
+    with col_opt1:
+        compact_titles = st.checkbox(
+            "Compact Titles",
+            value=True,
+            help="Remove year from titles (e.g., 'Wicked (2024)' → 'Wicked') for narrower columns"
+        )
+
+    with col_opt2:
+        remove_articles = st.checkbox(
+            "Remove Leading Articles",
+            value=False,
+            help="Remove 'The', 'A', 'An' from start of titles (e.g., 'The Wild Robot' → 'Wild Robot')"
+        )
+
+    st.divider()
+
     # Scrape and Generate button
     if st.button("🔄 Get Latest Showtimes & Generate Lineup", type="primary", use_container_width=True):
-        scrape_and_generate(selected_theater_obj, selected_theater, selected_date, selected_date_obj)
+        scrape_and_generate(selected_theater_obj, selected_theater, selected_date, selected_date_obj,
+                          compact_titles=compact_titles, remove_articles=remove_articles)
 
 
-def scrape_and_generate(theater_obj, theater_name, date_str, date_obj):
+def scrape_and_generate(theater_obj, theater_name, date_str, date_obj, compact_titles=True, remove_articles=False):
     """Scrape showtimes for a single theater for one date and generate lineup"""
     from app.scraper import Scraper
 
@@ -121,10 +171,10 @@ def scrape_and_generate(theater_obj, theater_name, date_str, date_obj):
 
     # Generate the lineup
     st.divider()
-    generate_daily_lineup(theater_name, date_str, date_obj)
+    generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=compact_titles, remove_articles=remove_articles)
 
 
-def generate_daily_lineup(theater_name, date_str, date_obj):
+def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True, remove_articles=False):
     """Generate and display the daily lineup"""
 
     # Query showings for this theater and date using SQLAlchemy
@@ -177,10 +227,15 @@ def generate_daily_lineup(theater_name, date_str, date_obj):
         # Get format indicator for this specific showing
         format_indicator = get_format_indicators([row['format']])
 
+        # Apply title compacting if enabled
+        film_title = row['film_title']
+        if compact_titles or remove_articles:
+            film_title = compact_film_title(film_title, remove_year=compact_titles, remove_articles=remove_articles)
+
         lineup_data.append({
             'Theater #': '',  # Blank column for manual entry
             'Showtime': formatted_time,
-            'Film Title': row['film_title'],
+            'Film Title': film_title,
             'Format': format_indicator
         })
 
