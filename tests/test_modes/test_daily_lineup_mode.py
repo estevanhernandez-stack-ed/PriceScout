@@ -1,0 +1,326 @@
+"""
+Tests for daily_lineup_mode.py
+
+Focus on testable pure functions:
+1. compact_film_title - Title compacting with year removal, article removal, word limit
+2. format_showtime - Time format conversion to 12-hour AM/PM
+3. get_format_indicators - Format code to readable indicator mapping
+"""
+import pytest
+from unittest.mock import MagicMock, patch
+import pandas as pd
+from datetime import date, datetime
+
+from app.modes.daily_lineup_mode import (
+    compact_film_title,
+    format_showtime,
+    get_format_indicators,
+)
+
+
+class TestCompactFilmTitle:
+    """Test the compact_film_title function for title shortening."""
+
+    def test_remove_year_basic(self):
+        """Test basic year removal from title."""
+        result = compact_film_title("Wicked (2024)")
+        assert result == "Wicked"
+
+    def test_remove_year_with_subtitle(self):
+        """Test year removal from title with subtitle."""
+        result = compact_film_title("Wicked: For Good (2025)")
+        assert result == "Wicked: For Good"
+
+    def test_remove_year_multiple_words(self):
+        """Test year removal from multi-word title."""
+        result = compact_film_title("Now You See Me: Now You Don't (2025)")
+        assert result == "Now You See Me: Now You Don't"
+
+    def test_keep_year_when_disabled(self):
+        """Test that year is kept when remove_year=False."""
+        result = compact_film_title("Wicked (2024)", remove_year=False)
+        assert result == "Wicked (2024)"
+
+    def test_remove_article_the(self):
+        """Test removal of leading 'The'."""
+        result = compact_film_title("The Wild Robot", remove_articles=True)
+        assert result == "Wild Robot"
+
+    def test_remove_article_a(self):
+        """Test removal of leading 'A'."""
+        result = compact_film_title("A Complete Unknown", remove_articles=True)
+        assert result == "Complete Unknown"
+
+    def test_remove_article_an(self):
+        """Test removal of leading 'An'."""
+        result = compact_film_title("An American Werewolf", remove_articles=True)
+        assert result == "American Werewolf"
+
+    def test_remove_article_case_insensitive(self):
+        """Test article removal is case-insensitive."""
+        result = compact_film_title("THE MATRIX", remove_articles=True)
+        assert result == "MATRIX"
+
+    def test_keep_article_when_disabled(self):
+        """Test that articles are kept when remove_articles=False."""
+        result = compact_film_title("The Wild Robot", remove_articles=False)
+        assert result == "The Wild Robot"
+
+    def test_max_words_limit_3(self):
+        """Test limiting title to 3 words."""
+        result = compact_film_title("Now You See Me: Now You Don't", max_words=3)
+        assert result == "Now You See"
+
+    def test_max_words_limit_2(self):
+        """Test limiting title to 2 words."""
+        result = compact_film_title("The Lord of the Rings", max_words=2)
+        assert result == "The Lord"
+
+    def test_max_words_no_truncation_needed(self):
+        """Test max_words when title is already short enough."""
+        result = compact_film_title("Wicked", max_words=3)
+        assert result == "Wicked"
+
+    def test_max_words_none_means_no_limit(self):
+        """Test that max_words=None means no limit."""
+        result = compact_film_title("Now You See Me: Now You Don't", max_words=None)
+        assert result == "Now You See Me: Now You Don't"
+
+    def test_max_words_zero_means_no_limit(self):
+        """Test that max_words=0 means no limit."""
+        result = compact_film_title("Now You See Me: Now You Don't", max_words=0)
+        assert result == "Now You See Me: Now You Don't"
+
+    def test_combined_year_and_articles(self):
+        """Test combining year removal and article removal."""
+        result = compact_film_title("The Wild Robot (2024)", remove_year=True, remove_articles=True)
+        assert result == "Wild Robot"
+
+    def test_combined_all_options(self):
+        """Test combining all options: year, articles, and word limit."""
+        result = compact_film_title(
+            "The Lord of the Rings: The Fellowship (2001)",
+            remove_year=True,
+            remove_articles=True,
+            max_words=3
+        )
+        assert result == "Lord of the"
+
+    def test_empty_title(self):
+        """Test with empty string."""
+        result = compact_film_title("")
+        assert result == ""
+
+    def test_none_title(self):
+        """Test with None input."""
+        result = compact_film_title(None)
+        assert result is None
+
+    def test_whitespace_handling(self):
+        """Test that extra whitespace is trimmed."""
+        result = compact_film_title("  Wicked (2024)  ")
+        assert result == "Wicked"
+
+    def test_year_not_at_end_preserved(self):
+        """Test that year not at end of title is preserved."""
+        result = compact_film_title("2001: A Space Odyssey (1968)")
+        assert result == "2001: A Space Odyssey"
+
+    def test_parentheses_not_year(self):
+        """Test that non-year parentheses are preserved."""
+        result = compact_film_title("Movie (Director's Cut)")
+        assert result == "Movie (Director's Cut)"
+
+
+class TestFormatShowtime:
+    """Test the format_showtime function for time conversion."""
+
+    def test_format_hhmm_morning(self):
+        """Test formatting HH:MM morning time."""
+        result = format_showtime("09:30")
+        assert result == "9:30 AM"
+
+    def test_format_hhmm_afternoon(self):
+        """Test formatting HH:MM afternoon time."""
+        result = format_showtime("14:00")
+        assert result == "2:00 PM"
+
+    def test_format_hhmm_noon(self):
+        """Test formatting noon."""
+        result = format_showtime("12:00")
+        assert result == "12:00 PM"
+
+    def test_format_hhmm_midnight(self):
+        """Test formatting midnight."""
+        result = format_showtime("00:00")
+        assert result == "12:00 AM"
+
+    def test_format_hhmmss_morning(self):
+        """Test formatting HH:MM:SS morning time."""
+        result = format_showtime("09:30:00")
+        assert result == "9:30 AM"
+
+    def test_format_hhmmss_evening(self):
+        """Test formatting HH:MM:SS evening time."""
+        result = format_showtime("19:45:00")
+        assert result == "7:45 PM"
+
+    def test_format_leading_zero_stripped(self):
+        """Test that leading zero is stripped from hour."""
+        result = format_showtime("01:00")
+        assert result == "1:00 AM"
+
+    def test_format_double_digit_hour_preserved(self):
+        """Test that double-digit hours are preserved."""
+        result = format_showtime("11:30")
+        assert result == "11:30 AM"
+
+    def test_format_invalid_returns_original(self):
+        """Test that invalid format returns original string."""
+        result = format_showtime("invalid")
+        assert result == "invalid"
+
+    def test_format_empty_string(self):
+        """Test with empty string."""
+        result = format_showtime("")
+        assert result == ""
+
+
+class TestGetFormatIndicators:
+    """Test the get_format_indicators function for format code mapping."""
+
+    def test_3d_format(self):
+        """Test 3D format detection."""
+        result = get_format_indicators(["3D"])
+        assert result == "3D"
+
+    def test_imax_format(self):
+        """Test IMAX format detection."""
+        result = get_format_indicators(["IMAX"])
+        assert result == "IMAX"
+
+    def test_ultrascreen_format(self):
+        """Test UltraScreen format detection."""
+        result = get_format_indicators(["ULTRASCREEN"])
+        assert result == "UltraScreen"
+
+    def test_plf_format(self):
+        """Test PLF format detection."""
+        result = get_format_indicators(["PLF"])
+        assert result == "PLF"
+
+    def test_superscreen_maps_to_plf(self):
+        """Test SuperScreen maps to PLF."""
+        result = get_format_indicators(["SUPERSCREEN"])
+        assert result == "PLF"
+
+    def test_premium_maps_to_plf(self):
+        """Test Premium maps to PLF."""
+        result = get_format_indicators(["PREMIUM"])
+        assert result == "PLF"
+
+    def test_dolby_format(self):
+        """Test Dolby format detection."""
+        result = get_format_indicators(["DOLBY"])
+        assert result == "Dolby"
+
+    def test_xd_format(self):
+        """Test XD format detection."""
+        result = get_format_indicators(["XD"])
+        assert result == "XD"
+
+    def test_rpx_format(self):
+        """Test RPX format detection."""
+        result = get_format_indicators(["RPX"])
+        assert result == "RPX"
+
+    def test_dbox_format(self):
+        """Test D-BOX format detection."""
+        result = get_format_indicators(["D-BOX"])
+        assert result == "D-BOX"
+
+    def test_dfx_format(self):
+        """Test DFX format detection."""
+        result = get_format_indicators(["DFX"])
+        assert result == "DFX"
+
+    def test_standard_returns_standard(self):
+        """Test standard format returns 'Standard'."""
+        result = get_format_indicators(["STANDARD"])
+        assert result == "Standard"
+
+    def test_2d_returns_standard(self):
+        """Test 2D format returns 'Standard'."""
+        result = get_format_indicators(["2D"])
+        assert result == "Standard"
+
+    def test_empty_list_returns_standard(self):
+        """Test empty list returns 'Standard'."""
+        result = get_format_indicators([])
+        assert result == "Standard"
+
+    def test_none_in_list_returns_standard(self):
+        """Test None value in list returns 'Standard'."""
+        result = get_format_indicators([None])
+        assert result == "Standard"
+
+    def test_empty_string_returns_standard(self):
+        """Test empty string in list returns 'Standard'."""
+        result = get_format_indicators([""])
+        assert result == "Standard"
+
+    def test_multiple_formats_combined(self):
+        """Test multiple formats are combined."""
+        result = get_format_indicators(["IMAX", "3D"])
+        # Should contain both, sorted alphabetically
+        assert "3D" in result
+        assert "IMAX" in result
+
+    def test_case_insensitive(self):
+        """Test format detection is case-insensitive."""
+        result = get_format_indicators(["imax"])
+        assert result == "IMAX"
+
+    def test_duplicate_formats_deduplicated(self):
+        """Test duplicate formats are removed."""
+        result = get_format_indicators(["IMAX", "IMAX", "IMAX"])
+        assert result == "IMAX"
+
+    def test_unknown_format_preserved(self):
+        """Test unknown format is preserved as-is."""
+        result = get_format_indicators(["SPECIAL_FORMAT"])
+        assert result == "SPECIAL_FORMAT"
+
+
+class TestCompactFilmTitleEdgeCases:
+    """Additional edge case tests for compact_film_title."""
+
+    def test_sequel_number_preserved(self):
+        """Test that sequel numbers are preserved."""
+        result = compact_film_title("Moana 2 (2024)")
+        assert result == "Moana 2"
+
+    def test_roman_numeral_preserved(self):
+        """Test that Roman numerals are preserved."""
+        result = compact_film_title("Rocky IV (1985)")
+        assert result == "Rocky IV"
+
+    def test_colon_in_title_preserved(self):
+        """Test that colons in titles are preserved."""
+        result = compact_film_title("Star Wars: A New Hope (1977)")
+        assert result == "Star Wars: A New Hope"
+
+    def test_hyphen_in_title_preserved(self):
+        """Test that hyphens in titles are preserved."""
+        result = compact_film_title("Spider-Man: No Way Home (2021)")
+        assert result == "Spider-Man: No Way Home"
+
+    def test_article_in_middle_not_removed(self):
+        """Test that articles in the middle of title are not removed."""
+        result = compact_film_title("Lord of the Rings", remove_articles=True)
+        assert result == "Lord of the Rings"
+
+    def test_single_word_title(self):
+        """Test single word title."""
+        result = compact_film_title("Wicked (2024)", max_words=1)
+        assert result == "Wicked"

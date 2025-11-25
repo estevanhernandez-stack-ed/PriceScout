@@ -24,7 +24,7 @@
 ## 📝 Project Brief
 **What is this project about? (updated)**
 
-PriceScout is a production-oriented competitive intelligence and ticket pricing analysis platform for theatrical exhibitors. It supports multiple scrape modes (Market Mode, CompSnipe, Poster, Operating Hours), role-based access control, theater matching, operating hours derivation, and pricing history analytics. The data layer is currently being migrated from a legacy SQLite implementation to a multi‑tenant PostgreSQL + SQLAlchemy architecture. Recent work includes adapting to a breaking change in Fandango's DOM structure, refactoring operating hours persistence, and hardening user / admin workflows. Export, reporting, and film metadata enrichment (OMDb) remain integral features.
+PriceScout is a production-oriented competitive intelligence and ticket pricing analysis platform for theatrical exhibitors. It supports multiple scrape modes (Market Mode, CompSnipe, Poster, Operating Hours), role-based access control, theater matching, operating hours derivation, and pricing history analytics. The data layer is currently being migrated from a legacy SQLite implementation to a multi‑tenant PostgreSQL + SQLAlchemy architecture. A new data management module, `data_management_v2.py`, has been introduced to handle all CRUD operations, replacing the previous ad-hoc data handling. Recent work includes adapting to a breaking change in Fandango's DOM structure, refactoring operating hours persistence, and hardening user / admin workflows. Export, reporting, and film metadata enrichment (OMDb) remain integral features.
 
 ---
 
@@ -68,29 +68,31 @@ PriceScout is a production-oriented competitive intelligence and ticket pricing 
 14. [x] Introduce SQLAlchemy ORM models (multi‑tenant via company_id)
 15. [x] Implement `db_session` context manager & engine auto‑detection
 16. [x] Create `db_adapter.py` (compatibility layer) – showings, prices, films, operating hours, ticket type logging
-17. [x] Update imports to use `db_adapter` instead of legacy `database.py`
-18. [x] Add company context initialization on login (multi-tenancy)
-19. [x] Fix column name mismatches (`is_active`, `company_name`, FK ids)
-20. [x] Replace invalid bcrypt seed & normalize password change workflow
-21. [x] Refactor operating hours save to ORM (list/dict format support)
-22. [x] Repair admin user management functions (PostgreSQL-safe queries)
-23. [x] Adapt scraper to new Fandango DOM (`li.shared-movie-showtimes`, `aria-label` time parsing)
-24. [x] Add debug instrumentation for scrape run creation & showings persistence
-25. [x] Fix IndentationError / import hygiene in `utils.py`
+17. [x] Introduce `data_management_v2.py` for centralized data operations.
+18. [x] Update imports to use `db_adapter` instead of legacy `database.py`
+19. [x] Add company context initialization on login (multi-tenancy)
+20. [x] Fix column name mismatches (`is_active`, `company_name`, FK ids)
+21. [x] Replace invalid bcrypt seed & normalize password change workflow
+22. [x] Refactor operating hours save to ORM (list/dict format support)
+23. [x] Repair admin user management functions (PostgreSQL-safe queries)
+24. [x] Adapt scraper to new Fandango DOM (`li.shared-movie-showtimes`, `aria-label` time parsing)
+25. [x] Add debug instrumentation for scrape run creation & showings persistence
+26. [x] Fix IndentationError / import hygiene in `utils.py`
 
 **Pending / next steps:**
-26. [ ] Re-enable full price scrape flow (remove stray kwargs, ensure `selected_showtimes` session population)
-27. [ ] Persist scrape run context (add separate context/metadata table or JSON field)
-28. [ ] Add migration scripts (Alembic) for future schema evolution
-29. [ ] Harden error surfacing (surface async thread exceptions in UI status blocks)
-30. [ ] Rebuild failing / outdated tests (admin + theming) for PostgreSQL path
-31. [ ] Implement async batch scraping (parallel theater contexts) for performance
-32. [ ] Add observability (structured logs + optional Application Insights key)
-33. [ ] Resume pricing history backfill under new schema
-34. [ ] Security pass: rotate SECRET_KEY & vault-managed credentials
-35. [ ] Improve PDF report rendering (film grouping, page breaks)
-36. [ ] Add market-level aggregate dashboards (median price, PLF penetration)
-37. [ ] Optional: Introduce caching layer (Redis) for repeated theater lookups
+27. [ ] Refactor existing data handling logic to use `data_management_v2.py`.
+28. [ ] Re-enable full price scrape flow (remove stray kwargs, ensure `selected_showtimes` session population)
+29. [ ] Persist scrape run context (add separate context/metadata table or JSON field)
+30. [ ] Add migration scripts (Alembic) for future schema evolution
+31. [ ] Harden error surfacing (surface async thread exceptions in UI status blocks)
+32. [ ] Rebuild failing / outdated tests (admin + theming) for PostgreSQL path
+33. [ ] Implement async batch scraping (parallel theater contexts) for performance
+34. [ ] Add observability (structured logs + optional Application Insights key)
+35. [ ] Resume pricing history backfill under new schema
+36. [ ] Security pass: rotate SECRET_KEY & vault-managed credentials
+37. [ ] Improve PDF report rendering (film grouping, page breaks)
+38. [ ] Add market-level aggregate dashboards (median price, PLF penetration)
+39. [ ] Optional: Introduce caching layer (Redis) for repeated theater lookups
 
 **Deferred / idea backlog:**
 - [ ] Headless vs headed mode toggle in UI for diagnostics
@@ -132,6 +134,7 @@ competitive-intelligence, theater-industry, web-scraping, streamlit, python, pri
 ## 📎 Attachments / Files (Selected)
 - `db_adapter.py` – compatibility layer for legacy calls
 - `db_models.py` – authoritative ORM schema
+- `data_management_v2.py` – centralized data operations
 - `theater_cache.json` – cached theater + market structure
 - `scheduler_service.py` – background / future cron tasks
 - `tests/` – suite (needs PostgreSQL updates for some cases)
@@ -142,6 +145,7 @@ competitive-intelligence, theater-industry, web-scraping, streamlit, python, pri
 **Recent architectural change log (summary):**
 - Migrated core persistence from raw SQLite calls to SQLAlchemy (supports PostgreSQL in production, keeps lightweight SQLite fallback).
 - Introduced multi-tenancy via `company_id` & `set_current_company()` at login.
+- Introduced `data_management_v2.py` to centralize all CRUD operations, refactoring away from ad-hoc data handling.
 - Patched failing admin flows (user listing / updates) due to `conn.execute()` remnants.
 - Resolved invalid bcrypt hash & unified password update semantics.
 - Repaired Operating Hours persistence (data shape & column name alignment).
@@ -172,7 +176,7 @@ competitive-intelligence, theater-industry, web-scraping, streamlit, python, pri
 ### For Software Projects:
 **Tech Stack:** Python 3.11, Streamlit, Playwright (Chromium), SQLAlchemy, PostgreSQL (prod) / SQLite (dev fallback), bcrypt, Pandas, BeautifulSoup, Docker
 **Repository URL:** (private) – Provided locally (`PriceScout` repository)
-**Key Modules:** `db_adapter.py`, `db_models.py`, `price_scout_app.py`, modes (`market_mode.py`, `analysis_mode.py`, etc.)
+**Key Modules:** `db_adapter.py`, `db_models.py`, `data_management_v2.py`, `price_scout_app.py`, modes (`market_mode.py`, `analysis_mode.py`, etc.)
 **Security:** BCrypt hashing, RBAC, pending SECRET_KEY rotation
 **Observability (planned):** Structured logging + optional App Insights
 

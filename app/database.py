@@ -462,6 +462,11 @@ def query_historical_data(start_date, end_date, theaters=None, films=None, genre
 
 def get_unique_column_values(column_name):
     """Gets all unique values from a column in the prices table."""
+    # Whitelist allowed column names to prevent SQL injection
+    allowed_columns = {'ticket_type', 'play_date', 'theater_name', 'film_title', 'showtime', 'format', 'price', 'daypart'}
+    if column_name not in allowed_columns:
+        raise ValueError(f"Invalid column name: {column_name}. Allowed: {allowed_columns}")
+
     with _get_db_connection() as conn:
         query = f"SELECT DISTINCT {column_name} FROM prices ORDER BY {column_name}"
         df = pd.read_sql_query(query, conn)
@@ -627,12 +632,15 @@ def get_available_dayparts(theaters, films, start_date, end_date):
 
 def get_theaters_with_data(data_type):
     """Gets a list of theaters that have data for the selected data type."""
-    table_name = ""
-    if data_type in ["showtimes", "prices"]:
-        table_name = "showings"
-    elif data_type == "op_hours":
-        table_name = "operating_hours"
-    else:
+    # Whitelist allowed table names to prevent SQL injection
+    table_mapping = {
+        "showtimes": "showings",
+        "prices": "showings",
+        "op_hours": "operating_hours"
+    }
+
+    table_name = table_mapping.get(data_type)
+    if not table_name:
         return []
 
     with _get_db_connection() as conn:

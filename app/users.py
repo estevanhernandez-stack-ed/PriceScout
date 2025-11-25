@@ -271,10 +271,15 @@ def create_user(username, password, is_admin=False, company=None, default_compan
                 """, (username, password_hash.decode('utf-8'), is_admin, role, company, default_company, json.dumps(allowed_modes), home_location_type, home_location_value, 1))
             
             conn.commit()
-            security_config.log_security_event("user_created", username, 
+            security_config.log_security_event("user_created", username,
                                               {"role": role, "allowed_modes": allowed_modes})
             return True, "User created successfully."
-        except (sqlite3.IntegrityError, Exception) as e:
+        except sqlite3.IntegrityError as e:
+            # Handle duplicate username
+            if "UNIQUE constraint failed" in str(e) or "username" in str(e).lower():
+                return False, f"Username '{username}' already exists."
+            return False, f"Error creating user: {str(e)}"
+        except Exception as e:
             return False, f"Error creating user: {str(e)}"
 
 def get_user(username):

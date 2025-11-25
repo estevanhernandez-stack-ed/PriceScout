@@ -415,21 +415,61 @@ def sanitize_filename(filename: str) -> str:
 # SECURITY MONITORING
 # ============================================================================
 
+# Security event types for consistent logging
+SECURITY_EVENTS = {
+    "login_success": "INFO",
+    "login_failed": "WARNING",
+    "login_locked": "WARNING",
+    "login_attempt_nonexistent_user": "WARNING",
+    "logout": "INFO",
+    "session_timeout": "INFO",
+    "password_changed": "INFO",
+    "password_reset_by_admin": "WARNING",
+    "password_reset_requested": "INFO",
+    "user_created": "INFO",
+    "user_deleted": "WARNING",
+    "user_updated": "INFO",
+    "admin_action": "WARNING",
+    "file_upload": "INFO",
+    "file_upload_rejected": "WARNING",
+    "unauthorized_access": "WARNING",
+    "rate_limit_exceeded": "WARNING",
+    "suspicious_activity": "CRITICAL",
+}
+
+
 def log_security_event(event_type: str, username: str, details: dict = None):
     """
-    Log security-relevant events.
-    
+    Log security-relevant events with structured JSON format.
+
     Args:
-        event_type: Type of security event (login, upload, admin_action, etc.)
+        event_type: Type of security event (see SECURITY_EVENTS)
         username: User associated with the event
         details: Additional event details (will be sanitized)
     """
     sanitized_details = sanitize_log_data(details) if details else {}
-    
-    logging.info(
-        f"SECURITY EVENT | Type: {event_type} | User: {username} | "
-        f"Details: {sanitized_details}"
-    )
+
+    # Build structured log entry
+    log_entry = {
+        "event": "SECURITY",
+        "event_type": event_type,
+        "username": username,
+        "timestamp": datetime.now().isoformat(),
+        "details": sanitized_details
+    }
+
+    # Determine log level based on event type
+    log_level = SECURITY_EVENTS.get(event_type, "INFO")
+
+    # Format as JSON for structured logging
+    log_message = json.dumps(log_entry, default=str)
+
+    if log_level == "CRITICAL":
+        logging.critical(log_message)
+    elif log_level == "WARNING":
+        logging.warning(log_message)
+    else:
+        logging.info(log_message)
 
 
 # ============================================================================
