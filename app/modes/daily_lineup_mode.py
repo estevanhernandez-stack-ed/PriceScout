@@ -386,13 +386,14 @@ def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True,
         row_data = {
             'Theater #': '',  # Blank column for manual entry
             'Showtime': formatted_time,
-            'Film Title': film_title,
-            'Format': format_indicator
         }
 
-        # Add outtime column if enabled
+        # Add outtime column right after Showtime if enabled
         if show_outtime:
             row_data['Out Time'] = outtime if outtime else ''
+
+        row_data['Film Title'] = film_title
+        row_data['Format'] = format_indicator
 
         lineup_data.append(row_data)
 
@@ -414,24 +415,25 @@ def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True,
             'Showtime',
             width='small'
         ),
-        'Film Title': st.column_config.TextColumn(
-            'Film Title',
-            width='large'
-        ),
-        'Format': st.column_config.TextColumn(
-            'Format',
-            width='medium',
-            help='3D, IMAX, PLF indicators'
-        )
     }
 
-    # Add Out Time column config if showing outtime
+    # Add Out Time column config right after Showtime if showing outtime
     if show_outtime:
         column_config['Out Time'] = st.column_config.TextColumn(
             'Out Time',
             width='small',
             help='Calculated end time based on film runtime'
         )
+
+    column_config['Film Title'] = st.column_config.TextColumn(
+        'Film Title',
+        width='large'
+    )
+    column_config['Format'] = st.column_config.TextColumn(
+        'Format',
+        width='medium',
+        help='3D, IMAX, PLF indicators'
+    )
 
     # Display the lineup table
     st.dataframe(
