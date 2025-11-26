@@ -356,6 +356,14 @@ def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True,
             columns=['film_title', 'showtime', 'format', 'daypart', 'runtime']
         )
 
+        # Debug: Print runtime data
+        print(f"[DEBUG] Query returned {len(results)} results")
+        print(f"[DEBUG] show_outtime={show_outtime}")
+        films_with_runtime = df[df['runtime'].notna() & (df['runtime'] != '') & (df['runtime'] != 'N/A')]
+        print(f"[DEBUG] Films with runtime: {len(films_with_runtime)}")
+        if len(films_with_runtime) > 0:
+            print(f"[DEBUG] Sample: {films_with_runtime[['film_title', 'runtime']].head(3).to_dict()}")
+
     # Sort by showtime properly (not alphabetically)
     # This fixes the issue where "10:00" would appear before "9:00"
     df['_sort_time'] = df['showtime'].apply(parse_showtime_for_sort)
