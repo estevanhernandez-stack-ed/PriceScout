@@ -43,6 +43,82 @@ def parse_showtime_for_sort(showtime_str):
         return dt_time(23, 59, 59)
 
 
+def parse_runtime_minutes(runtime_str):
+    """
+    Parse runtime string to minutes.
+
+    Handles formats: "120 min", "2h 30m", "2:30", "120", "2 hr 30 min"
+    Returns integer minutes or None if parsing fails.
+    """
+    if not runtime_str:
+        return None
+
+    try:
+        runtime_str = str(runtime_str).strip().lower()
+
+        # Try simple number (assume minutes)
+        if runtime_str.isdigit():
+            return int(runtime_str)
+
+        # Pattern: "120 min" or "120min"
+        match = re.match(r'^(\d+)\s*min', runtime_str)
+        if match:
+            return int(match.group(1))
+
+        # Pattern: "2h 30m" or "2h30m" or "2 h 30 m"
+        match = re.match(r'^(\d+)\s*h(?:r|our)?s?\s*(\d+)?\s*m', runtime_str)
+        if match:
+            hours = int(match.group(1))
+            minutes = int(match.group(2)) if match.group(2) else 0
+            return hours * 60 + minutes
+
+        # Pattern: "2:30" (hours:minutes)
+        match = re.match(r'^(\d+):(\d+)$', runtime_str)
+        if match:
+            hours = int(match.group(1))
+            minutes = int(match.group(2))
+            return hours * 60 + minutes
+
+        # Pattern: just hours "2h" or "2 hours"
+        match = re.match(r'^(\d+)\s*h(?:r|our)?s?$', runtime_str)
+        if match:
+            return int(match.group(1)) * 60
+
+        return None
+    except:
+        return None
+
+
+def calculate_outtime(showtime_str, runtime_minutes):
+    """
+    Calculate the end time (outtime) given a showtime and runtime.
+
+    Args:
+        showtime_str: Showtime in HH:MM or HH:MM:SS format
+        runtime_minutes: Runtime in minutes
+
+    Returns:
+        Formatted outtime string or None if calculation fails
+    """
+    if not showtime_str or not runtime_minutes:
+        return None
+
+    try:
+        # Parse the showtime
+        time_obj = parse_showtime_for_sort(showtime_str)
+        if time_obj == dt_time(23, 59, 59):  # Failed to parse
+            return None
+
+        # Create a datetime to do the math
+        base_date = datetime(2000, 1, 1, time_obj.hour, time_obj.minute, time_obj.second)
+        end_datetime = base_date + timedelta(minutes=runtime_minutes)
+
+        # Format the outtime (same format as showtime display)
+        return end_datetime.strftime('%I:%M %p').lstrip('0')
+    except:
+        return None
+
+
 def compact_film_title(title, remove_year=True, remove_articles=False, max_words=None):
     """
     Make film titles more compact for narrow column display.
@@ -148,7 +224,7 @@ def render_daily_lineup_mode(cache_data, selected_company):
 
     # Display options
     st.subheader("Display Options")
-    col_opt1, col_opt2, col_opt3 = st.columns(3)
+    col_opt1, col_opt2, col_opt3, col_opt4 = st.columns(4)
 
     with col_opt1:
         compact_titles = st.checkbox(
@@ -173,15 +249,23 @@ def render_daily_lineup_mode(cache_data, selected_company):
             help="Limit titles to first N words (e.g., 'Now You See Me: Now You Don't' → 'Now You See')"
         )
 
+    with col_opt4:
+        show_outtime = st.checkbox(
+            "Show Out Time",
+            value=True,
+            help="Calculate and display end time based on film runtime"
+        )
+
     st.divider()
 
     # Scrape and Generate button
     if st.button("🔄 Get Latest Showtimes & Generate Lineup", type="primary", use_container_width=True):
         scrape_and_generate(selected_theater_obj, selected_theater, selected_date, selected_date_obj,
-                          compact_titles=compact_titles, remove_articles=remove_articles, max_words=max_words if max_words > 0 else None)
+                          compact_titles=compact_titles, remove_articles=remove_articles,
+                          max_words=max_words if max_words > 0 else None, show_outtime=show_outtime)
 
 
-def scrape_and_generate(theater_obj, theater_name, date_str, date_obj, compact_titles=True, remove_articles=False, max_words=None):
+def scrape_and_generate(theater_obj, theater_name, date_str, date_obj, compact_titles=True, remove_articles=False, max_words=None, show_outtime=True):
     """Scrape showtimes for a single theater for one date and generate lineup"""
     from app.scraper import Scraper
 
@@ -219,14 +303,16 @@ def scrape_and_generate(theater_obj, theater_name, date_str, date_obj, compact_t
 
     # Generate the lineup
     st.divider()
-    generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=compact_titles, remove_articles=remove_articles, max_words=max_words)
+    generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=compact_titles,
+                         remove_articles=remove_articles, max_words=max_words, show_outtime=show_outtime)
 
 
-def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True, remove_articles=False, max_words=None):
+def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True, remove_articles=False, max_words=None, show_outtime=True):
     """Generate and display the daily lineup"""
 
     # Query showings for this theater and date using SQLAlchemy
-    from app.db_adapter import get_session, Showing, config
+    from app.db_adapter import get_session, Showing, Film, config
+    from sqlalchemy.orm import aliased
     from datetime import datetime as dt
 
     # Convert date_str to date object if needed
@@ -238,11 +324,16 @@ def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True,
     with get_session() as session:
         company_id = getattr(config, 'CURRENT_COMPANY_ID', None)
 
+        # Query showings with optional film runtime for outtime calculation
         query = session.query(
             Showing.film_title,
             Showing.showtime,
             Showing.format,
-            Showing.daypart
+            Showing.daypart,
+            Film.runtime
+        ).outerjoin(
+            Film,
+            (Showing.film_title == Film.film_title) & (Showing.company_id == Film.company_id)
         )
 
         if company_id:
@@ -262,7 +353,7 @@ def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True,
         # Convert to DataFrame
         df = pd.DataFrame(
             results,
-            columns=['film_title', 'showtime', 'format', 'daypart']
+            columns=['film_title', 'showtime', 'format', 'daypart', 'runtime']
         )
 
     # Sort by showtime properly (not alphabetically)
@@ -277,6 +368,13 @@ def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True,
         # Format showtime (remove seconds if present)
         formatted_time = format_showtime(row['showtime'])
 
+        # Calculate outtime if runtime is available and option is enabled
+        outtime = None
+        if show_outtime and row.get('runtime'):
+            runtime_mins = parse_runtime_minutes(row['runtime'])
+            if runtime_mins:
+                outtime = calculate_outtime(row['showtime'], runtime_mins)
+
         # Get format indicator for this specific showing
         format_indicator = get_format_indicators([row['format']])
 
@@ -285,12 +383,18 @@ def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True,
         if compact_titles or remove_articles or max_words:
             film_title = compact_film_title(film_title, remove_year=compact_titles, remove_articles=remove_articles, max_words=max_words)
 
-        lineup_data.append({
+        row_data = {
             'Theater #': '',  # Blank column for manual entry
             'Showtime': formatted_time,
             'Film Title': film_title,
             'Format': format_indicator
-        })
+        }
+
+        # Add outtime column if enabled
+        if show_outtime:
+            row_data['Out Time'] = outtime if outtime else ''
+
+        lineup_data.append(row_data)
 
     # Create DataFrame for display
     lineup_df = pd.DataFrame(lineup_data)
@@ -299,31 +403,42 @@ def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True,
     st.success(f"✅ Daily Lineup Generated for {theater_name}")
     st.subheader(f"{date_obj.strftime('%A, %B %d, %Y')}")
 
+    # Build column config
+    column_config = {
+        'Theater #': st.column_config.TextColumn(
+            'Theater #',
+            width='small',
+            help='Leave blank for manual entry'
+        ),
+        'Showtime': st.column_config.TextColumn(
+            'Showtime',
+            width='small'
+        ),
+        'Film Title': st.column_config.TextColumn(
+            'Film Title',
+            width='large'
+        ),
+        'Format': st.column_config.TextColumn(
+            'Format',
+            width='medium',
+            help='3D, IMAX, PLF indicators'
+        )
+    }
+
+    # Add Out Time column config if showing outtime
+    if show_outtime:
+        column_config['Out Time'] = st.column_config.TextColumn(
+            'Out Time',
+            width='small',
+            help='Calculated end time based on film runtime'
+        )
+
     # Display the lineup table
     st.dataframe(
         lineup_df,
         use_container_width=True,
         hide_index=True,
-        column_config={
-            'Theater #': st.column_config.TextColumn(
-                'Theater #',
-                width='small',
-                help='Leave blank for manual entry'
-            ),
-            'Showtime': st.column_config.TextColumn(
-                'Showtime',
-                width='small'
-            ),
-            'Film Title': st.column_config.TextColumn(
-                'Film Title',
-                width='large'
-            ),
-            'Format': st.column_config.TextColumn(
-                'Format',
-                width='medium',
-                help='3D, IMAX, PLF indicators'
-            )
-        }
+        column_config=column_config
     )
 
     # Print instructions

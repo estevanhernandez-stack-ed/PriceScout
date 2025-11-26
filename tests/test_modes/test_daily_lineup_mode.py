@@ -16,6 +16,8 @@ from app.modes.daily_lineup_mode import (
     format_showtime,
     get_format_indicators,
     parse_showtime_for_sort,
+    parse_runtime_minutes,
+    calculate_outtime,
 )
 
 
@@ -402,3 +404,97 @@ class TestParseShowtimeForSort:
         from datetime import time as dt_time
         result = parse_showtime_for_sort("2:30 PM")
         assert result == dt_time(14, 30)
+
+
+class TestParseRuntimeMinutes:
+    """Test the parse_runtime_minutes function for runtime string parsing."""
+
+    def test_simple_minutes(self):
+        """Test parsing simple minute format '120 min'."""
+        assert parse_runtime_minutes("120 min") == 120
+
+    def test_minutes_no_space(self):
+        """Test parsing '120min' without space."""
+        assert parse_runtime_minutes("120min") == 120
+
+    def test_hours_and_minutes(self):
+        """Test parsing '2h 30m' format."""
+        assert parse_runtime_minutes("2h 30m") == 150
+
+    def test_hours_and_minutes_no_space(self):
+        """Test parsing '2h30m' without space."""
+        assert parse_runtime_minutes("2h30m") == 150
+
+    def test_colon_format(self):
+        """Test parsing '2:30' (hours:minutes) format."""
+        assert parse_runtime_minutes("2:30") == 150
+
+    def test_just_hours(self):
+        """Test parsing '2h' format."""
+        assert parse_runtime_minutes("2h") == 120
+
+    def test_hours_spelled_out(self):
+        """Test parsing '2 hours' format."""
+        assert parse_runtime_minutes("2 hours") == 120
+
+    def test_plain_number(self):
+        """Test parsing plain number '120'."""
+        assert parse_runtime_minutes("120") == 120
+
+    def test_none_value(self):
+        """Test None returns None."""
+        assert parse_runtime_minutes(None) is None
+
+    def test_empty_string(self):
+        """Test empty string returns None."""
+        assert parse_runtime_minutes("") is None
+
+    def test_invalid_string(self):
+        """Test invalid string returns None."""
+        assert parse_runtime_minutes("not a runtime") is None
+
+    def test_case_insensitive(self):
+        """Test parsing is case-insensitive."""
+        assert parse_runtime_minutes("120 MIN") == 120
+        assert parse_runtime_minutes("2H 30M") == 150
+
+
+class TestCalculateOuttime:
+    """Test the calculate_outtime function for end time calculation."""
+
+    def test_basic_calculation(self):
+        """Test basic outtime calculation."""
+        result = calculate_outtime("14:00", 120)  # 2:00 PM + 2 hours = 4:00 PM
+        assert result == "4:00 PM"
+
+    def test_morning_showing(self):
+        """Test morning showing outtime."""
+        result = calculate_outtime("09:30", 90)  # 9:30 AM + 1.5 hours = 11:00 AM
+        assert result == "11:00 AM"
+
+    def test_evening_showing(self):
+        """Test evening showing outtime."""
+        result = calculate_outtime("21:00", 150)  # 9:00 PM + 2.5 hours = 11:30 PM
+        assert result == "11:30 PM"
+
+    def test_crosses_midnight(self):
+        """Test showing that crosses midnight."""
+        result = calculate_outtime("23:00", 120)  # 11:00 PM + 2 hours = 1:00 AM
+        assert result == "1:00 AM"
+
+    def test_none_showtime(self):
+        """Test None showtime returns None."""
+        assert calculate_outtime(None, 120) is None
+
+    def test_none_runtime(self):
+        """Test None runtime returns None."""
+        assert calculate_outtime("14:00", None) is None
+
+    def test_zero_runtime(self):
+        """Test zero runtime returns None."""
+        assert calculate_outtime("14:00", 0) is None
+
+    def test_with_seconds_format(self):
+        """Test with HH:MM:SS format."""
+        result = calculate_outtime("14:00:00", 120)
+        assert result == "4:00 PM"
