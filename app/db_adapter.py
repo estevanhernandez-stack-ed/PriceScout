@@ -1150,11 +1150,13 @@ def upsert_film_details(film_data: dict):
                     setattr(film, key, value)
             film.last_omdb_update = datetime.utcnow()
         else:
-            # Create new
+            # Create new - exclude film_id and last_omdb_update to avoid duplicates
+            filtered_data = {k: v for k, v in film_data.items()
+                           if k not in ('film_id', 'last_omdb_update', 'company_id')}
             film = Film(
                 company_id=company_id,
                 last_omdb_update=datetime.utcnow(),
-                **{k: v for k, v in film_data.items() if k != 'film_id'}
+                **filtered_data
             )
             session.add(film)
         
