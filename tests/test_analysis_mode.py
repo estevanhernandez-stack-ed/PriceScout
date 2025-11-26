@@ -4,10 +4,10 @@ from unittest.mock import MagicMock, patch
 import pandas as pd
 import datetime
 import sqlite3
+import os
+import sys
 
 # Add path for imports
-import sys
-import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from app.modes.analysis_mode import (
@@ -16,40 +16,21 @@ from app.modes.analysis_mode import (
     render_analysis_mode,
     _generate_operating_hours_report
 )
-from app import database, config
+from app import db_adapter as database, config
+from app.db_models import Company, ScrapeRun, Film, Showing, Price, OperatingHours
+from app.db_session import get_session, close_engine
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def mock_db_with_new_schema(tmp_path, monkeypatch):
-    """Sets up an in-memory SQLite database with the NEW schema and sample data."""
-    db_path = tmp_path / "test_analysis_new.db"
+    """Sets up a fresh in-memory SQLite database for each test function."""
+    db_path = tmp_path / f"test_db_{os.urandom(4).hex()}.db"
+    if os.path.exists(db_path):
+        os.remove(db_path)
     monkeypatch.setattr('app.config.DB_FILE', str(db_path))
-    database.init_database() # Use the official init to create the new schema
-
-    with sqlite3.connect(db_path, detect_types=sqlite3.PARSE_DECLTYPES) as conn:
-        cursor = conn.cursor()
-        # Insert data
-        d1 = '2025-09-15'
-        d2 = '2025-09-16'
-        cursor.execute("INSERT INTO scrape_runs (run_id, run_timestamp, mode) VALUES (1, ?, 'Market')", (f'{d1} 12:00:00',))
-        cursor.execute("INSERT INTO scrape_runs (run_id, run_timestamp, mode) VALUES (2, ?, 'Market')", (f'{d2} 12:00:00',))
-        
-        # Showings
-        cursor.execute("INSERT INTO showings (play_date, theater_name, film_title, showtime, format, daypart) VALUES (?, 'Theater A', 'Film 1', '10:00am', '2D', 'Matinee')", (d1,))
-        s1_id = cursor.lastrowid
-        cursor.execute("INSERT INTO showings (play_date, theater_name, film_title, showtime, format, daypart) VALUES (?, 'Theater B', 'Film 1', '11:00am', '2D', 'Matinee')", (d1,))
-        s2_id = cursor.lastrowid
-        cursor.execute("INSERT INTO showings (play_date, theater_name, film_title, showtime, format, daypart) VALUES (?, 'Theater A', 'Film 2', '8:00pm', 'IMAX', 'Prime')", (d2,))
-        s3_id = cursor.lastrowid
-
-        # Prices
-        cursor.execute("INSERT INTO prices (run_id, showing_id, ticket_type, price) VALUES (1, ?, 'Adult', 15.00)", (s1_id,))
-        cursor.execute("INSERT INTO prices (run_id, showing_id, ticket_type, price) VALUES (1, ?, 'Adult', 16.00)", (s2_id,))
-        cursor.execute("INSERT INTO prices (run_id, showing_id, ticket_type, price) VALUES (2, ?, 'Adult', 20.00)", (s3_id,))
-
-        # Op Hours
-        cursor.execute("INSERT INTO operating_hours (theater_name, scrape_date, open_time, close_time) VALUES ('Theater A', ?, '10:00 AM', '10:00 PM')", (d1,))
-        conn.commit()
-    return str(db_path)
+    
+    # Ensure the engine is closed after the test, so the next test gets a fresh one
+    yield str(db_path)
+    close_engine()
 
 
 @pytest.fixture
@@ -62,10 +43,57 @@ def mock_analysis_session_state(monkeypatch):
     mock_session.film_detail_data = pd.DataFrame()
     return mock_session
 
+# Helper to populate db for specific tests
+def populate_db_for_test(db_path, company_id=1):
+    database.init_database()
+    with get_session() as session:
+        # Insert a company for context
+        company = Company(company_id=company_id, company_name='Test Company')
+        session.add(company)
+        session.commit()
+
+        config.CURRENT_COMPANY_ID = company_id
+        
+        # Insert data with company_id
+        d1 = datetime.date(2025, 9, 15)
+        d2 = datetime.date(2025, 9, 16)
+        
+        run1 = ScrapeRun(run_id=1, run_timestamp=datetime.datetime(2025, 9, 15, 12, 0, 0), mode='Market', company_id=company_id)
+        run2 = ScrapeRun(run_id=2, run_timestamp=datetime.datetime(2025, 9, 16, 12, 0, 0), mode='Market', company_id=company_id)
+        session.add_all([run1, run2])
+        session.commit()
+
+        # Films
+        film1 = Film(film_title='Film 1', company_id=company_id, last_omdb_update=datetime.datetime.now())
+        film2 = Film(film_title='Film 2', company_id=company_id, last_omdb_update=datetime.datetime.now())
+        session.add_all([film1, film2])
+        session.commit()
+
+        # Showings
+        showing1 = Showing(company_id=company_id, play_date=d1, theater_name='Theater A', film_title='Film 1', showtime='10:00am', format='2D', daypart='Matinee')
+        showing2 = Showing(company_id=company_id, play_date=d1, theater_name='Theater B', film_title='Film 1', showtime='11:00am', format='2D', daypart='Matinee')
+        showing3 = Showing(company_id=company_id, play_date=d2, theater_name='Theater A', film_title='Film 2', showtime='8:00pm', format='IMAX', daypart='Prime')
+        session.add_all([showing1, showing2, showing3])
+        session.commit()
+
+        # Prices
+        price1 = Price(company_id=company_id, run_id=1, showing_id=showing1.showing_id, ticket_type='Adult', price=15.00)
+        price2 = Price(company_id=company_id, run_id=1, showing_id=showing2.showing_id, ticket_type='Adult', price=16.00)
+        price3 = Price(company_id=company_id, run_id=2, showing_id=showing3.showing_id, ticket_type='Adult', price=20.00)
+        session.add_all([price1, price2, price3])
+        session.commit()
+
+        # Op Hours
+        op_hours = OperatingHours(company_id=company_id, theater_name='Theater A', scrape_date=d1, open_time='10:00 AM', close_time='10:00 PM')
+        session.add(op_hours)
+        session.commit()
+
 # Tests for the Theater-first workflow
 @patch('app.modes.analysis_mode.st')
 def test_theater_analysis_generate_prices_report(mock_st, mock_db_with_new_schema, mock_analysis_session_state):
     """Tests generating a 'Prices' report in the theater-centric analysis."""
+    populate_db_for_test(mock_db_with_new_schema)
+    
     # Setup the mock session state
     mock_st.session_state = mock_analysis_session_state
     mock_st.session_state.analysis_data_type = "Prices"
@@ -89,8 +117,7 @@ def test_theater_analysis_generate_prices_report(mock_st, mock_db_with_new_schem
 
     render_theater_analysis(markets_data, cache_data)
 
-    mock_st.spinner.assert_called_with("Generating theater comparison summary...")
-    # Assert against the mock object, which has been updated by the function
+    mock_st.spinner.assert_any_call("Querying historical data...")
     report_df = mock_st.session_state.analysis_report_df
     assert not report_df.empty
     assert 'film_title' in report_df.columns
@@ -100,6 +127,7 @@ def test_theater_analysis_generate_prices_report(mock_st, mock_db_with_new_schem
 @patch('app.modes.analysis_mode.st')
 def test_theater_analysis_no_data_found(mock_st, mock_db_with_new_schema, mock_analysis_session_state):
     """Tests the warning message when no data is found in theater-centric analysis."""
+    populate_db_for_test(mock_db_with_new_schema)
     mock_st.session_state = mock_analysis_session_state
     mock_st.session_state.analysis_data_type = "Prices"
     mock_st.session_state.analysis_theaters = ["Theater C"] # A theater with no data
@@ -107,20 +135,24 @@ def test_theater_analysis_no_data_found(mock_st, mock_db_with_new_schema, mock_a
     mock_st.button.return_value = True
     mock_st.spinner.return_value.__enter__.return_value = None
     
-    markets_data = {"Test Company": {"Test Director": {"Test Market": {}}}}
-    cache_data = {"markets": {"Test Market": {"theaters": [{"name": "Theater C", "market": "Test Market"}]}}}
-    mock_st.session_state.selected_company = "Test Company"
-    mock_st.session_state.analysis_director_select = "Test Director"
-    mock_st.session_state.analysis_market_select = "Test Market"
-    mock_st.columns.return_value = (MagicMock(), MagicMock())
+    # Mock the database function to return an empty DataFrame
+    with patch('app.db_adapter.get_theater_comparison_summary', return_value=pd.DataFrame()):
+        markets_data = {"Test Company": {"Test Director": {"Test Market": {}}}}
+        cache_data = {"markets": {"Test Market": {"theaters": [{"name": "Theater C", "market": "Test Market"}]}}}
+        mock_st.session_state.selected_company = "Test Company"
+        mock_st.session_state.analysis_director_select = "Test Director"
+        mock_st.session_state.analysis_market_select = "Test Market"
+        mock_st.columns.return_value = (MagicMock(), MagicMock())
 
-    render_theater_analysis(markets_data, cache_data)
+        render_theater_analysis(markets_data, cache_data)
 
     assert mock_st.session_state.analysis_report_df.empty
-    mock_st.warning.assert_called_with("🔍 No data found for the selected theaters and date range. Try running a scrape or adjusting your filters.")# Tests for the Film-first workflow
+    mock_st.warning.assert_called_with("🔍 No data found for the selected theaters and date range. Try running a scrape or adjusting your filters.")
+# Tests for the Film-first workflow
 @patch('app.modes.analysis_mode.st')
 def test_film_analysis_workflow(mock_st, mock_db_with_new_schema, mock_analysis_session_state):
     """Tests the full workflow of the 'Film' analysis mode."""
+    populate_db_for_test(mock_db_with_new_schema)
     # --- Setup ---
     mock_st.session_state = mock_analysis_session_state
     mock_st.session_state.analysis_data_type = "Film"
@@ -186,7 +218,7 @@ def test_render_analysis_mode_selection(mock_st, mock_render_theater, mock_rende
 class TestGenerateOperatingHoursReport:
     """Tests for the _generate_operating_hours_report utility function."""
     
-    @patch('app.modes.analysis_mode.database.get_operating_hours_for_theaters_and_dates')
+    @patch('app.db_adapter.get_operating_hours_for_theaters_and_dates')
     def test_generates_report_with_current_and_previous_data(self, mock_get_hours):
         """Test that the function generates a complete report with comparison data."""
         # Mock current week data
@@ -228,8 +260,8 @@ class TestGenerateOperatingHoursReport:
         assert result.iloc[0]['Current Hours'] == '9:00 AM - 11:00 PM'
         assert result.iloc[0]['Changed'] == 'Yes'
     
-    @patch('app.modes.analysis_mode.database.calculate_operating_hours_from_showings')
-    @patch('app.modes.analysis_mode.database.get_operating_hours_for_theaters_and_dates')
+    @patch('app.db_adapter.calculate_operating_hours_from_showings')
+    @patch('app.db_adapter.get_operating_hours_for_theaters_and_dates')
     def test_handles_no_previous_data(self, mock_get_hours, mock_calc_hours):
         """Test that the function handles theaters with no previous week data."""
         current_data = pd.DataFrame({
@@ -253,8 +285,8 @@ class TestGenerateOperatingHoursReport:
         assert result.iloc[0]['Previous Hours'] == 'N/A'
         assert result.iloc[0]['Changed'] == 'New'
     
-    @patch('app.modes.analysis_mode.database.calculate_operating_hours_from_showings')
-    @patch('app.modes.analysis_mode.database.get_operating_hours_for_theaters_and_dates')
+    @patch('app.db_adapter.calculate_operating_hours_from_showings')
+    @patch('app.db_adapter.get_operating_hours_for_theaters_and_dates')
     def test_handles_no_showings_found(self, mock_get_hours, mock_calc_hours):
         """Test handling of theaters scraped but with no showtimes."""
         current_data = pd.DataFrame({
@@ -276,8 +308,8 @@ class TestGenerateOperatingHoursReport:
         assert not result.empty
         assert result.iloc[0]['Current Hours'] == 'No Showings Found'
     
-    @patch('app.modes.analysis_mode.database.calculate_operating_hours_from_showings')
-    @patch('app.modes.analysis_mode.database.get_operating_hours_for_theaters_and_dates')
+    @patch('app.db_adapter.calculate_operating_hours_from_showings')
+    @patch('app.db_adapter.get_operating_hours_for_theaters_and_dates')
     def test_returns_empty_dataframe_when_no_data(self, mock_get_hours, mock_calc_hours):
         """Test that function returns empty DataFrame when no data exists."""
         mock_get_hours.return_value = pd.DataFrame()
@@ -291,8 +323,8 @@ class TestGenerateOperatingHoursReport:
         
         assert result.empty
     
-    @patch('app.modes.analysis_mode.database.calculate_operating_hours_from_showings')
-    @patch('app.modes.analysis_mode.database.get_operating_hours_for_theaters_and_dates')
+    @patch('app.db_adapter.calculate_operating_hours_from_showings')
+    @patch('app.db_adapter.get_operating_hours_for_theaters_and_dates')
     def test_detects_unchanged_hours(self, mock_get_hours, mock_calc_hours):
         """Test detection of unchanged operating hours."""
         current_data = pd.DataFrame({
@@ -321,8 +353,8 @@ class TestGenerateOperatingHoursReport:
         assert result.iloc[0]['Current Hours'] == result.iloc[0]['Previous Hours']
         assert result.iloc[0]['Changed'] == 'No'
     
-    @patch('app.modes.analysis_mode.database.calculate_operating_hours_from_showings')
-    @patch('app.modes.analysis_mode.database.get_operating_hours_for_theaters_and_dates')
+    @patch('app.db_adapter.calculate_operating_hours_from_showings')
+    @patch('app.db_adapter.get_operating_hours_for_theaters_and_dates')
     def test_handles_multiple_theaters(self, mock_get_hours, mock_calc_hours):
         """Test generating report for multiple theaters."""
         current_data = pd.DataFrame({
@@ -345,8 +377,8 @@ class TestGenerateOperatingHoursReport:
         assert 'Theater One' in result['Theater'].values
         assert 'Theater Two' in result['Theater'].values
     
-    @patch('app.modes.analysis_mode.database.calculate_operating_hours_from_showings')
-    @patch('app.modes.analysis_mode.database.get_operating_hours_for_theaters_and_dates')
+    @patch('app.db_adapter.calculate_operating_hours_from_showings')
+    @patch('app.db_adapter.get_operating_hours_for_theaters_and_dates')
     def test_date_formatting(self, mock_get_hours, mock_calc_hours):
         """Test that dates are formatted correctly."""
         current_data = pd.DataFrame({
@@ -370,8 +402,8 @@ class TestGenerateOperatingHoursReport:
         date_str = result.iloc[0]['Date']
         assert 'Sep 22' in date_str
     
-    @patch('app.modes.analysis_mode.database.calculate_operating_hours_from_showings')
-    @patch('app.modes.analysis_mode.database.get_operating_hours_for_theaters_and_dates')
+    @patch('app.db_adapter.calculate_operating_hours_from_showings')
+    @patch('app.db_adapter.get_operating_hours_for_theaters_and_dates')
     @patch('app.modes.analysis_mode.st')
     def test_fallback_to_calculated_hours(self, mock_st, mock_get_hours, mock_calc_hours):
         """Test fallback to calculating hours from showings when no op_hours exist."""
@@ -407,14 +439,12 @@ class TestAnalysisModeHelpers:
     @patch('app.modes.analysis_mode.st')
     def test_film_analysis_no_price_data(self, mock_st, mock_db_with_new_schema, mock_analysis_session_state):
         """Test that film analysis handles films with no price data."""
+        populate_db_for_test(mock_db_with_new_schema)
         # Add showing without price
-        with sqlite3.connect(mock_db_with_new_schema, detect_types=sqlite3.PARSE_DECLTYPES) as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                "INSERT INTO showings (play_date, theater_name, film_title, showtime, format, daypart) VALUES (?, ?, ?, ?, ?, ?)",
-                ('2025-09-20', 'Theater X', 'No Price Film', '3:00 PM', '2D', 'Prime')
-            )
-            conn.commit()
+        with get_session() as session:
+            showing = Showing(company_id=1, play_date=datetime.date(2025, 9, 20), theater_name='Theater X', film_title='No Price Film', showtime='3:00 PM', format='2D', daypart='Prime')
+            session.add(showing)
+            session.commit()
         
         mock_st.session_state = mock_analysis_session_state
         mock_st.session_state.film_analysis_date_range_start = datetime.date(2025, 9, 20)
@@ -425,11 +455,12 @@ class TestAnalysisModeHelpers:
         render_film_analysis({})
         
         # Should display warning about no price data
-        mock_st.warning.assert_called_with("No films with price data were found for the selected criteria.")
+        mock_st.warning.assert_called_with("🔍 No film data found for the selected date range. Try expanding your date range or selecting different theaters.")
     
     @patch('app.modes.analysis_mode.st')  
     def test_film_analysis_empty_dataset(self, mock_st, mock_db_with_new_schema, mock_analysis_session_state):
         """Test film analysis with no data at all."""
+        populate_db_for_test(mock_db_with_new_schema)
         mock_st.session_state = mock_analysis_session_state
         mock_st.session_state.film_analysis_date_range_start = datetime.date(2025, 12, 1)
         mock_st.session_state.film_analysis_date_range_end = datetime.date(2025, 12, 31)

@@ -102,42 +102,191 @@ def get_common_films_for_theaters_dates(theater_list, date_list):
         return [row[0] for row in results]
 
 
-def get_data_for_trend_report(theater_list, date_list, film_list, daypart_list):
-    """Gets all the raw price data needed to build the trend report pivot table."""
-    if not all([theater_list, date_list, film_list, daypart_list]):
+def get_theater_comparison_summary(theater_list, start_date, end_date):
+    """
+    Generates a summary DataFrame for comparing multiple theaters side-by-side.
+    """
+    if not theater_list:
         return pd.DataFrame()
-    
+
+    with get_session() as session:
+        company_id = getattr(config, 'CURRENT_COMPANY_ID', None)
+
+        # Query for main stats
+        query = session.query(
+            Showing.theater_name,
+            func.count(func.distinct(Showing.showing_id)).label('Total Showings'),
+            func.count(func.distinct(Showing.film_title)).label('Unique Films'),
+            func.group_concat(func.distinct(Showing.format)).label('all_formats')
+        ).outerjoin(
+            Price, Showing.showing_id == Price.showing_id
+        ).filter(
+            Showing.theater_name.in_(theater_list),
+            Showing.play_date.between(start_date, end_date)
+        )
+
+        if company_id:
+            query = query.filter(Showing.company_id == company_id)
+
+        df = pd.read_sql(query.group_by(Showing.theater_name).statement, session.bind)
+
+        # Query for average price
+        avg_price_query = session.query(
+            Showing.theater_name,
+            func.avg(Price.price).label('Overall Avg. Price')
+        ).join(
+            Price, Showing.showing_id == Price.showing_id
+        ).filter(
+            Showing.theater_name.in_(theater_list),
+            Showing.play_date.between(start_date, end_date),
+            Price.ticket_type.in_(['Adult', 'Senior', 'Child'])
+        )
+
+        if company_id:
+            avg_price_query = avg_price_query.filter(Showing.company_id == company_id)
+
+        avg_price_df = pd.read_sql(avg_price_query.group_by(Showing.theater_name).statement, session.bind)
+
+        if not df.empty and not avg_price_df.empty:
+            df = pd.merge(df, avg_price_df, on='theater_name', how='left')
+
+    if not df.empty and 'all_formats' in df.columns:
+        def process_formats(format_str):
+            if not format_str:
+                return 0, "N/A"
+            
+            all_formats = set(part.strip() for item in format_str.split(',') for part in item.split(','))
+            premium_formats = {f for f in all_formats if f != '2D'}
+            num_premium = len(premium_formats)
+            display_str = ", ".join(sorted(list(premium_formats))) if premium_formats else "N/A"
+            return num_premium, display_str
+
+        processed_formats_df = df['all_formats'].apply(lambda x: pd.Series(process_formats(x), index=['# Premium Formats', 'Premium Formats']))
+        df = pd.concat([df, processed_formats_df], axis=1).drop(columns=['all_formats'])
+        df['PLF Count'] = df['# Premium Formats']
+
+    return df
+
+from typing import Optional
+
+def get_market_at_a_glance_data(theater_list: list[str], start_date: datetime.date, end_date: datetime.date, films: Optional[list[str]] = None) -> tuple[pd.DataFrame, Optional[datetime.date]]:
+    """
+    Fetches data for the 'Market At a Glance' report.
+    - Gets data from the specified date range.
+    - Joins showings and prices to get all necessary details.
+    - Returns the DataFrame and the most recent scrape date found.
+    """
+    if not theater_list:
+        return pd.DataFrame(), None
+
+    start_date_str = start_date.strftime('%Y-%m-%d')
+    end_date_str = end_date.strftime('%Y-%m-%d')
+    with _get_db_connection() as conn:
+        placeholders = ",".join(["?"] * len(theater_list))
+
+        query = f"""
+            SELECT
+                s.theater_name,
+                s.film_title,
+                s.daypart,
+                f.release_date,
+                s.format,
+                s.is_plf,
+                p.ticket_type,
+                p.price,
+                r.run_timestamp
+            FROM prices p
+            JOIN showings s ON p.showing_id = s.showing_id
+            LEFT JOIN films f ON s.film_title = f.film_title
+            JOIN scrape_runs r ON p.run_id = r.run_id
+            WHERE s.theater_name IN ({placeholders})
+            AND s.play_date BETWEEN ? AND ?
+        """
+        params = theater_list + [start_date_str, end_date_str]
+
+        # --- NEW: Add film filter if provided ---
+        if films:
+            film_placeholders = ",".join(["?"] * len(films))
+            query += f" AND s.film_title IN ({film_placeholders})"
+            params.extend(films)
+
+        df = pd.read_sql_query(query, conn, params=params)
+
+    latest_scrape_date = None
+    if not df.empty and 'run_timestamp' in df.columns:
+        latest_scrape_date = pd.to_datetime(df['run_timestamp']).max().date()
+
+    # --- NEW: Consolidate ticket types in memory for accurate reporting ---
+    if not df.empty:
+        import json
+        import os
+        try:
+            ticket_types_path = os.path.join(os.path.dirname(__file__), 'ticket_types.json')
+            with open(ticket_types_path, 'r') as f:
+                ticket_types_data = json.load(f)
+            base_type_map = ticket_types_data.get('base_type_map', {})
+            
+            # Create a reverse map from variation to canonical name
+            reverse_map = {}
+            for canonical, variations in base_type_map.items():
+                reverse_map[canonical.lower()] = canonical
+                for variation in variations:
+                    reverse_map[variation.lower()] = canonical
+
+            # Apply the mapping. If a type isn't in the map, it keeps its original name.
+            df['ticket_type'] = df['ticket_type'].str.lower().map(reverse_map).fillna(df['ticket_type'])
+
+        except (FileNotFoundError, json.JSONDecodeError) as e:
+            print(f"  [DB-WARN] Could not consolidate ticket types for glance report. File missing or corrupt. Error: {e}")
+            # Continue with unconsolidated data if the mapping file is missing
+
+    return df, latest_scrape_date
+
+def calculate_operating_hours_from_showings(theater_list: list[str], start_date: datetime.date, end_date: datetime.date) -> pd.DataFrame:
+    """
+    [FALLBACK] Calculates operating hours by finding the min/max showtimes
+    from the 'showings' table. This is used when no data is in the 'operating_hours' table.
+    """
+    from app.utils import normalize_time_string # Local import to avoid circular dependency
+    if not theater_list:
+        return pd.DataFrame()
+
     with get_session() as session:
         company_id = getattr(config, 'CURRENT_COMPANY_ID', None)
         
         query = session.query(
-            Showing.play_date.label('scrape_date'),
             Showing.theater_name,
-            Showing.film_title,
-            Showing.daypart,
-            Price.ticket_type,
-            Price.price
-        ).join(
-            Price, Price.showing_id == Showing.showing_id
+            Showing.play_date.label('scrape_date'),
+            Showing.showtime
+        ).filter(
+            Showing.theater_name.in_(theater_list),
+            Showing.play_date.between(start_date, end_date)
         )
         
         if company_id:
             query = query.filter(Showing.company_id == company_id)
-        
-        query = query.filter(
-            and_(
-                Showing.theater_name.in_(theater_list),
-                Showing.play_date.in_(date_list),
-                Showing.film_title.in_(film_list),
-                Showing.daypart.in_(daypart_list)
-            )
-        )
-        
-        # Convert to DataFrame
+
         df = pd.read_sql(query.statement, session.bind)
-        return df
 
+    if df.empty:
+        return pd.DataFrame()
 
+    # Convert showtime strings to datetime objects for correct min/max calculation
+    df['time_obj'] = df['showtime'].apply(lambda x: datetime.strptime(normalize_time_string(x), "%I:%M%p").time())
+
+    # Group by theater and date, then find the min and max times
+    agg_df = df.groupby(['theater_name', 'scrape_date']).agg(
+        open_time=('time_obj', 'min'),
+        close_time=('time_obj', 'max')
+    ).reset_index()
+
+    # Format times back to strings for consistency with the primary operating_hours table
+    agg_df['open_time'] = agg_df['open_time'].apply(lambda x: x.strftime('%I:%M %p').lstrip('0'))
+    agg_df['close_time'] = agg_df['close_time'].apply(lambda x: x.strftime('%I:%M %p').lstrip('0'))
+
+    # Ensure column names match the output of get_operating_hours_for_theaters_and_dates
+    return agg_df[['scrape_date', 'theater_name', 'open_time', 'close_time']]
+    
 def update_database_schema():
     """
     Legacy compatibility: Schema updates now handled by SQLAlchemy migrations.

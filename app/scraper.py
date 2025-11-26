@@ -70,13 +70,58 @@ class Scraper:
                     hour = int(hour_match.group(1))
                     s += 'am' if hour < 8 or hour == 12 else 'pm'
             t = datetime.datetime.strptime(s, "%I:%M%p").time()
-            if t < datetime.time(16,0): return "Matinee"
-            if t < datetime.time(18,0): return "Twilight"
-            if t <= datetime.time(21,0): return "Prime"
-            return "Late Night"
+
+            if t < datetime.time(4, 0): # Before 4:00am is late night
+                return "Late Night"
+            if t < datetime.time(16, 0): # Before 4:00pm is matinee
+                return "Matinee"
+            if t < datetime.time(18, 0): # Before 6:00pm is twilight
+                return "Twilight"
+            if t <= datetime.time(21, 0): # Before 9:00pm is prime
+                return "Prime"
+            
+            return "Late Night" # After 9:00pm is late night
         except Exception as e:
             print(f"        [WARNING] Could not classify daypart for '{showtime_str}'. Error: {e}")
             return "Unknown"
+    def _strip_common_terms(self, name: str) -> str:
+        # A set of common, low-value terms to remove for better matching
+        common_terms = {
+            'cinemas', 'cinema', 'movies', 'theatres', 'theatre', 'showplace',
+            'imax', 'dolby', 'ultrascreen', 'xd',
+            'dine-in', 'movie tavern', 'by marcus'
+        }
+        
+        name_lower = name.lower()
+        
+        # Create a regex pattern to match any of the common terms as whole words
+        sorted_terms = sorted(list(common_terms), key=len, reverse=True)
+        pattern = r'\b(' + '|'.join(re.escape(term) for term in sorted_terms) + r')\b'
+        
+        # Replace found terms with an empty string
+        stripped_name = re.sub(pattern, '', name_lower)
+
+        # remove punctuation
+        stripped_name = re.sub(r'[^\w\s/-]', '', stripped_name)
+
+        # Clean up extra whitespace
+        stripped_name = re.sub(r'\s+', ' ', stripped_name).strip()
+        
+        return stripped_name
+
+    async def check_url_status(self, url: str) -> bool:
+        """Checks if a URL is active by making a HEAD request."""
+        if not url or url == "N/A":
+            return False
+        try:
+            async with async_playwright() as p:
+                browser = await p.chromium.launch(headless=True)
+                page = await browser.new_page()
+                response = await page.request.head(url)
+                await browser.close()
+                return response.status == 200
+        except Exception:
+            return False
             
     async def _get_theaters_from_zip_page(self, page, zip_code, date_str):
         url = f"https://www.fandango.com/{zip_code}_movietimes?date={date_str}"

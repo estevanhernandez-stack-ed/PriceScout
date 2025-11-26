@@ -1,5 +1,6 @@
 import streamlit as st
 from app import db_adapter as database
+from app.database import calculate_operating_hours_from_showings
 import pandas as pd
 import datetime
 import altair as alt

@@ -545,7 +545,7 @@ def render_ticket_type_manager():
                 target_type = st.selectbox("Map to:", existing_options, key=f"map_target_{unmatched_id}")
 
         with col3:
-            st.write("") # Spacer
+            st.write(" ") # Spacer
             if st.button("Submit Action", key=f"submit_{unmatched_id}", use_container_width=True):
                 if action == "Ignore":
                     database.delete_unmatched_ticket_type(unmatched_id)
@@ -650,7 +650,7 @@ def merge_external_db(uploaded_file):
 
                 runs_merged_count = 0
                 for run in runs_rows:
-                    old_run_id = int(run["run_id"]) if isinstance(run["run_id"], (int,)) else int(run["run_id"]) 
+                    old_run_id = int(run["run_id"]) if isinstance(run["run_id"], (int,)) else int(run["run_id"])
 
                     # Prefer duplicate check by run_id to be deterministic and schema-agnostic
                     if old_run_id in existing_run_ids:
@@ -666,17 +666,16 @@ def merge_external_db(uploaded_file):
                     # Preserve original run_id for referential integrity
                     try:
                         master_cursor.execute(
-                            'INSERT INTO scrape_runs (run_id, run_timestamp, mode, run_context) VALUES (?, ?, ?, ?)',
-                            (old_run_id, run["run_timestamp"], run["mode"], run["run_context"] if "run_context" in run.keys() else None)
+                            'INSERT INTO scrape_runs (run_id, run_timestamp, mode, run_context, company_id) VALUES (?, ?, ?, ?, ?)',
+                            (old_run_id, run["run_timestamp"], run["mode"], run["run_context"] if "run_context" in run.keys() else None, 1)
                         )
                     except sqlite3.OperationalError:
                         # Fallback for older schemas without run_context
                         master_cursor.execute(
-                            'INSERT INTO scrape_runs (run_id, run_timestamp, mode) VALUES (?, ?, ?)',
-                            (old_run_id, run["run_timestamp"], run["mode"])
+                            'INSERT INTO scrape_runs (run_id, run_timestamp, mode, company_id) VALUES (?, ?, ?, ?)',
+                            (old_run_id, run["run_timestamp"], run["mode"], 1)
                         )
-                    new_run_id = old_run_id
-                    
+                    new_run_id = old_run_id                    
                     # For each run, get its prices joined with showing details
                     if 'prices' in source_tables and 'showings' in source_tables:
                         # Get prices with their full showing details so we can remap showing_ids
@@ -911,7 +910,7 @@ def _render_amenity_editor():
     with st.form("new_amenity_form"):
         col1, col2 = st.columns(2)
         canonical_name = col1.text_input("Standard Name (e.g., IMAX, 3D)")
-        raw_variation = col2.text_input("Raw Variation (e.g., imax 2d, 3d format)")
+        raw_variation = col2.text_input("Raw Variation (e.g., imax 2d, 3d format")
         
         if st.form_submit_button("Add Amenity Mapping", use_container_width=True):
             if canonical_name and raw_variation:
@@ -1025,10 +1024,10 @@ def _render_database_tools():
                     st.success(f"Discovery complete! Found {len(new_films)} new films, {len(existing_films)} existing, and {len(failed_films)} failed.")
                     if new_films:
                         st.write("New Films Added:")
-                        st.dataframe(pd.DataFrame(new_films, columns=["Title"]), use_container_width=True)
+                        st.dataframe(pd.DataFrame(new_films, columns=["Title"] ), use_container_width=True)
                     if failed_films:
                         st.write("Failed to Add:")
-                        st.dataframe(pd.DataFrame(failed_films, columns=["Title", "Error"]), use_container_width=True)
+                        st.dataframe(pd.DataFrame(failed_films, columns=["Title", "Error"] ), use_container_width=True)
                 else:
                     st.error(f"An error occurred: {get_error_message(result)}")
                     st.code(log)
@@ -1049,10 +1048,10 @@ def _render_database_tools():
                         st.success(f"Discovery complete! Found {len(new_films)} new films, {len(existing_films)} existing, and {len(failed_films)} failed.")
                         if new_films:
                             st.write("New Films Added:")
-                            st.dataframe(pd.DataFrame(new_films, columns=["Title"]), use_container_width=True)
+                            st.dataframe(pd.DataFrame(new_films, columns=["Title"] ), use_container_width=True)
                         if failed_films:
                             st.write("Failed to Add:")
-                            st.dataframe(pd.DataFrame(failed_films, columns=["Title", "Error"]), use_container_width=True)
+                            st.dataframe(pd.DataFrame(failed_films, columns=["Title", "Error"] ), use_container_width=True)
                     else:
                         st.error(f"An error occurred: {get_error_message(result)}")
                         st.code(log)
