@@ -309,6 +309,11 @@ def clean_film_title(title: str) -> str:
     punctuation_to_remove = r"[':,.!?&]"
     cleaned_title = re.sub(punctuation_to_remove, "", cleaned_title)
 
+    # First, strip common suffixes like "40th Anniversary", "25th Anniversary", etc.
+    # This must run BEFORE stripping just "anniversary" to avoid orphaning "40th"
+    ordinal_anniversary = re.compile(r'\s+\d+(?:st|nd|rd|th)\s+anniversary\s*$', re.IGNORECASE)
+    cleaned_title = ordinal_anniversary.sub('', cleaned_title)
+
     # Terms to remove (parenthetical, hyphenated, or trailing)
     event_terms = [
         'fathom events', 'fathom', 'anniversary', 're-release', 'rerelease',
@@ -317,10 +322,15 @@ def clean_film_title(title: str) -> str:
         'advanced screening', 'early access', 'fan event', 'sneak peek'
     ]
     for term in event_terms:
+        # Remove from parentheses: "Film (Re-release)" -> "Film"
         paren_pattern = re.compile(r'\s*\([^)]*' + re.escape(term) + r'[^)]*\)', re.IGNORECASE)
         cleaned_title = paren_pattern.sub('', cleaned_title)
+        # Remove hyphenated at end: "Film - Anniversary" -> "Film"
         hyphen_pattern = re.compile(r'\s*-\s*' + re.escape(term) + r'\s*$', re.IGNORECASE)
         cleaned_title = hyphen_pattern.sub('', cleaned_title)
+        # Remove trailing term: "Film Re-Release" -> "Film" (handles "Re-Release" as single word)
+        trailing_pattern = re.compile(r'\s+' + re.escape(term).replace(r'\-', r'[-]?') + r'\s*$', re.IGNORECASE)
+        cleaned_title = trailing_pattern.sub('', cleaned_title)
 
     return cleaned_title.strip(' -')
 
