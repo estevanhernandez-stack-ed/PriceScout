@@ -443,6 +443,12 @@ def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True,
     # Create DataFrame for display
     lineup_df = pd.DataFrame(lineup_data)
 
+    # Store in session state for persistent downloads
+    st.session_state['lineup_df'] = lineup_df
+    st.session_state['lineup_theater'] = theater_name
+    st.session_state['lineup_date'] = date_str
+    st.session_state['lineup_date_obj'] = date_obj
+
     # Display header
     st.success(f"✅ Daily Lineup Generated for {theater_name}")
     st.subheader(f"{date_obj.strftime('%A, %B %d, %Y')}")
@@ -498,89 +504,85 @@ def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True,
     csv_filename = f"daily_lineup_{safe_theater_name}_{date_str}.csv"
     xlsx_filename = f"daily_lineup_{safe_theater_name}_{date_str}.xlsx"
 
-    # Pre-generate download data
+    # Pre-generate ALL download data and store in session state
     csv_data = lineup_df.to_csv(index=False).encode('utf-8')
+    st.session_state['csv_data'] = csv_data
+    st.session_state['csv_filename'] = csv_filename
 
+    # Pre-generate Excel with formatting
+    try:
+        from io import BytesIO
+        from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
+
+        output = BytesIO()
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            lineup_df.to_excel(writer, index=False, sheet_name='Daily Lineup', startrow=2)
+
+            workbook = writer.book
+            worksheet = writer.sheets['Daily Lineup']
+
+            worksheet['A1'] = theater_name
+            worksheet['A1'].font = Font(size=14, bold=True)
+            worksheet['A2'] = date_obj.strftime('%A, %B %d, %Y')
+            worksheet['A2'].font = Font(size=12, bold=True)
+
+            header_fill = PatternFill(start_color='8b0e04', end_color='8b0e04', fill_type='solid')
+            header_font = Font(color='FFFFFF', bold=True, size=11)
+
+            for col_num, column in enumerate(lineup_df.columns, 1):
+                cell = worksheet.cell(row=3, column=col_num)
+                cell.fill = header_fill
+                cell.font = header_font
+                cell.alignment = Alignment(horizontal='center', vertical='center')
+
+            worksheet.column_dimensions['A'].width = 12
+            worksheet.column_dimensions['B'].width = 50
+            worksheet.column_dimensions['C'].width = 12
+            if 'Out-Time' in lineup_df.columns:
+                worksheet.column_dimensions['D'].width = 12
+
+            num_cols = len(lineup_df.columns)
+            for row in worksheet.iter_rows(min_row=3, max_row=len(lineup_df) + 3, min_col=1, max_col=num_cols):
+                for cell in row:
+                    cell.border = thin_border
+                    cell.alignment = Alignment(vertical='top', wrap_text=True)
+
+            light_fill = PatternFill(start_color='F2F2F2', end_color='F2F2F2', fill_type='solid')
+            for row_num in range(4, len(lineup_df) + 4, 2):
+                for col_num in range(1, num_cols + 1):
+                    worksheet.cell(row=row_num, column=col_num).fill = light_fill
+
+        excel_data = output.getvalue()
+        st.session_state['excel_data'] = excel_data
+        st.session_state['xlsx_filename'] = xlsx_filename
+        excel_ready = True
+    except ImportError:
+        st.caption("Excel export requires openpyxl package")
+        excel_ready = False
+    except Exception as e:
+        st.error(f"Excel export failed: {str(e)}")
+        excel_ready = False
+
+    # Display download buttons using session state data
     col1, col2 = st.columns(2)
     with col1:
         st.download_button(
             label="📄 Download CSV",
-            data=csv_data,
-            file_name=csv_filename,
+            data=st.session_state.get('csv_data', csv_data),
+            file_name=st.session_state.get('csv_filename', csv_filename),
             mime="text/csv",
             use_container_width=True
         )
 
     with col2:
-        # Excel download with enhanced formatting for easy editing
-        try:
-            from io import BytesIO
-            from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
-
-            output = BytesIO()
-            with pd.ExcelWriter(output, engine='openpyxl') as writer:
-                lineup_df.to_excel(writer, index=False, sheet_name='Daily Lineup', startrow=2)
-
-                # Get the workbook and worksheet
-                workbook = writer.book
-                worksheet = writer.sheets['Daily Lineup']
-
-                # Add theater name and date header
-                worksheet['A1'] = theater_name
-                worksheet['A1'].font = Font(size=14, bold=True)
-                worksheet['A2'] = date_obj.strftime('%A, %B %d, %Y')
-                worksheet['A2'].font = Font(size=12, bold=True)
-
-                # Format header row (row 3)
-                header_fill = PatternFill(start_color='8b0e04', end_color='8b0e04', fill_type='solid')
-                header_font = Font(color='FFFFFF', bold=True, size=11)
-
-                for col_num, column in enumerate(lineup_df.columns, 1):
-                    cell = worksheet.cell(row=3, column=col_num)
-                    cell.fill = header_fill
-                    cell.font = header_font
-                    cell.alignment = Alignment(horizontal='center', vertical='center')
-
-                # Set column widths for easy editing
-                worksheet.column_dimensions['A'].width = 12  # Theater #
-                worksheet.column_dimensions['B'].width = 50  # Film (with format indicator)
-                worksheet.column_dimensions['C'].width = 12  # In-Time
-                if 'Out-Time' in lineup_df.columns:
-                    worksheet.column_dimensions['D'].width = 12  # Out-Time
-
-                # Add borders to all cells with data
-                thin_border = Border(
-                    left=Side(style='thin'),
-                    right=Side(style='thin'),
-                    top=Side(style='thin'),
-                    bottom=Side(style='thin')
-                )
-
-                num_cols = len(lineup_df.columns)
-                for row in worksheet.iter_rows(min_row=3, max_row=len(lineup_df) + 3, min_col=1, max_col=num_cols):
-                    for cell in row:
-                        cell.border = thin_border
-                        cell.alignment = Alignment(vertical='top', wrap_text=True)
-
-                # Alternate row colors for easier reading
-                light_fill = PatternFill(start_color='F2F2F2', end_color='F2F2F2', fill_type='solid')
-                for row_num in range(4, len(lineup_df) + 4, 2):  # Every other row
-                    for col_num in range(1, num_cols + 1):
-                        worksheet.cell(row=row_num, column=col_num).fill = light_fill
-
-            excel_data = output.getvalue()
-
+        if excel_ready:
             st.download_button(
                 label="📊 Download Excel",
-                data=excel_data,
-                file_name=xlsx_filename,
+                data=st.session_state.get('excel_data', excel_data),
+                file_name=st.session_state.get('xlsx_filename', xlsx_filename),
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 use_container_width=True
             )
-        except ImportError:
-            st.caption("Excel export requires openpyxl package")
-        except Exception as e:
-            st.error(f"Excel export failed: {str(e)}")
 
     # Summary statistics
     st.divider()
