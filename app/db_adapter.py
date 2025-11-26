@@ -379,18 +379,23 @@ def save_film_metadata(film_data):
             session.add(film)
 
 
-def get_unmatched_films():
-    """Get list of films that couldn't be matched to OMDB"""
+def get_unmatched_films() -> pd.DataFrame:
+    """Get list of films that couldn't be matched to OMDB.
+
+    Returns:
+        pd.DataFrame with columns: film_title, first_seen
+    """
     with get_session() as session:
         company_id = getattr(config, 'CURRENT_COMPANY_ID', None)
-        
+
         query = session.query(UnmatchedFilm)
-        
+
         if company_id:
             query = query.filter(UnmatchedFilm.company_id == company_id)
-        
+
         results = query.all()
-        return [{'film_title': row.film_title, 'first_seen': row.first_seen} for row in results]
+        data = [{'film_title': row.film_title, 'first_seen': row.first_seen} for row in results]
+        return pd.DataFrame(data)
 
 
 def add_unmatched_film(film_title):
