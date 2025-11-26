@@ -3,6 +3,7 @@
     "Market Mode",
     "Operating Hours Mode",
     "CompSnipe Mode",
+    "Daily Lineup",
     "Historical Data and Analysis",
     "Data Management",
     "Theater Matching",
@@ -13,12 +14,14 @@
     "Market Mode",
     "Operating Hours Mode",
     "CompSnipe Mode",
+    "Daily Lineup",
     "Historical Data and Analysis",
     "Poster Board"
   ],
   "user": [
     "Market Mode",
     "CompSnipe Mode",
+    "Daily Lineup",
     "Poster Board"
   ]
 }
