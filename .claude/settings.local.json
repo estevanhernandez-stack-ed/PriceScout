@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(xargs ls:*)"
+      "Bash(xargs ls:*)",
+      "Bash(ssh -o StrictHostKeyChecking=no root@134.199.207.21 \"cd /root/PriceScout && python3 -c \"\"\nfrom app.db_adapter import get_session\nfrom app.db_models import User\n\nwith get_session() as session:\n    users = session.query(User.username, User.company_id, User.role).all()\n    print(''Users:'')\n    for u in users:\n        print(f''  {u}'')\n\"\"\")"
     ],
     "deny": [],
     "ask": []

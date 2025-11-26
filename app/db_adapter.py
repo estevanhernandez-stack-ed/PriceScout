@@ -1508,44 +1508,15 @@ def backfill_film_details_from_fandango() -> int:
 
     with get_session() as session:
         company_id = getattr(config, 'CURRENT_COMPANY_ID', None)
+
+        # If no company_id set (admin without company), get all companies with showings
         if not company_id:
-            return 0
+            company_ids = session.query(Showing.company_id).distinct().all()
+            company_ids = [c[0] for c in company_ids if c[0]]
+        else:
+            company_ids = [company_id]
 
-        # Get films from showings that either don't exist in films table
-        # or have missing runtime/mpaa_rating
-        # First, get all distinct film titles from showings
-        showing_films = session.query(Showing.film_title).filter(
-            Showing.company_id == company_id
-        ).distinct().all()
-        showing_titles = {r[0] for r in showing_films}
-
-        # Get existing films that need updating (missing runtime or mpaa_rating)
-        existing_films = session.query(Film.film_title).filter(
-            and_(
-                Film.company_id == company_id,
-                or_(
-                    Film.runtime.is_(None),
-                    Film.runtime == '',
-                    Film.runtime == 'N/A',
-                    Film.mpaa_rating.is_(None),
-                    Film.mpaa_rating == '',
-                    Film.mpaa_rating == 'N/A'
-                )
-            )
-        ).all()
-        films_needing_update = {r[0] for r in existing_films}
-
-        # Get titles that don't exist in films table
-        all_film_titles = session.query(Film.film_title).filter(
-            Film.company_id == company_id
-        ).all()
-        existing_titles = {r[0] for r in all_film_titles}
-        missing_titles = showing_titles - existing_titles
-
-        # Combine: titles not in films table + titles missing data
-        titles_to_fetch = missing_titles | films_needing_update
-
-        if not titles_to_fetch:
+        if not company_ids:
             return 0
 
         try:
@@ -1554,16 +1525,57 @@ def backfill_film_details_from_fandango() -> int:
             # No OMDB API key configured
             return 0
 
-        for title in titles_to_fetch:
+        for cid in company_ids:
+            # Temporarily set the company_id for upsert operations
+            original_company_id = getattr(config, 'CURRENT_COMPANY_ID', None)
+            config.CURRENT_COMPANY_ID = cid
+
             try:
-                film_details = omdb.get_film_details(title)
-                if film_details and film_details.get('runtime'):
-                    film_details['film_title'] = title  # Preserve original title
-                    upsert_film_details(film_details)
-                    count += 1
-            except Exception as e:
-                print(f"Error fetching details for '{title}': {e}")
-                continue
+                # Get all distinct film titles from showings for this company
+                showing_films = session.query(Showing.film_title).filter(
+                    Showing.company_id == cid
+                ).distinct().all()
+                showing_titles = {r[0] for r in showing_films}
+
+                # Get existing films that need updating (missing runtime or mpaa_rating)
+                existing_films = session.query(Film.film_title).filter(
+                    and_(
+                        Film.company_id == cid,
+                        or_(
+                            Film.runtime.is_(None),
+                            Film.runtime == '',
+                            Film.runtime == 'N/A',
+                            Film.mpaa_rating.is_(None),
+                            Film.mpaa_rating == '',
+                            Film.mpaa_rating == 'N/A'
+                        )
+                    )
+                ).all()
+                films_needing_update = {r[0] for r in existing_films}
+
+                # Get titles that don't exist in films table
+                all_film_titles = session.query(Film.film_title).filter(
+                    Film.company_id == cid
+                ).all()
+                existing_titles = {r[0] for r in all_film_titles}
+                missing_titles = showing_titles - existing_titles
+
+                # Combine: titles not in films table + titles missing data
+                titles_to_fetch = missing_titles | films_needing_update
+
+                for title in titles_to_fetch:
+                    try:
+                        film_details = omdb.get_film_details(title)
+                        if film_details and film_details.get('runtime'):
+                            film_details['film_title'] = title  # Preserve original title
+                            upsert_film_details(film_details)
+                            count += 1
+                    except Exception as e:
+                        print(f"Error fetching details for '{title}': {e}")
+                        continue
+            finally:
+                # Restore original company_id
+                config.CURRENT_COMPANY_ID = original_company_id
 
     return count
 
@@ -1581,22 +1593,15 @@ def backfill_imdb_ids_from_fandango() -> int:
 
     with get_session() as session:
         company_id = getattr(config, 'CURRENT_COMPANY_ID', None)
+
+        # If no company_id set, get all companies with films
         if not company_id:
-            return 0
+            company_ids = session.query(Film.company_id).distinct().all()
+            company_ids = [c[0] for c in company_ids if c[0]]
+        else:
+            company_ids = [company_id]
 
-        # Get films without IMDB IDs
-        films_without_ids = session.query(Film.film_title).filter(
-            and_(
-                Film.company_id == company_id,
-                or_(
-                    Film.imdb_id.is_(None),
-                    Film.imdb_id == '',
-                    Film.imdb_id == 'N/A'
-                )
-            )
-        ).all()
-
-        if not films_without_ids:
+        if not company_ids:
             return 0
 
         try:
@@ -1604,16 +1609,35 @@ def backfill_imdb_ids_from_fandango() -> int:
         except ValueError:
             return 0
 
-        for (title,) in films_without_ids:
+        for cid in company_ids:
+            original_company_id = getattr(config, 'CURRENT_COMPANY_ID', None)
+            config.CURRENT_COMPANY_ID = cid
+
             try:
-                film_details = omdb.get_film_details(title)
-                if film_details and film_details.get('imdb_id'):
-                    film_details['film_title'] = title
-                    upsert_film_details(film_details)
-                    count += 1
-            except Exception as e:
-                print(f"Error fetching IMDB ID for '{title}': {e}")
-                continue
+                # Get films without IMDB IDs
+                films_without_ids = session.query(Film.film_title).filter(
+                    and_(
+                        Film.company_id == cid,
+                        or_(
+                            Film.imdb_id.is_(None),
+                            Film.imdb_id == '',
+                            Film.imdb_id == 'N/A'
+                        )
+                    )
+                ).all()
+
+                for (title,) in films_without_ids:
+                    try:
+                        film_details = omdb.get_film_details(title)
+                        if film_details and film_details.get('imdb_id'):
+                            film_details['film_title'] = title
+                            upsert_film_details(film_details)
+                            count += 1
+                    except Exception as e:
+                        print(f"Error fetching IMDB ID for '{title}': {e}")
+                        continue
+            finally:
+                config.CURRENT_COMPANY_ID = original_company_id
 
     return count
 
@@ -1630,32 +1654,41 @@ def backfill_showtimes_data_from_fandango() -> int:
 
     with get_session() as session:
         company_id = getattr(config, 'CURRENT_COMPANY_ID', None)
+
+        # If no company_id set, get all companies with showings
         if not company_id:
+            company_ids = session.query(Showing.company_id).distinct().all()
+            company_ids = [c[0] for c in company_ids if c[0]]
+        else:
+            company_ids = [company_id]
+
+        if not company_ids:
             return 0
 
-        # Get all distinct film titles from showings
-        showing_films = session.query(Showing.film_title).filter(
-            Showing.company_id == company_id
-        ).distinct().all()
-        showing_titles = {r[0] for r in showing_films}
+        for cid in company_ids:
+            # Get all distinct film titles from showings
+            showing_films = session.query(Showing.film_title).filter(
+                Showing.company_id == cid
+            ).distinct().all()
+            showing_titles = {r[0] for r in showing_films}
 
-        # Get all existing film titles
-        existing_films = session.query(Film.film_title).filter(
-            Film.company_id == company_id
-        ).all()
-        existing_titles = {r[0] for r in existing_films}
+            # Get all existing film titles
+            existing_films = session.query(Film.film_title).filter(
+                Film.company_id == cid
+            ).all()
+            existing_titles = {r[0] for r in existing_films}
 
-        # Find missing titles
-        missing_titles = showing_titles - existing_titles
+            # Find missing titles
+            missing_titles = showing_titles - existing_titles
 
-        # Create placeholder entries for missing films
-        for title in missing_titles:
-            film = Film(
-                company_id=company_id,
-                film_title=title
-            )
-            session.add(film)
-            count += 1
+            # Create placeholder entries for missing films
+            for title in missing_titles:
+                film = Film(
+                    company_id=cid,
+                    film_title=title
+                )
+                session.add(film)
+                count += 1
 
         if count > 0:
             session.flush()
