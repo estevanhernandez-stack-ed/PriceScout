@@ -10,7 +10,12 @@
 # ==============================================================================
 
 # === CORE FRAMEWORK ===
-streamlit==1.49.1              # Web application framework
+# PINNED: Streamlit 1.38.0 - versions 1.39+ have broken download_button behavior
+# behind nginx proxy (files download with UUID names instead of proper filenames).
+# Issue discovered: 2025-11-26. Test newer versions by checking if downloads
+# work correctly with proper filenames (e.g., "daily_lineup_Theater_2025-11-26.xlsx")
+# GitHub issue to track: https://github.com/streamlit/streamlit/issues (search "download filename proxy")
+streamlit==1.38.0              # Web application framework - PINNED (see note above)
 pandas>=2.0.0,<3.0.0           # Data manipulation and analysis
 altair>=5.0.0,<6.0.0           # Declarative visualization (used in analysis_mode)
 
