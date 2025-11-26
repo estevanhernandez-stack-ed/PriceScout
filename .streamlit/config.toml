@@ -3,18 +3,22 @@
 
 [server]
 # Server security settings
-address = "0.0.0.0"  # Listen on all interfaces for remote access
+address = "0.0.0.0"
 port = 8501
-enableCORS = false
-enableXsrfProtection = true
-maxUploadSize = 50  # MB - matches security_config.MAX_FILE_SIZE_MB
+# Allow CORS and disable XSRF for proper download functionality behind nginx proxy
+enableCORS = true
+enableXsrfProtection = false
+maxUploadSize = 50
 
 # Prevent embedding in iframes (clickjacking protection)
 enableStaticServing = true
 
+# Enable file downloads
+headless = true
+
 [client]
 # Client settings
-showErrorDetails = false  # Don't expose stack traces in production
+showErrorDetails = false
 toolbarMode = "minimal"
 
 [browser]
@@ -25,9 +29,6 @@ gatherUsageStats = false
 # Runner settings for production stability
 magicEnabled = true
 fastReruns = true
-
-# Automatically rerun script when source file changes (disable in production)
-# watchForChanges = false  # Uncomment for production to prevent auto-reloads
 
 [theme]
 # Dark theme settings (default)
@@ -40,8 +41,5 @@ font = "sans serif"
 
 [logger]
 # Logging configuration
-level = "info"  # Use "info" for production, "debug" for development
+level = "info"
 messageFormat = "%(asctime)s %(levelname)s: %(message)s"
-
-# Note: Session timeout is handled in app code via security_config.check_session_timeout()
-# Default session behavior: Sessions persist until browser close or manual logout

@@ -302,6 +302,111 @@ def render_daily_lineup_mode(cache_data, selected_company):
                           compact_titles=compact_titles, remove_articles=remove_articles,
                           max_words=max_words if max_words > 0 else None, show_outtime=show_outtime,
                           use_military_time=use_military_time, show_ampm=show_ampm)
+    # Display cached lineup data if it exists (persists after download button clicks)
+    elif 'lineup_df' in st.session_state and st.session_state.get('lineup_theater') == selected_theater:
+        display_cached_lineup(selected_theater, selected_date_obj, show_outtime)
+
+
+def display_cached_lineup(theater_name, date_obj, show_outtime=True):
+    """Display previously generated lineup from session state"""
+    lineup_df = st.session_state.get('lineup_df')
+    if lineup_df is None or lineup_df.empty:
+        return
+
+    # Display header
+    st.success(f"✅ Daily Lineup for {theater_name}")
+    st.subheader(f"{date_obj.strftime('%A, %B %d, %Y')}")
+
+    # Build column config for dataframe display
+    column_config = {
+        'Theater #': st.column_config.TextColumn(
+            'Theater #',
+            width='small',
+            help='Leave blank for manual entry'
+        ),
+        'Film': st.column_config.TextColumn(
+            'Film',
+            width='large'
+        ),
+        'In-Time': st.column_config.TextColumn(
+            'In-Time',
+            width='small'
+        ),
+    }
+
+    if show_outtime and 'Out-Time' in lineup_df.columns:
+        column_config['Out-Time'] = st.column_config.TextColumn(
+            'Out-Time',
+            width='small',
+            help='Calculated end time based on film runtime'
+        )
+
+    # Display the lineup table
+    st.dataframe(
+        lineup_df,
+        use_container_width=True,
+        hide_index=True,
+        column_config=column_config
+    )
+
+    # Printing instructions
+    st.divider()
+    st.info(
+        "📌 **Printing Instructions:**\n"
+        "1. Use your browser's print function (Ctrl+P or Cmd+P)\n"
+        "2. Set orientation to 'Landscape' for best results\n"
+        "3. Adjust scale if needed to fit all content on one page\n"
+        "4. The 'Theater #' column can be filled in by hand after printing"
+    )
+
+    # Download options using cached data
+    st.subheader("Download Options")
+
+    csv_data = st.session_state.get('csv_data')
+    csv_filename = st.session_state.get('csv_filename', 'daily_lineup.csv')
+    excel_data = st.session_state.get('excel_data')
+    xlsx_filename = st.session_state.get('xlsx_filename', 'daily_lineup.xlsx')
+
+    # Use stable keys
+    safe_theater_name = re.sub(r'[^\w\-]', '_', theater_name)
+    date_str = st.session_state.get('lineup_date', '')
+    download_key_base = f"lineup_{safe_theater_name}_{date_str}"
+
+    col1, col2 = st.columns(2)
+    with col1:
+        if csv_data:
+            st.download_button(
+                label="📄 Download CSV",
+                data=csv_data,
+                file_name=csv_filename,
+                mime="text/csv",
+                use_container_width=True,
+                key=f"{download_key_base}_csv_cached"
+            )
+
+    with col2:
+        if excel_data:
+            st.download_button(
+                label="📊 Download Excel",
+                data=excel_data,
+                file_name=xlsx_filename,
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                use_container_width=True,
+                key=f"{download_key_base}_xlsx_cached"
+            )
+
+    # Summary statistics
+    st.divider()
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        unique_films = lineup_df['Film'].nunique()
+        st.metric("Total Films", unique_films)
+    with col2:
+        total_showtimes = len(lineup_df)
+        st.metric("Total Showtimes", total_showtimes)
+    with col3:
+        premium_count = sum(1 for _, row in lineup_df.iterrows() if '[' in str(row['Film']))
+        st.metric("Premium Format Shows", premium_count)
 
 
 def scrape_and_generate(theater_obj, theater_name, date_str, date_obj, compact_titles=True, remove_articles=False, max_words=None, show_outtime=True, use_military_time=False, show_ampm=True):
