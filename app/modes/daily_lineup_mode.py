@@ -25,7 +25,8 @@ def parse_showtime_for_sort(showtime_str):
         showtime_str = str(showtime_str).strip()
 
         # Try different formats
-        for fmt in ['%H:%M:%S', '%H:%M', '%I:%M %p', '%I:%M:%S %p']:
+        # Include formats with and without space before AM/PM (e.g., "10:00AM" vs "10:00 AM")
+        for fmt in ['%H:%M:%S', '%H:%M', '%I:%M %p', '%I:%M:%S %p', '%I:%M%p', '%I:%M:%S%p']:
             try:
                 return datetime.strptime(showtime_str, fmt).time()
             except ValueError:
@@ -89,13 +90,15 @@ def parse_runtime_minutes(runtime_str):
         return None
 
 
-def calculate_outtime(showtime_str, runtime_minutes):
+def calculate_outtime(showtime_str, runtime_minutes, use_military_time=False, show_ampm=True):
     """
     Calculate the end time (outtime) given a showtime and runtime.
 
     Args:
         showtime_str: Showtime in HH:MM or HH:MM:SS format
         runtime_minutes: Runtime in minutes
+        use_military_time: If True, use 24-hour format
+        show_ampm: If True and not military time, show AM/PM
 
     Returns:
         Formatted outtime string or None if calculation fails
@@ -113,8 +116,21 @@ def calculate_outtime(showtime_str, runtime_minutes):
         base_date = datetime(2000, 1, 1, time_obj.hour, time_obj.minute, time_obj.second)
         end_datetime = base_date + timedelta(minutes=runtime_minutes)
 
-        # Format the outtime (same format as showtime display)
-        return end_datetime.strftime('%I:%M %p').lstrip('0')
+        # Format the outtime using the same format as showtime
+        end_time = end_datetime.time()
+        if use_military_time:
+            return f"{end_time.hour:02d}:{end_time.minute:02d}"
+        elif show_ampm:
+            hour = end_time.hour % 12
+            if hour == 0:
+                hour = 12
+            period = 'AM' if end_time.hour < 12 else 'PM'
+            return f"{hour}:{end_time.minute:02d} {period}"
+        else:
+            hour = end_time.hour % 12
+            if hour == 0:
+                hour = 12
+            return f"{hour}:{end_time.minute:02d}"
     except:
         return None
 
@@ -224,6 +240,8 @@ def render_daily_lineup_mode(cache_data, selected_company):
 
     # Display options
     st.subheader("Display Options")
+
+    # Title options row
     col_opt1, col_opt2, col_opt3, col_opt4 = st.columns(4)
 
     with col_opt1:
@@ -256,16 +274,37 @@ def render_daily_lineup_mode(cache_data, selected_company):
             help="Calculate and display end time based on film runtime"
         )
 
+    # Time format options row
+    col_time1, col_time2, col_time3, col_time4 = st.columns(4)
+
+    with col_time1:
+        use_military_time = st.checkbox(
+            "24-Hour Time",
+            value=False,
+            help="Use 24-hour (military) time format (e.g., '14:30' instead of '2:30 PM')"
+        )
+
+    with col_time2:
+        if not use_military_time:
+            show_ampm = st.checkbox(
+                "Show AM/PM",
+                value=True,
+                help="Show AM/PM indicator (e.g., '2:30 PM' vs '2:30')"
+            )
+        else:
+            show_ampm = False  # Not applicable for military time
+
     st.divider()
 
     # Scrape and Generate button
     if st.button("🔄 Get Latest Showtimes & Generate Lineup", type="primary", use_container_width=True):
         scrape_and_generate(selected_theater_obj, selected_theater, selected_date, selected_date_obj,
                           compact_titles=compact_titles, remove_articles=remove_articles,
-                          max_words=max_words if max_words > 0 else None, show_outtime=show_outtime)
+                          max_words=max_words if max_words > 0 else None, show_outtime=show_outtime,
+                          use_military_time=use_military_time, show_ampm=show_ampm)
 
 
-def scrape_and_generate(theater_obj, theater_name, date_str, date_obj, compact_titles=True, remove_articles=False, max_words=None, show_outtime=True):
+def scrape_and_generate(theater_obj, theater_name, date_str, date_obj, compact_titles=True, remove_articles=False, max_words=None, show_outtime=True, use_military_time=False, show_ampm=True):
     """Scrape showtimes for a single theater for one date and generate lineup"""
     from app.scraper import Scraper
 
@@ -304,10 +343,11 @@ def scrape_and_generate(theater_obj, theater_name, date_str, date_obj, compact_t
     # Generate the lineup
     st.divider()
     generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=compact_titles,
-                         remove_articles=remove_articles, max_words=max_words, show_outtime=show_outtime)
+                         remove_articles=remove_articles, max_words=max_words, show_outtime=show_outtime,
+                         use_military_time=use_military_time, show_ampm=show_ampm)
 
 
-def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True, remove_articles=False, max_words=None, show_outtime=True):
+def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True, remove_articles=False, max_words=None, show_outtime=True, use_military_time=False, show_ampm=True):
     """Generate and display the daily lineup"""
 
     # Query showings for this theater and date using SQLAlchemy
@@ -356,13 +396,6 @@ def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True,
             columns=['film_title', 'showtime', 'format', 'daypart', 'runtime']
         )
 
-        # Debug: Print runtime data
-        print(f"[DEBUG] Query returned {len(results)} results")
-        print(f"[DEBUG] show_outtime={show_outtime}")
-        films_with_runtime = df[df['runtime'].notna() & (df['runtime'] != '') & (df['runtime'] != 'N/A')]
-        print(f"[DEBUG] Films with runtime: {len(films_with_runtime)}")
-        if len(films_with_runtime) > 0:
-            print(f"[DEBUG] Sample: {films_with_runtime[['film_title', 'runtime']].head(3).to_dict()}")
 
     # Sort by showtime properly (not alphabetically)
     # This fixes the issue where "10:00" would appear before "9:00"
@@ -374,22 +407,26 @@ def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True,
 
     for _, row in df.iterrows():
         # Format showtime (remove seconds if present)
-        formatted_time = format_showtime(row['showtime'])
+        formatted_time = format_showtime(row['showtime'], use_military_time=use_military_time, show_ampm=show_ampm)
 
         # Calculate outtime if runtime is available and option is enabled
         outtime = None
         if show_outtime and row.get('runtime'):
             runtime_mins = parse_runtime_minutes(row['runtime'])
             if runtime_mins:
-                outtime = calculate_outtime(row['showtime'], runtime_mins)
+                outtime = calculate_outtime(row['showtime'], runtime_mins, use_military_time=use_military_time, show_ampm=show_ampm)
 
-        # Get format indicator for this specific showing
+        # Get format indicator for this specific showing (returns 'Standard' for regular shows)
         format_indicator = get_format_indicators([row['format']])
 
         # Apply title compacting if enabled
         film_title = row['film_title']
         if compact_titles or remove_articles or max_words:
             film_title = compact_film_title(film_title, remove_year=compact_titles, remove_articles=remove_articles, max_words=max_words)
+
+        # Append format indicator to film name if it's a premium format (not Standard)
+        if format_indicator and format_indicator != 'Standard':
+            film_title = f"{film_title} [{format_indicator}]"
 
         row_data = {
             'Theater #': '',  # Blank column for manual entry
@@ -401,8 +438,6 @@ def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True,
         if show_outtime:
             row_data['Out-Time'] = outtime if outtime else ''
 
-        row_data['Format'] = format_indicator
-
         lineup_data.append(row_data)
 
     # Create DataFrame for display
@@ -412,7 +447,7 @@ def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True,
     st.success(f"✅ Daily Lineup Generated for {theater_name}")
     st.subheader(f"{date_obj.strftime('%A, %B %d, %Y')}")
 
-    # Build column config - Order: Theater #, Film, In-Time, Out-Time, Format
+    # Build column config for dataframe display
     column_config = {
         'Theater #': st.column_config.TextColumn(
             'Theater #',
@@ -437,12 +472,6 @@ def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True,
             help='Calculated end time based on film runtime'
         )
 
-    column_config['Format'] = st.column_config.TextColumn(
-        'Format',
-        width='medium',
-        help='3D, IMAX, PLF indicators'
-    )
-
     # Display the lineup table
     st.dataframe(
         lineup_df,
@@ -465,16 +494,30 @@ def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True,
     st.subheader("Download Options")
     col1, col2 = st.columns(2)
 
+    # Sanitize theater name for filename (replace spaces and special chars)
+    safe_theater_name = re.sub(r'[^\w\-]', '_', theater_name)
+    csv_filename = f"daily_lineup_{safe_theater_name}_{date_str}.csv"
+    xlsx_filename = f"daily_lineup_{safe_theater_name}_{date_str}.xlsx"
+
+    # Debug: Show generated filenames
+    import logging
+    logging.info(f"[DOWNLOAD DEBUG] Theater: {theater_name}")
+    logging.info(f"[DOWNLOAD DEBUG] Safe name: {safe_theater_name}")
+    logging.info(f"[DOWNLOAD DEBUG] CSV filename: {csv_filename}")
+    logging.info(f"[DOWNLOAD DEBUG] XLSX filename: {xlsx_filename}")
+
+    # Show filename preview to user for debugging
+    st.caption(f"📁 Files will be saved as: `{csv_filename}` / `{xlsx_filename}`")
+
+    # Pre-generate and encode CSV data as base64 for reliable downloads
+    import base64
+    csv_data = lineup_df.to_csv(index=False)
+    csv_b64 = base64.b64encode(csv_data.encode()).decode()
+
     with col1:
-        # CSV download
-        csv_data = lineup_df.to_csv(index=False)
-        st.download_button(
-            label="📄 Download as CSV",
-            data=csv_data,
-            file_name=f"daily_lineup_{theater_name}_{date_str}.csv",
-            mime="text/csv",
-            use_container_width=True
-        )
+        # CSV download using HTML link (more reliable filename handling)
+        csv_href = f'<a href="data:text/csv;base64,{csv_b64}" download="{csv_filename}" style="display:inline-block;padding:0.5rem 1rem;background-color:#ff4b4b;color:white;text-decoration:none;border-radius:0.25rem;text-align:center;width:100%;">📄 Download as CSV</a>'
+        st.markdown(csv_href, unsafe_allow_html=True)
 
     with col2:
         # Excel download with enhanced formatting for easy editing
@@ -508,9 +551,10 @@ def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True,
 
                 # Set column widths for easy editing
                 worksheet.column_dimensions['A'].width = 12  # Theater #
-                worksheet.column_dimensions['B'].width = 45  # Film Title
-                worksheet.column_dimensions['C'].width = 50  # Showtimes
-                worksheet.column_dimensions['D'].width = 20  # Format
+                worksheet.column_dimensions['B'].width = 50  # Film (with format indicator)
+                worksheet.column_dimensions['C'].width = 12  # In-Time
+                if 'Out-Time' in lineup_df.columns:
+                    worksheet.column_dimensions['D'].width = 12  # Out-Time
 
                 # Add borders to all cells with data
                 thin_border = Border(
@@ -520,7 +564,8 @@ def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True,
                     bottom=Side(style='thin')
                 )
 
-                for row in worksheet.iter_rows(min_row=3, max_row=len(lineup_df) + 3, min_col=1, max_col=4):
+                num_cols = len(lineup_df.columns)
+                for row in worksheet.iter_rows(min_row=3, max_row=len(lineup_df) + 3, min_col=1, max_col=num_cols):
                     for cell in row:
                         cell.border = thin_border
                         cell.alignment = Alignment(vertical='top', wrap_text=True)
@@ -528,20 +573,19 @@ def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True,
                 # Alternate row colors for easier reading
                 light_fill = PatternFill(start_color='F2F2F2', end_color='F2F2F2', fill_type='solid')
                 for row_num in range(4, len(lineup_df) + 4, 2):  # Every other row
-                    for col_num in range(1, 5):
+                    for col_num in range(1, num_cols + 1):
                         worksheet.cell(row=row_num, column=col_num).fill = light_fill
 
             excel_data = output.getvalue()
 
-            st.download_button(
-                label="📊 Download as Excel (Editable)",
-                data=excel_data,
-                file_name=f"daily_lineup_{theater_name}_{date_str}.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                use_container_width=True
-            )
+            # Excel download using HTML link (more reliable filename handling)
+            excel_b64 = base64.b64encode(excel_data).decode()
+            xlsx_href = f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{excel_b64}" download="{xlsx_filename}" style="display:inline-block;padding:0.5rem 1rem;background-color:#ff4b4b;color:white;text-decoration:none;border-radius:0.25rem;text-align:center;width:100%;">📊 Download as Excel (Editable)</a>'
+            st.markdown(xlsx_href, unsafe_allow_html=True)
         except ImportError:
             st.caption("Excel export requires openpyxl package")
+        except Exception as e:
+            st.error(f"Excel export failed: {str(e)}")
 
     # Summary statistics
     st.divider()
@@ -553,24 +597,43 @@ def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True,
         total_showtimes = len(lineup_df)
         st.metric("Total Showtimes", total_showtimes)
     with col3:
-        # Count premium formats
-        premium_count = sum(1 for _, row in lineup_df.iterrows() if row['Format'] and row['Format'] != 'Standard')
+        # Count premium formats (indicated by brackets in film name like "[3D]", "[PLF]")
+        premium_count = sum(1 for _, row in lineup_df.iterrows() if '[' in str(row['Film']))
         st.metric("Premium Format Shows", premium_count)
 
 
-def format_showtime(showtime_str):
-    """Format showtime string to be more readable"""
+def format_showtime(showtime_str, use_military_time=False, show_ampm=True):
+    """Format showtime string to be more readable
+
+    Args:
+        showtime_str: Time string to format
+        use_military_time: If True, use 24-hour format (e.g., '14:30')
+        show_ampm: If True and not military time, show AM/PM (e.g., '2:30 PM' vs '2:30')
+    """
     try:
-        # Handle different time formats
-        if len(showtime_str) == 5:  # HH:MM format
-            time_obj = datetime.strptime(showtime_str, '%H:%M')
-        elif len(showtime_str) == 8:  # HH:MM:SS format
-            time_obj = datetime.strptime(showtime_str, '%H:%M:%S')
-        else:
+        # First, parse the time into a time object
+        time_obj = parse_showtime_for_sort(showtime_str)
+
+        if time_obj == dt_time(23, 59, 59):  # Failed to parse
             return showtime_str
 
-        # Convert to 12-hour format with AM/PM
-        return time_obj.strftime('%I:%M %p').lstrip('0')
+        # Format based on options
+        if use_military_time:
+            # 24-hour format: 14:30
+            return f"{time_obj.hour:02d}:{time_obj.minute:02d}"
+        elif show_ampm:
+            # 12-hour with AM/PM: 2:30 PM
+            hour = time_obj.hour % 12
+            if hour == 0:
+                hour = 12
+            period = 'AM' if time_obj.hour < 12 else 'PM'
+            return f"{hour}:{time_obj.minute:02d} {period}"
+        else:
+            # 12-hour without AM/PM: 2:30
+            hour = time_obj.hour % 12
+            if hour == 0:
+                hour = 12
+            return f"{hour}:{time_obj.minute:02d}"
     except:
         return showtime_str
 
