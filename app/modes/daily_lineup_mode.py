@@ -385,14 +385,14 @@ def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True,
 
         row_data = {
             'Theater #': '',  # Blank column for manual entry
-            'Showtime': formatted_time,
+            'Film': film_title,
+            'In-Time': formatted_time,
         }
 
-        # Add outtime column right after Showtime if enabled
+        # Add Out-Time column if enabled
         if show_outtime:
-            row_data['Out Time'] = outtime if outtime else ''
+            row_data['Out-Time'] = outtime if outtime else ''
 
-        row_data['Film Title'] = film_title
         row_data['Format'] = format_indicator
 
         lineup_data.append(row_data)
@@ -404,31 +404,31 @@ def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True,
     st.success(f"✅ Daily Lineup Generated for {theater_name}")
     st.subheader(f"{date_obj.strftime('%A, %B %d, %Y')}")
 
-    # Build column config
+    # Build column config - Order: Theater #, Film, In-Time, Out-Time, Format
     column_config = {
         'Theater #': st.column_config.TextColumn(
             'Theater #',
             width='small',
             help='Leave blank for manual entry'
         ),
-        'Showtime': st.column_config.TextColumn(
-            'Showtime',
+        'Film': st.column_config.TextColumn(
+            'Film',
+            width='large'
+        ),
+        'In-Time': st.column_config.TextColumn(
+            'In-Time',
             width='small'
         ),
     }
 
-    # Add Out Time column config right after Showtime if showing outtime
+    # Add Out-Time column config if showing outtime
     if show_outtime:
-        column_config['Out Time'] = st.column_config.TextColumn(
-            'Out Time',
+        column_config['Out-Time'] = st.column_config.TextColumn(
+            'Out-Time',
             width='small',
             help='Calculated end time based on film runtime'
         )
 
-    column_config['Film Title'] = st.column_config.TextColumn(
-        'Film Title',
-        width='large'
-    )
     column_config['Format'] = st.column_config.TextColumn(
         'Format',
         width='medium',

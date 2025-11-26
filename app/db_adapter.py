@@ -1488,3 +1488,176 @@ def consolidate_ticket_types() -> int:
     """Consolidate ticket type variations"""
     # TODO: Implement ticket type consolidation
     return 0
+
+
+# ============================================================================
+# BACKFILL FUNCTIONS
+# ============================================================================
+
+def backfill_film_details_from_fandango() -> int:
+    """
+    Backfill film details (runtime, MPAA rating, poster, etc.) from OMDB
+    for films that exist in showings but don't have complete metadata.
+
+    Returns:
+        Number of films updated
+    """
+    from app.omdb_client import OMDbClient
+
+    count = 0
+
+    with get_session() as session:
+        company_id = getattr(config, 'CURRENT_COMPANY_ID', None)
+        if not company_id:
+            return 0
+
+        # Get films from showings that either don't exist in films table
+        # or have missing runtime/mpaa_rating
+        # First, get all distinct film titles from showings
+        showing_films = session.query(Showing.film_title).filter(
+            Showing.company_id == company_id
+        ).distinct().all()
+        showing_titles = {r[0] for r in showing_films}
+
+        # Get existing films that need updating (missing runtime or mpaa_rating)
+        existing_films = session.query(Film.film_title).filter(
+            and_(
+                Film.company_id == company_id,
+                or_(
+                    Film.runtime.is_(None),
+                    Film.runtime == '',
+                    Film.runtime == 'N/A',
+                    Film.mpaa_rating.is_(None),
+                    Film.mpaa_rating == '',
+                    Film.mpaa_rating == 'N/A'
+                )
+            )
+        ).all()
+        films_needing_update = {r[0] for r in existing_films}
+
+        # Get titles that don't exist in films table
+        all_film_titles = session.query(Film.film_title).filter(
+            Film.company_id == company_id
+        ).all()
+        existing_titles = {r[0] for r in all_film_titles}
+        missing_titles = showing_titles - existing_titles
+
+        # Combine: titles not in films table + titles missing data
+        titles_to_fetch = missing_titles | films_needing_update
+
+        if not titles_to_fetch:
+            return 0
+
+        try:
+            omdb = OMDbClient()
+        except ValueError:
+            # No OMDB API key configured
+            return 0
+
+        for title in titles_to_fetch:
+            try:
+                film_details = omdb.get_film_details(title)
+                if film_details and film_details.get('runtime'):
+                    film_details['film_title'] = title  # Preserve original title
+                    upsert_film_details(film_details)
+                    count += 1
+            except Exception as e:
+                print(f"Error fetching details for '{title}': {e}")
+                continue
+
+    return count
+
+
+def backfill_imdb_ids_from_fandango() -> int:
+    """
+    Backfill IMDB IDs for films that don't have them.
+
+    Returns:
+        Number of films updated
+    """
+    from app.omdb_client import OMDbClient
+
+    count = 0
+
+    with get_session() as session:
+        company_id = getattr(config, 'CURRENT_COMPANY_ID', None)
+        if not company_id:
+            return 0
+
+        # Get films without IMDB IDs
+        films_without_ids = session.query(Film.film_title).filter(
+            and_(
+                Film.company_id == company_id,
+                or_(
+                    Film.imdb_id.is_(None),
+                    Film.imdb_id == '',
+                    Film.imdb_id == 'N/A'
+                )
+            )
+        ).all()
+
+        if not films_without_ids:
+            return 0
+
+        try:
+            omdb = OMDbClient()
+        except ValueError:
+            return 0
+
+        for (title,) in films_without_ids:
+            try:
+                film_details = omdb.get_film_details(title)
+                if film_details and film_details.get('imdb_id'):
+                    film_details['film_title'] = title
+                    upsert_film_details(film_details)
+                    count += 1
+            except Exception as e:
+                print(f"Error fetching IMDB ID for '{title}': {e}")
+                continue
+
+    return count
+
+
+def backfill_showtimes_data_from_fandango() -> int:
+    """
+    Ensure all films in the showings table have corresponding entries
+    in the films table (creates placeholder entries if needed).
+
+    Returns:
+        Number of films created
+    """
+    count = 0
+
+    with get_session() as session:
+        company_id = getattr(config, 'CURRENT_COMPANY_ID', None)
+        if not company_id:
+            return 0
+
+        # Get all distinct film titles from showings
+        showing_films = session.query(Showing.film_title).filter(
+            Showing.company_id == company_id
+        ).distinct().all()
+        showing_titles = {r[0] for r in showing_films}
+
+        # Get all existing film titles
+        existing_films = session.query(Film.film_title).filter(
+            Film.company_id == company_id
+        ).all()
+        existing_titles = {r[0] for r in existing_films}
+
+        # Find missing titles
+        missing_titles = showing_titles - existing_titles
+
+        # Create placeholder entries for missing films
+        for title in missing_titles:
+            film = Film(
+                company_id=company_id,
+                film_title=title
+            )
+            session.add(film)
+            count += 1
+
+        if count > 0:
+            session.flush()
+
+    return count
