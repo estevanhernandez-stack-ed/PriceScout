@@ -571,24 +571,29 @@ def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True,
         excel_ready = False
 
     # Display download buttons using session state data
+    # Use stable keys to prevent download invalidation on reruns
+    download_key_base = f"lineup_{safe_theater_name}_{date_str}"
+
     col1, col2 = st.columns(2)
     with col1:
         st.download_button(
             label="📄 Download CSV",
-            data=st.session_state.get('csv_data', csv_data),
-            file_name=st.session_state.get('csv_filename', csv_filename),
+            data=csv_data,
+            file_name=csv_filename,
             mime="text/csv",
-            use_container_width=True
+            use_container_width=True,
+            key=f"{download_key_base}_csv"
         )
 
     with col2:
         if excel_ready:
             st.download_button(
                 label="📊 Download Excel",
-                data=st.session_state.get('excel_data', excel_data),
-                file_name=st.session_state.get('xlsx_filename', xlsx_filename),
+                data=excel_data,
+                file_name=xlsx_filename,
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                use_container_width=True
+                use_container_width=True,
+                key=f"{download_key_base}_xlsx"
             )
 
     # Summary statistics
