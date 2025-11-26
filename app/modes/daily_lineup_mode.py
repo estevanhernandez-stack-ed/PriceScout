@@ -539,7 +539,7 @@ def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True,
     st.divider()
     col1, col2, col3 = st.columns(3)
     with col1:
-        unique_films = lineup_df['Film Title'].nunique()
+        unique_films = lineup_df['Film'].nunique()
         st.metric("Total Films", unique_films)
     with col2:
         total_showtimes = len(lineup_df)
