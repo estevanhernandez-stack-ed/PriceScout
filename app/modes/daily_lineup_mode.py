@@ -492,49 +492,24 @@ def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True,
 
     # Download options
     st.subheader("Download Options")
-    col1, col2 = st.columns(2)
 
-    # Sanitize theater name for filename (replace spaces and special chars)
+    # Sanitize theater name for filename
     safe_theater_name = re.sub(r'[^\w\-]', '_', theater_name)
     csv_filename = f"daily_lineup_{safe_theater_name}_{date_str}.csv"
     xlsx_filename = f"daily_lineup_{safe_theater_name}_{date_str}.xlsx"
 
-    # Debug: Show generated filenames
-    import logging
-    logging.info(f"[DOWNLOAD DEBUG] Theater: {theater_name}")
-    logging.info(f"[DOWNLOAD DEBUG] Safe name: {safe_theater_name}")
-    logging.info(f"[DOWNLOAD DEBUG] CSV filename: {csv_filename}")
-    logging.info(f"[DOWNLOAD DEBUG] XLSX filename: {xlsx_filename}")
+    # Pre-generate download data
+    csv_data = lineup_df.to_csv(index=False).encode('utf-8')
 
-    # Show filename preview to user for debugging
-    st.caption(f"📁 Files will be saved as: `{csv_filename}` / `{xlsx_filename}`")
-
-    # Pre-generate CSV data
-    import base64
-    csv_data = lineup_df.to_csv(index=False)
-    csv_b64 = base64.b64encode(csv_data.encode()).decode()
-
+    col1, col2 = st.columns(2)
     with col1:
-        # JavaScript-based download for reliable filename handling
-        csv_js = f"""
-        <script>
-        function downloadCSV() {{
-            var csvContent = atob("{csv_b64}");
-            var blob = new Blob([csvContent], {{ type: 'text/csv;charset=utf-8;' }});
-            var link = document.createElement("a");
-            var url = URL.createObjectURL(blob);
-            link.setAttribute("href", url);
-            link.setAttribute("download", "{csv_filename}");
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-        }}
-        </script>
-        <button onclick="downloadCSV()" style="display:inline-block;padding:0.5rem 1rem;background-color:#ff4b4b;color:white;border:none;border-radius:0.25rem;text-align:center;width:100%;cursor:pointer;font-size:14px;">📄 Download as CSV</button>
-        """
-        st.components.v1.html(csv_js, height=45)
+        st.download_button(
+            label="📄 Download CSV",
+            data=csv_data,
+            file_name=csv_filename,
+            mime="text/csv",
+            use_container_width=True
+        )
 
     with col2:
         # Excel download with enhanced formatting for easy editing
@@ -595,32 +570,13 @@ def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True,
 
             excel_data = output.getvalue()
 
-            # JavaScript-based download for reliable filename handling
-            excel_b64 = base64.b64encode(excel_data).decode()
-            xlsx_js = f"""
-            <script>
-            function downloadXLSX() {{
-                var byteCharacters = atob("{excel_b64}");
-                var byteNumbers = new Array(byteCharacters.length);
-                for (var i = 0; i < byteCharacters.length; i++) {{
-                    byteNumbers[i] = byteCharacters.charCodeAt(i);
-                }}
-                var byteArray = new Uint8Array(byteNumbers);
-                var blob = new Blob([byteArray], {{ type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }});
-                var link = document.createElement("a");
-                var url = URL.createObjectURL(blob);
-                link.setAttribute("href", url);
-                link.setAttribute("download", "{xlsx_filename}");
-                link.style.visibility = 'hidden';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(url);
-            }}
-            </script>
-            <button onclick="downloadXLSX()" style="display:inline-block;padding:0.5rem 1rem;background-color:#ff4b4b;color:white;border:none;border-radius:0.25rem;text-align:center;width:100%;cursor:pointer;font-size:14px;">📊 Download as Excel (Editable)</button>
-            """
-            st.components.v1.html(xlsx_js, height=45)
+            st.download_button(
+                label="📊 Download Excel",
+                data=excel_data,
+                file_name=xlsx_filename,
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                use_container_width=True
+            )
         except ImportError:
             st.caption("Excel export requires openpyxl package")
         except Exception as e:
