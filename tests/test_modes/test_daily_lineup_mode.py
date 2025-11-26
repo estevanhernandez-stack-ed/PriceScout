@@ -15,6 +15,7 @@ from app.modes.daily_lineup_mode import (
     compact_film_title,
     format_showtime,
     get_format_indicators,
+    parse_showtime_for_sort,
 )
 
 
@@ -324,3 +325,80 @@ class TestCompactFilmTitleEdgeCases:
         """Test single word title."""
         result = compact_film_title("Wicked (2024)", max_words=1)
         assert result == "Wicked"
+
+
+class TestParseShowtimeForSort:
+    """Test the parse_showtime_for_sort function for proper chronological ordering."""
+
+    def test_24hour_format_hhmm(self):
+        """Test parsing 24-hour HH:MM format."""
+        from datetime import time as dt_time
+        result = parse_showtime_for_sort("14:30")
+        assert result == dt_time(14, 30)
+
+    def test_24hour_format_hhmmss(self):
+        """Test parsing 24-hour HH:MM:SS format."""
+        from datetime import time as dt_time
+        result = parse_showtime_for_sort("14:30:00")
+        assert result == dt_time(14, 30, 0)
+
+    def test_single_digit_hour(self):
+        """Test parsing single-digit hour (9:00 vs 09:00)."""
+        from datetime import time as dt_time
+        result = parse_showtime_for_sort("9:30")
+        assert result == dt_time(9, 30)
+
+    def test_morning_time(self):
+        """Test parsing morning time."""
+        from datetime import time as dt_time
+        result = parse_showtime_for_sort("09:00")
+        assert result == dt_time(9, 0)
+
+    def test_evening_time(self):
+        """Test parsing evening time."""
+        from datetime import time as dt_time
+        result = parse_showtime_for_sort("22:00")
+        assert result == dt_time(22, 0)
+
+    def test_10pm_sorts_after_9pm(self):
+        """Test that 10:00 PM (22:00) sorts AFTER 9:00 PM (21:00) - the main bug fix."""
+        time_22 = parse_showtime_for_sort("22:00")  # 10:00 PM
+        time_21 = parse_showtime_for_sort("21:00")  # 9:00 PM
+        time_9 = parse_showtime_for_sort("09:00")   # 9:00 AM
+
+        # 9:00 AM should come before 9:00 PM
+        assert time_9 < time_21
+        # 9:00 PM should come before 10:00 PM
+        assert time_21 < time_22
+        # Full ordering: 9:00 AM < 9:00 PM < 10:00 PM
+        assert time_9 < time_21 < time_22
+
+    def test_sorting_multiple_times(self):
+        """Test that a list of times sorts correctly."""
+        times = ["22:00", "09:00", "14:30", "21:00", "10:00"]
+        sorted_times = sorted(times, key=parse_showtime_for_sort)
+        assert sorted_times == ["09:00", "10:00", "14:30", "21:00", "22:00"]
+
+    def test_empty_string(self):
+        """Test empty string returns end-of-day time."""
+        from datetime import time as dt_time
+        result = parse_showtime_for_sort("")
+        assert result == dt_time(23, 59, 59)
+
+    def test_none_value(self):
+        """Test None returns end-of-day time."""
+        from datetime import time as dt_time
+        result = parse_showtime_for_sort(None)
+        assert result == dt_time(23, 59, 59)
+
+    def test_12hour_format_am(self):
+        """Test parsing 12-hour AM format."""
+        from datetime import time as dt_time
+        result = parse_showtime_for_sort("9:30 AM")
+        assert result == dt_time(9, 30)
+
+    def test_12hour_format_pm(self):
+        """Test parsing 12-hour PM format."""
+        from datetime import time as dt_time
+        result = parse_showtime_for_sort("2:30 PM")
+        assert result == dt_time(14, 30)

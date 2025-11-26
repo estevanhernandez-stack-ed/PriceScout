@@ -6,9 +6,41 @@ Generates printable daily lineups for individual theaters with blank columns for
 import streamlit as st
 import pandas as pd
 import re
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta, time as dt_time
 from app import db_adapter as database
 from app.utils import run_async_in_thread
+
+
+def parse_showtime_for_sort(showtime_str):
+    """
+    Parse showtime string to a time object for proper chronological sorting.
+
+    Handles formats: HH:MM, H:MM, HH:MM:SS, H:MM:SS
+    Returns a time object that sorts correctly.
+    """
+    if not showtime_str:
+        return dt_time(23, 59, 59)  # Put empty times at the end
+
+    try:
+        showtime_str = str(showtime_str).strip()
+
+        # Try different formats
+        for fmt in ['%H:%M:%S', '%H:%M', '%I:%M %p', '%I:%M:%S %p']:
+            try:
+                return datetime.strptime(showtime_str, fmt).time()
+            except ValueError:
+                continue
+
+        # Fallback: try to extract hours and minutes manually
+        parts = showtime_str.replace(' ', ':').split(':')
+        if len(parts) >= 2:
+            hour = int(parts[0])
+            minute = int(parts[1])
+            return dt_time(hour % 24, minute % 60)
+
+        return dt_time(23, 59, 59)  # Default to end of day
+    except:
+        return dt_time(23, 59, 59)
 
 
 def compact_film_title(title, remove_year=True, remove_articles=False, max_words=None):
@@ -232,6 +264,11 @@ def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True,
             results,
             columns=['film_title', 'showtime', 'format', 'daypart']
         )
+
+    # Sort by showtime properly (not alphabetically)
+    # This fixes the issue where "10:00" would appear before "9:00"
+    df['_sort_time'] = df['showtime'].apply(parse_showtime_for_sort)
+    df = df.sort_values(by=['_sort_time', 'film_title']).drop(columns=['_sort_time'])
 
     # Process the data - create one row per showtime (chronological)
     lineup_data = []
