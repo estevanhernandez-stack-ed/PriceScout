@@ -541,6 +541,13 @@ def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True,
             if 'Out-Time' in lineup_df.columns:
                 worksheet.column_dimensions['D'].width = 12
 
+            thin_border = Border(
+                left=Side(style='thin'),
+                right=Side(style='thin'),
+                top=Side(style='thin'),
+                bottom=Side(style='thin')
+            )
+
             num_cols = len(lineup_df.columns)
             for row in worksheet.iter_rows(min_row=3, max_row=len(lineup_df) + 3, min_col=1, max_col=num_cols):
                 for cell in row:
