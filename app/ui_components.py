@@ -20,7 +20,6 @@ def handle_daypart_click(dp, all_showings, selected_films, selected_theaters):
         else:
             selections.update(other_dayparts)
             selections.add("All")
-            st.session_state.expanders_expanded = False # Collapse expanders
     else:
         if dp in selections:
             selections.remove(dp)
@@ -167,10 +166,9 @@ def render_film_and_showtime_selection(theaters, all_showings, scrape_date_range
     if st.session_state.selected_films:
         render_daypart_selector(all_showings, st.session_state.selected_films, [t['name'] for t in theaters], IS_DISABLED, mode_prefix)
 
-    if 'expanders_expanded' not in st.session_state: st.session_state.expanders_expanded = True
-    if st.button("Collapse All" if st.session_state.expanders_expanded else "Expand All", use_container_width=True):
-        st.session_state.expanders_expanded = not st.session_state.expanders_expanded
-        st.rerun()
+    # Smart default: collapse expanders for large theater sets to avoid websocket overflow
+    if 'expanders_expanded' not in st.session_state: 
+        st.session_state.expanders_expanded = len(theaters) <= 20
 
     if not all_showings:
         st.warning("No showtimes were found for the selected criteria.")
@@ -195,133 +193,133 @@ def render_film_and_showtime_selection(theaters, all_showings, scrape_date_range
         date_str = date.strftime('%Y-%m-%d')
         daily_showings = all_showings.get(date_str)
 
-        with st.expander(f"🗓️ {date.strftime('%A, %B %d, %Y')}", expanded=True):
-            if not daily_showings:
-                st.info("No showtimes found for this date.")
-                continue
+        st.markdown(f"### 🗓️ {date.strftime('%A, %B %d, %Y')}")
+        if not daily_showings:
+            st.info("No showtimes found for this date.")
+            continue
 
-            for director_name, markets in sorted(theaters_by_group.items()):
-                # Only show director header if there's more than one director and it's not 'Uncategorized'
-                if len(theaters_by_group) > 1 and director_name != "Uncategorized":
-                    st.markdown(f"### Director: {director_name}")
+        for director_name, markets in sorted(theaters_by_group.items()):
+            # Only show director header if there's more than one director and it's not 'Uncategorized'
+            if len(theaters_by_group) > 1 and director_name != "Uncategorized":
+                st.markdown(f"#### Director: {director_name}")
 
-                for market_name, theaters_in_market in sorted(markets.items()):
-                    # Only show market header if there's more than one market in the director group
-                    if len(markets) > 1:
-                        st.markdown(f"#### Market: {market_name}")
+            for market_name, theaters_in_market in sorted(markets.items()):
+                # Only show market header if there's more than one market in the director group
+                if len(markets) > 1:
+                    st.markdown(f"##### Market: {market_name}")
 
-                    for theater in theaters_in_market:
-                        theater_name = theater['name']
-                        # Check for selections on this specific date
-                        has_selections = any(st.session_state.selected_showtimes.get(date_str, {}).get(theater_name, {}).values())
+                for theater in theaters_in_market:
+                    theater_name = theater['name']
+                    # Check for selections on this specific date
+                    has_selections = any(st.session_state.selected_showtimes.get(date_str, {}).get(theater_name, {}).values())
 
-                        showings_for_theater = daily_showings.get(theater_name, [])
-                        
-                        # Calculate total unique showtimes for selected films at this theater on this date
-                        total_unique_showtimes = 0
-                        films_in_theater = {s['film_title'] for s in showings_for_theater}
-                        films_to_count = films_in_theater.intersection(st.session_state.get('selected_films', []))
-                        
-                        if films_to_count:
-                            filtered_showings = [s for s in showings_for_theater if s['film_title'] in films_to_count]
-                            unique_times = {s['showtime'] for s in filtered_showings}
-                            total_unique_showtimes = len(unique_times)
-                        
-                        time_range_str = ""
-                        if showings_for_theater:
-                            all_times = [datetime.datetime.strptime(normalize_time_string(s['showtime']), "%I:%M%p") for s in showings_for_theater if normalize_time_string(s['showtime'])]
-                            if all_times:
-                                min_time, max_time = min(all_times), max(all_times)
-                                time_range_str = f"  |  {min_time.strftime('%I:%M %p')} - {max_time.strftime('%I:%M %p')} ({(max_time - min_time).total_seconds() / 3600:.1f} hrs)"
+                    showings_for_theater = daily_showings.get(theater_name, [])
+                    
+                    # Calculate total unique showtimes for selected films at this theater on this date
+                    total_unique_showtimes = 0
+                    films_in_theater = {s['film_title'] for s in showings_for_theater}
+                    films_to_count = films_in_theater.intersection(st.session_state.get('selected_films', []))
+                    
+                    if films_to_count:
+                        filtered_showings = [s for s in showings_for_theater if s['film_title'] in films_to_count]
+                        unique_times = {s['showtime'] for s in filtered_showings}
+                        total_unique_showtimes = len(unique_times)
+                    
+                    time_range_str = ""
+                    if showings_for_theater:
+                        all_times = [datetime.datetime.strptime(normalize_time_string(s['showtime']), "%I:%M%p") for s in showings_for_theater if normalize_time_string(s['showtime'])]
+                        if all_times:
+                            min_time, max_time = min(all_times), max(all_times)
+                            time_range_str = f"  |  {min_time.strftime('%I:%M %p')} - {max_time.strftime('%I:%M %p')} ({(max_time - min_time).total_seconds() / 3600:.1f} hrs)"
 
-                        showtimes_str = f" ({total_unique_showtimes} Showtime{'s' if total_unique_showtimes != 1 else ''})" if total_unique_showtimes > 0 else ""
+                    showtimes_str = f" ({total_unique_showtimes} Showtime{'s' if total_unique_showtimes != 1 else ''})" if total_unique_showtimes > 0 else ""
 
-                        expander_label = f"✅  {theater_name}{showtimes_str}{time_range_str}" if has_selections else f"⚪️ {theater_name}{showtimes_str}{time_range_str}"
-                        with st.expander(expander_label, expanded=st.session_state.expanders_expanded):
-                            films_to_display = {f for f in st.session_state.selected_films if f in [s['film_title'] for s in showings_for_theater]}
-                            if not films_to_display: st.write("No selected films are showing at this theater for this date.")
-                            for film in sorted(list(films_to_display)):
-                                film_showings = sorted([s for s in showings_for_theater if s['film_title'] == film], key=lambda x: datetime.datetime.strptime(normalize_time_string(x['showtime']), "%I:%M%p").time())
+                    expander_label = f"✅  {theater_name}{showtimes_str}{time_range_str}" if has_selections else f"⚪️ {theater_name}{showtimes_str}{time_range_str}"
+                    with st.expander(expander_label, expanded=st.session_state.expanders_expanded):
+                        films_to_display = {f for f in st.session_state.selected_films if f in [s['film_title'] for s in showings_for_theater]}
+                        if not films_to_display: st.write("No selected films are showing at this theater for this date.")
+                        for film in sorted(list(films_to_display)):
+                            film_showings = sorted([s for s in showings_for_theater if s['film_title'] == film], key=lambda x: datetime.datetime.strptime(normalize_time_string(x['showtime']), "%I:%M%p").time())
+                            
+                            showings_by_time = {}
+                            for s in film_showings:
+                                showings_by_time.setdefault(s['showtime'], []).append(s)
+
+                            showtime_count = len(showings_by_time)
+                            st.markdown(f"**{film}** ({showtime_count} showing{'s' if showtime_count != 1 else ''})")
+
+                            cols = st.columns(8)
+
+                            def sort_key(item):
+                                time_str, showings_list = item
+
+                                # The `is_plf` flag is now pre-calculated by the scraper.
+                                # We just need to check if any showing at this time has the flag.
+                                is_plf = any(s.get('is_plf', False) for s in showings_list)
+                                is_dbox = any('d-box' in s.get('format', '').lower() for s in showings_list)
+
+                                time_obj = datetime.datetime.strptime(normalize_time_string(time_str), "%I:%M%p").time()
+                                # Sort by PLF status first (PLF comes first), then by time
+                                return (0 if is_plf and not is_dbox else 1, time_obj)
+
+                            for i, (time_str, showings_at_time) in enumerate(sorted(showings_by_time.items(), key=sort_key)):
+                                is_selected = time_str in st.session_state.selected_showtimes.get(date_str, {}).get(theater_name, {}).get(film, {})
+                                button_key = f"{mode_prefix}_time_{date_str}_{theater_name}_{film}_{time_str}"
+
+                                # The `is_plf` flag is now pre-calculated by the scraper.
+                                is_plf = any(s.get('is_plf', False) for s in showings_at_time)
+
+                                all_formats = set()
+                                for s in showings_at_time:
+                                    format_parts = [part.strip().lower() for part in s.get('format', '2D').split(',')]
+                                    all_formats.update(format_parts)
+                                def consolidate_dbox_xd(formats):
+                                    """Consolidates 'd-box' and 'xd' into 'd-box xd' if both are present."""
+                                    if 'd-box' in formats and 'xd' in formats:
+                                        formats.remove('d-box')
+                                        formats.remove('xd')
+                                        formats.add('d-box xd')
+                                    return formats
+
+                                all_formats = consolidate_dbox_xd(all_formats)
+
+                                if len(all_formats) > 1 and '2d' in all_formats:
+                                    all_formats.remove('2d')
                                 
-                                showings_by_time = {}
-                                for s in film_showings:
-                                    showings_by_time.setdefault(s['showtime'], []).append(s)
+                                # --- NEW: Build button label with emojis for key formats ---
+                                emoji_map = {
+                                    "imax": "📽️",
+                                    "dolby cinema": "🔊",
+                                    "4dx": "💨",
+                                    "3d": "👓",
+                                    "d-box": "💺"
+                                }
+                                emoji_prefix = ""
 
-                                showtime_count = len(showings_by_time)
-                                st.markdown(f"**{film}** ({showtime_count} showing{'s' if showtime_count != 1 else ''})")
+                                # Find the most prominent emoji to display, but only one.
+                                for fmt, emoji in emoji_map.items():
+                                    if fmt in all_formats:
+                                        emoji_prefix = emoji + " "
+                                        break  # Show only the most prominent emoji to avoid clutter
 
-                                cols = st.columns(8)
+                                # Fallback to the star for other PLFs if no specific emoji was found
+                                if not emoji_prefix and is_plf:
+                                    emoji_prefix = "✨ "
 
-                                def sort_key(item):
-                                    time_str, showings_list = item
-
-                                    # The `is_plf` flag is now pre-calculated by the scraper.
-                                    # We just need to check if any showing at this time has the flag.
-                                    is_plf = any(s.get('is_plf', False) for s in showings_list)
-                                    is_dbox = any('d-box' in s.get('format', '').lower() for s in showings_list)
-
-                                    time_obj = datetime.datetime.strptime(normalize_time_string(time_str), "%I:%M%p").time()
-                                    # Sort by PLF status first (PLF comes first), then by time
-                                    return (0 if is_plf and not is_dbox else 1, time_obj)
-
-                                for i, (time_str, showings_at_time) in enumerate(sorted(showings_by_time.items(), key=sort_key)):
-                                    is_selected = time_str in st.session_state.selected_showtimes.get(date_str, {}).get(theater_name, {}).get(film, {})
-                                    button_key = f"{mode_prefix}_time_{date_str}_{theater_name}_{film}_{time_str}"
-
-                                    # The `is_plf` flag is now pre-calculated by the scraper.
-                                    is_plf = any(s.get('is_plf', False) for s in showings_at_time)
-
-                                    all_formats = set()
-                                    for s in showings_at_time:
-                                        format_parts = [part.strip().lower() for part in s.get('format', '2D').split(',')]
-                                        all_formats.update(format_parts)
-                                    def consolidate_dbox_xd(formats):
-                                        """Consolidates 'd-box' and 'xd' into 'd-box xd' if both are present."""
-                                        if 'd-box' in formats and 'xd' in formats:
-                                            formats.remove('d-box')
-                                            formats.remove('xd')
-                                            formats.add('d-box xd')
-                                        return formats
-
-                                    all_formats = consolidate_dbox_xd(all_formats)
-
-                                    if len(all_formats) > 1 and '2d' in all_formats:
-                                        all_formats.remove('2d')
-                                    
-                                    # --- NEW: Build button label with emojis for key formats ---
-                                    emoji_map = {
-                                        "imax": "📽️",
-                                        "dolby cinema": "🔊",
-                                        "4dx": "💨",
-                                        "3d": "👓",
-                                        "d-box": "💺"
-                                    }
-                                    emoji_prefix = ""
-
-                                    # Find the most prominent emoji to display, but only one.
-                                    for fmt, emoji in emoji_map.items():
-                                        if fmt in all_formats:
-                                            emoji_prefix = emoji + " "
-                                            break  # Show only the most prominent emoji to avoid clutter
-
-                                    # Fallback to the star for other PLFs if no specific emoji was found
-                                    if not emoji_prefix and is_plf:
-                                        emoji_prefix = "✨ "
-
-                                    # Exclude only generic, non-descriptive amenities from the text label
-                                    formats_to_exclude_from_label = {'recliner', 'promotion', 'luxury'}
-                                    display_formats = sorted([f.title() for f in all_formats if f != '2d' and f.lower() not in formats_to_exclude_from_label])
-                                    
-                                    button_label = f"{emoji_prefix}{time_str}"
-                                    if display_formats:
-                                        button_label += f" ({', '.join(display_formats)})"
-                                    
-                                    if cols[i % 8].button(button_label, key=button_key, type="primary" if is_selected else "secondary", use_container_width=True, disabled=IS_DISABLED):
-                                        date_selections = st.session_state.selected_showtimes.setdefault(date_str, {})
-                                        theater_selections = date_selections.setdefault(theater_name, {})
-                                        film_selections = theater_selections.setdefault(film, {})
-                                        if is_selected:
-                                            del film_selections[time_str]
-                                        else:
-                                            film_selections[time_str] = showings_at_time
-                                        st.rerun()
+                                # Exclude only generic, non-descriptive amenities from the text label
+                                formats_to_exclude_from_label = {'recliner', 'promotion', 'luxury'}
+                                display_formats = sorted([f.title() for f in all_formats if f != '2d' and f.lower() not in formats_to_exclude_from_label])
+                                
+                                button_label = f"{emoji_prefix}{time_str}"
+                                if display_formats:
+                                    button_label += f" ({', '.join(display_formats)})"
+                                
+                                if cols[i % 8].button(button_label, key=button_key, type="primary" if is_selected else "secondary", use_container_width=True, disabled=IS_DISABLED):
+                                    date_selections = st.session_state.selected_showtimes.setdefault(date_str, {})
+                                    theater_selections = date_selections.setdefault(theater_name, {})
+                                    film_selections = theater_selections.setdefault(film, {})
+                                    if is_selected:
+                                        del film_selections[time_str]
+                                    else:
+                                        film_selections[time_str] = showings_at_time
+                                    st.rerun()

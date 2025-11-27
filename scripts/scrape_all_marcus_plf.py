@@ -77,8 +77,9 @@ def scrape_theater_formats(theater, date_str):
 
     try:
         import asyncio
-        result = asyncio.run(scout.get_showtimes_for_theater_and_date(theater, date_str))
-        return result
+        # get_all_showings_for_theaters returns a dictionary, so we extract the showings for the specific theater
+        results_dict = asyncio.run(scout.get_all_showings_for_theaters([theater], date_str))
+        return results_dict.get(theater['name'], [])
     except Exception as e:
         print(f"  Error scraping {theater['name']}: {e}")
         return []

@@ -308,7 +308,7 @@ def render_market_mode(scout, markets_data, cache_data, IS_DISABLED, parent_comp
     if selections_exist:
         st.subheader("Step 5: Generate Report")
         
-        from app.utils import generate_selection_analysis_report, to_csv, generate_showtime_pdf_report
+        from app.utils import generate_selection_analysis_report, to_csv, generate_showtime_pdf_report, generate_showtime_html_report
         
         # Redefine theaters_in_scope to ensure it's available in this context
         theaters_in_scope = [t for t in st.session_state.theaters if t['name'] in st.session_state.selected_theaters]
@@ -340,15 +340,28 @@ def render_market_mode(scout, markets_data, cache_data, IS_DISABLED, parent_comp
                     context_title = f"Director: {st.session_state.selected_region}"
 
                 with st.spinner("Generating PDF report... This may take a moment."):
-                    pdf_bytes = asyncio.run(generate_showtime_pdf_report(
-                        st.session_state.all_showings,
-                        st.session_state.selected_films,
-                        theaters_in_scope,
-                        st.session_state.market_date_range_processed,
-                        cache_data,
-                        context_title=context_title
-                    ))
-                    st.session_state.pdf_report_bytes = pdf_bytes
+                    try:
+                        pdf_bytes = asyncio.run(generate_showtime_pdf_report(
+                            st.session_state.all_showings,
+                            st.session_state.selected_films,
+                            theaters_in_scope,
+                            st.session_state.market_date_range_processed,
+                            cache_data,
+                            context_title=context_title
+                        ))
+                        st.session_state.pdf_report_bytes = pdf_bytes
+                    except Exception as e:
+                        st.warning("PDF generation failed. Installing Playwright browsers may fix this. Run: 'playwright install chromium' inside your venv.")
+                        html_bytes = generate_showtime_html_report(
+                            st.session_state.all_showings,
+                            st.session_state.selected_films,
+                            theaters_in_scope,
+                            st.session_state.market_date_range_processed,
+                            cache_data,
+                            context_title=context_title
+                        )
+                        st.session_state.html_report_bytes = html_bytes
+                        st.info("HTML fallback is ready below.")
                 st.rerun()
 
     if st.session_state.get('pdf_report_bytes'):
@@ -360,4 +373,14 @@ def render_market_mode(scout, markets_data, cache_data, IS_DISABLED, parent_comp
             mime="application/pdf",
             use_container_width=True,
             on_click=lambda: st.session_state.update({'pdf_report_bytes': None})
+        )
+    elif st.session_state.get('html_report_bytes'):
+        st.info("PDF is unavailable. Download the HTML view instead.")
+        st.download_button(
+            label="📥 Download HTML View",
+            data=st.session_state.html_report_bytes,
+            file_name=f"Showtime_View_{datetime.datetime.now().strftime('%Y%m%d_%H%M')}.html",
+            mime="text/html",
+            use_container_width=True,
+            on_click=lambda: st.session_state.update({'html_report_bytes': None})
         )
