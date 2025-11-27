@@ -54,8 +54,10 @@ xlsxwriter>=3.1.0,<4.0.0       # Excel write support (better formatting)
 python-dotenv>=1.0.0,<2.0.0    # Environment variable management
 
 # === API (Alpha) ===
-fastapi>=0.111.0,<1.0.0        # Lightweight API layer for report endpoints
+fastapi>=0.111.0,<1.0.0        # REST API framework for programmatic access
 uvicorn[standard]>=0.29.0,<1.0 # ASGI server for FastAPI
+pydantic>=2.0.0,<3.0.0         # Data validation for API schemas
+python-multipart>=0.0.9        # Form data parsing for FastAPI
 
 # ==============================================================================
 # TESTING (Dev/CI only - can be moved to requirements-dev.txt)

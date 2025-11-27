@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from api.routers import reports
+from api.routers import reports, resources
 
 
 app = FastAPI(title="PriceScout API (alpha)", version="0.1.0")
@@ -28,3 +28,4 @@ def healthz():
 
 
 app.include_router(reports.router)
+app.include_router(resources.router)

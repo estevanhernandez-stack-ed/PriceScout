@@ -756,7 +756,7 @@ def _render_onboarding_ui():
 
 def main():
     """Main function to render the Theater Matching page."""
-    st.set_page_config(layout="wide")
+    # Page config is set in price_scout_app.py - don't set it again here
     st.title("Theater Cache Management")
 
     # --- NEW: Onboarding Section ---

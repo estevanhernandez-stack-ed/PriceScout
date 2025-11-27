@@ -1,0 +1,540 @@
+{
+  "info": {
+    "name": "PriceScout API",
+    "_postman_id": "pricescout-api-collection",
+    "description": "Complete API collection for PriceScout theater showtime and pricing data. All endpoints require API key authentication (except /healthz).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "0.2.0"
+  },
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "key",
+        "value": "X-API-Key",
+        "type": "string"
+      },
+      {
+        "key": "value",
+        "value": "{{apiKey}}",
+        "type": "string"
+      },
+      {
+        "key": "in",
+        "value": "header",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "apiKey",
+      "value": "YOUR_API_KEY_HERE",
+      "type": "string",
+      "description": "Your PriceScout API key - get one with: python manage_api_keys.py generate --client 'Your Name' --tier free"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health & Status",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/healthz",
+              "host": ["{{baseUrl}}"],
+              "path": ["healthz"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reports",
+      "item": [
+        {
+          "name": "Selection Analysis (JSON)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"selected_showtimes\": {\n    \"2025-11-28\": {\n      \"Marcus Ridge Cinema\": {\n        \"Wicked\": {\n          \"10:00AM\": [{\"format\": \"IMAX\"}],\n          \"1:00PM\": [{\"format\": \"Standard\"}]\n        }\n      }\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reports/selection-analysis?format=json",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "reports", "selection-analysis"],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "json"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Selection Analysis (CSV)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"selected_showtimes\": {\n    \"2025-11-28\": {\n      \"Marcus Ridge Cinema\": {\n        \"Wicked\": {\n          \"10:00AM\": [{\"format\": \"IMAX\"}]\n        }\n      }\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reports/selection-analysis?format=csv",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "reports", "selection-analysis"],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "csv"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Showtime View HTML",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"selected_showtimes\": {\n    \"2025-11-28\": {\n      \"Marcus Ridge Cinema\": {\n        \"Wicked\": {\n          \"10:00AM\": [{\"format\": \"IMAX\"}]\n        }\n      }\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reports/showtime-view/html",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "reports", "showtime-view", "html"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Showtime View PDF",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"selected_showtimes\": {\n    \"2025-11-28\": {\n      \"Marcus Ridge Cinema\": {\n        \"Wicked\": {\n          \"10:00AM\": [{\"format\": \"IMAX\"}]\n        }\n      }\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reports/showtime-view/pdf",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "reports", "showtime-view", "pdf"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Daily Lineup (JSON)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reports/daily-lineup?theater=Marcus Ridge Cinema&date=2025-11-28&format=json",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "reports", "daily-lineup"],
+              "query": [
+                {
+                  "key": "theater",
+                  "value": "Marcus Ridge Cinema"
+                },
+                {
+                  "key": "date",
+                  "value": "2025-11-28"
+                },
+                {
+                  "key": "format",
+                  "value": "json"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Daily Lineup (CSV)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reports/daily-lineup?theater=Marcus Ridge Cinema&date=2025-11-28&format=csv",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "reports", "daily-lineup"],
+              "query": [
+                {
+                  "key": "theater",
+                  "value": "Marcus Ridge Cinema"
+                },
+                {
+                  "key": "date",
+                  "value": "2025-11-28"
+                },
+                {
+                  "key": "format",
+                  "value": "csv"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Operating Hours",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reports/operating-hours?theater=Marcus Ridge Cinema&format=json",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "reports", "operating-hours"],
+              "query": [
+                {
+                  "key": "theater",
+                  "value": "Marcus Ridge Cinema"
+                },
+                {
+                  "key": "format",
+                  "value": "json"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PLF Formats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reports/plf-formats?format=json&limit=100",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "reports", "plf-formats"],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "json"
+                },
+                {
+                  "key": "limit",
+                  "value": "100"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PLF Formats (Date Filter)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reports/plf-formats?date=2025-11-28&format=json",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "reports", "plf-formats"],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "2025-11-28"
+                },
+                {
+                  "key": "format",
+                  "value": "json"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Resources",
+      "item": [
+        {
+          "name": "List Theaters",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/theaters?format=json",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "theaters"],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "json"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Theaters (CSV)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/theaters?format=csv",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "theaters"],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "csv"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Films",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/films?limit=20&format=json",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "films"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "format",
+                  "value": "json"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Films (By Theater)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/films?theater=Marcus Ridge Cinema&format=json",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "films"],
+              "query": [
+                {
+                  "key": "theater",
+                  "value": "Marcus Ridge Cinema"
+                },
+                {
+                  "key": "format",
+                  "value": "json"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Scrape Runs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/scrape-runs?limit=10&format=json",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "scrape-runs"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "format",
+                  "value": "json"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search Showtimes (By Film)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/showtimes/search?film=Wicked&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "showtimes", "search"],
+              "query": [
+                {
+                  "key": "film",
+                  "value": "Wicked"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search Showtimes (By Theater)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/showtimes/search?theater=Marcus&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "showtimes", "search"],
+              "query": [
+                {
+                  "key": "theater",
+                  "value": "Marcus"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search Showtimes (IMAX Only)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/showtimes/search?format_type=IMAX&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "showtimes", "search"],
+              "query": [
+                {
+                  "key": "format_type",
+                  "value": "IMAX"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search Showtimes (Date Range)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/showtimes/search?date_from=2025-11-27&date_to=2025-11-30&limit=50",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "showtimes", "search"],
+              "query": [
+                {
+                  "key": "date_from",
+                  "value": "2025-11-27"
+                },
+                {
+                  "key": "date_to",
+                  "value": "2025-11-30"
+                },
+                {
+                  "key": "limit",
+                  "value": "50"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Pricing Data",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/pricing?limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "pricing"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Pricing (By Theater)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/pricing?theater=Marcus&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "pricing"],
+              "query": [
+                {
+                  "key": "theater",
+                  "value": "Marcus"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

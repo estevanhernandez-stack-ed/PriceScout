@@ -1,3 +1,28 @@
+def backfill_film_details_from_fandango_single(title: str) -> int:
+    """
+    Backfill film details for a single film title from OMDb.
+    Returns 1 if updated, 0 otherwise.
+    """
+    from app.omdb_client import OMDbClient
+    count = 0
+    with get_session() as session:
+        company_id = getattr(config, 'CURRENT_COMPANY_ID', None)
+        try:
+            omdb = OMDbClient()
+        except ValueError:
+            return 0
+        try:
+            film_details = omdb.get_film_details(title)
+            if film_details and film_details.get('runtime'):
+                film_details['film_title'] = title
+                upsert_film_details(film_details)
+                count = 1
+            else:
+                add_unmatched_film(title)
+        except Exception as e:
+            print(f"Error fetching details for '{title}': {e}")
+            add_unmatched_film(title)
+    return count
 """
 Database Adapter Layer for PriceScout
 Version: 1.0.0
@@ -1572,8 +1597,12 @@ def backfill_film_details_from_fandango() -> int:
                             film_details['film_title'] = title  # Preserve original title
                             upsert_film_details(film_details)
                             count += 1
+                        else:
+                            # Log unmatched film for review
+                            add_unmatched_film(title)
                     except Exception as e:
                         print(f"Error fetching details for '{title}': {e}")
+                        add_unmatched_film(title)
                         continue
             finally:
                 # Restore original company_id

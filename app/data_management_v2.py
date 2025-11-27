@@ -859,26 +859,28 @@ def _render_ticket_type_editor():
     else:
         sorted_canonical_names = sorted(base_type_mappings.keys())
         for name in sorted_canonical_names:
-            with st.expander(f"**{name}** ({len(base_type_mappings[name])} variations)"):
-                for i, variation in enumerate(base_type_mappings[name]):
-                    cols = st.columns([0.7, 0.2, 0.1])
-                    cols[0].text(variation)
-                    if cols[1].button("Move to Amenities", key=f"move_base_{name}_{i}", help=f"Move '{variation}' to an amenity category."):
-                        base_type_mappings[name].remove(variation)
-                        if not base_type_mappings[name]:
-                            del base_type_mappings[name]
-                        _add_unmatched_ticket_type_local(unmatched_part=variation, original_description=f"Moved from Ticket Type '{name}'")
-                        save_ticket_types(ticket_types_data)
-                        st.toast(f"Moved '{variation}' to be re-categorized as an amenity.")
-                        st.rerun()
-                    if cols[2].button("❌", key=f"del_base_{name}_{i}", help=f"Remove '{variation}' and mark for rematching."):
-                        base_type_mappings[name].remove(variation)
-                        if not base_type_mappings[name]:
-                            del base_type_mappings[name]
-                        _add_unmatched_ticket_type_local(unmatched_part=variation, original_description=f"Removed from Ticket Type '{name}'")
-                        save_ticket_types(ticket_types_data)
-                        st.toast(f"Removed '{variation}' and marked for rematching.")
-                        st.rerun()
+            # Use divider and container instead of nested expander
+            st.divider()
+            st.markdown(f"**{name}** ({len(base_type_mappings[name])} variations)")
+            for i, variation in enumerate(base_type_mappings[name]):
+                cols = st.columns([0.7, 0.2, 0.1])
+                cols[0].text(variation)
+                if cols[1].button("Move to Amenities", key=f"move_base_{name}_{i}", help=f"Move '{variation}' to an amenity category."):
+                    base_type_mappings[name].remove(variation)
+                    if not base_type_mappings[name]:
+                        del base_type_mappings[name]
+                    _add_unmatched_ticket_type_local(unmatched_part=variation, original_description=f"Moved from Ticket Type '{name}'")
+                    save_ticket_types(ticket_types_data)
+                    st.toast(f"Moved '{variation}' to be re-categorized as an amenity.")
+                    st.rerun()
+                if cols[2].button("❌", key=f"del_base_{name}_{i}", help=f"Remove '{variation}' and mark for rematching."):
+                    base_type_mappings[name].remove(variation)
+                    if not base_type_mappings[name]:
+                        del base_type_mappings[name]
+                    _add_unmatched_ticket_type_local(unmatched_part=variation, original_description=f"Removed from Ticket Type '{name}'")
+                    save_ticket_types(ticket_types_data)
+                    st.toast(f"Removed '{variation}' and marked for rematching.")
+                    st.rerun()
 
 def _render_amenity_editor():
     """Renders the UI for managing amenity normalization mappings."""
@@ -934,36 +936,38 @@ def _render_amenity_editor():
     else:
         sorted_canonical_names = sorted(amenity_mappings.keys())
         for name in sorted_canonical_names:
-            with st.expander(f"**{name}** ({len(amenity_mappings[name])} variations)"):
-                for i, variation in enumerate(amenity_mappings[name]):
-                    cols = st.columns([0.6, 0.2, 0.1, 0.1])
-                    cols[0].text(variation)
-                    if cols[1].button("Move to Ticket Types", key=f"move_amenity_{name}_{i}", help=f"Move '{variation}' to a ticket type category for re-categorization."):
-                        amenity_mappings[name].remove(variation)
-                        if not amenity_mappings[name]:
-                            del amenity_mappings[name]
-                        _add_unmatched_ticket_type_local(unmatched_part=variation, original_description=f"Moved from Amenity '{name}'")
-                        save_ticket_types(ticket_types_data)
-                        st.toast(f"Moved '{variation}' to be re-categorized.")
-                        st.rerun()
-                    if cols[2].button("Ignore", key=f"ignore_amenity_{name}_{i}", help=f"Add '{variation}' to the ignore list."):
-                        amenity_mappings[name].remove(variation)
-                        if not amenity_mappings[name]:
-                            del amenity_mappings[name]
-                        if variation not in ignored_amenities:
-                            ignored_amenities.append(variation)
-                            ignored_amenities.sort()
-                        save_ticket_types(ticket_types_data)
-                        st.toast(f"Added '{variation}' to the ignore list.")
-                        st.rerun()
-                    if cols[3].button("❌", key=f"del_amenity_{name}_{i}", help=f"Remove '{variation}' and mark for rematching."):
-                        amenity_mappings[name].remove(variation)
-                        if not amenity_mappings[name]:
-                            del amenity_mappings[name]
-                        _add_unmatched_ticket_type_local(unmatched_part=variation, original_description=f"Removed from Amenity '{name}'")
-                        save_ticket_types(ticket_types_data)
-                        st.toast(f"Removed '{variation}' and marked for rematching.")
-                        st.rerun()
+            # Use divider and container instead of nested expander
+            st.divider()
+            st.markdown(f"**{name}** ({len(amenity_mappings[name])} variations)")
+            for i, variation in enumerate(amenity_mappings[name]):
+                cols = st.columns([0.6, 0.2, 0.1, 0.1])
+                cols[0].text(variation)
+                if cols[1].button("Move to Ticket Types", key=f"move_amenity_{name}_{i}", help=f"Move '{variation}' to a ticket type category for re-categorization."):
+                    amenity_mappings[name].remove(variation)
+                    if not amenity_mappings[name]:
+                        del amenity_mappings[name]
+                    _add_unmatched_ticket_type_local(unmatched_part=variation, original_description=f"Moved from Amenity '{name}'")
+                    save_ticket_types(ticket_types_data)
+                    st.toast(f"Moved '{variation}' to be re-categorized.")
+                    st.rerun()
+                if cols[2].button("Ignore", key=f"ignore_amenity_{name}_{i}", help=f"Add '{variation}' to the ignore list."):
+                    amenity_mappings[name].remove(variation)
+                    if not amenity_mappings[name]:
+                        del amenity_mappings[name]
+                    if variation not in ignored_amenities:
+                        ignored_amenities.append(variation)
+                        ignored_amenities.sort()
+                    save_ticket_types(ticket_types_data)
+                    st.toast(f"Added '{variation}' to the ignore list.")
+                    st.rerun()
+                if cols[3].button("❌", key=f"del_amenity_{name}_{i}", help=f"Remove '{variation}' and mark for rematching."):
+                    amenity_mappings[name].remove(variation)
+                    if not amenity_mappings[name]:
+                        del amenity_mappings[name]
+                    _add_unmatched_ticket_type_local(unmatched_part=variation, original_description=f"Removed from Amenity '{name}'")
+                    save_ticket_types(ticket_types_data)
+                    st.toast(f"Removed '{variation}' and marked for rematching.")
+                    st.rerun()
 
     st.divider()
     st.markdown("##### Ignored Amenities")
@@ -1097,7 +1101,7 @@ def _render_database_tools():
                 st.success(f"Successfully backfilled showtimes data for {count} films.")
 
 def main():
-    st.set_page_config(layout="wide")
+    # Page config is set in price_scout_app.py - don't set it again here
     st.title("Data Quality & Enrichment")
     st.write("Manage data quality and perform database maintenance and enrichment.")
 

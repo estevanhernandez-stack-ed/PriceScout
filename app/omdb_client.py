@@ -1,3 +1,4 @@
+import os
 import requests
 import streamlit as st
 import httpx
@@ -13,17 +14,20 @@ class OMDbClient:
     API_URL = "http://www.omdbapi.com/"
 
     def __init__(self):
-        """Initializes the client with the API key from Streamlit secrets."""
+        """Initializes the client with the API key from Streamlit secrets or environment."""
         api_key_value = ""
         try:
             api_key_value = st.secrets["omdb_api_key"]
         except (AttributeError, KeyError):
-            # This handles the case where st.secrets doesn't exist or the key is missing.
-            # The check below will raise the final error.
+            # st.secrets not configured or key missing; fall back to env var
             pass
 
+        # Fallback: environment variable
         if not api_key_value:
-            raise ValueError("OMDb API key not found or is empty in st.secrets. Please add 'omdb_api_key' to your secrets.toml file.")
+            api_key_value = os.getenv("OMDB_API_KEY", "")
+
+        if not api_key_value:
+            raise ValueError("OMDb API key not found. Set 'omdb_api_key' in .streamlit/secrets.toml or export OMDB_API_KEY env var.")
 
         # Be robust: if user pastes the full example URL, extract just the key
         if "apikey=" in api_key_value:

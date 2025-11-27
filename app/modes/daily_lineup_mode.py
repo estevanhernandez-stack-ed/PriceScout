@@ -342,6 +342,23 @@ def display_cached_lineup(theater_name, date_obj, show_outtime=True):
         )
 
     # Display the lineup table
+
+    # Display the lineup table and add per-row backfill buttons for missing Out-Time
+    for idx, row in lineup_df.iterrows():
+        st.write(f"**{row['Film']}** | {row['In-Time']}" + (f" → {row['Out-Time']}" if row.get('Out-Time') else ""))
+        if show_outtime and (not row.get('Out-Time')):
+            if st.button(f"Backfill '{row['Film']}' runtime", key=f"backfill_{idx}"):
+                with st.spinner(f"Fetching runtime for '{row['Film']}' from OMDb..."):
+                    # Defensive: strip format tags for OMDb query
+                    film_title_for_query = re.sub(r"\s*\[.*?\]$", "", row['Film']).strip()
+                    count = database.backfill_film_details_from_fandango_single(film_title_for_query)
+                    if count > 0:
+                        st.success(f"✅ Enriched '{row['Film']}' with runtime!")
+                        st.rerun()
+                    else:
+                        st.warning(f"Could not find runtime for '{row['Film']}'. Check Data Management mode for manual entry.")
+
+    # Optionally, still show the full dataframe below for download/print
     st.dataframe(
         lineup_df,
         use_container_width=True,
@@ -437,6 +454,15 @@ def scrape_and_generate(theater_obj, theater_name, date_str, date_obj, compact_t
         if status == 'success' and result:
             # Save to database using upsert_showings
             database.upsert_showings(result, date_str)
+
+            # Auto-backfill film metadata for any new films discovered
+            with st.spinner("Fetching film details from OMDb (runtime, rating, poster)..."):
+                try:
+                    count = database.backfill_film_details_from_fandango()
+                    if count > 0:
+                        st.info(f"📊 Enriched {count} film(s) with metadata")
+                except Exception as e:
+                    st.warning(f"Note: Could not auto-fetch some film details. You can manually backfill in Data Management mode.")
 
             # Count total showings
             total_showings = sum(len(showings) for showings in result.values())
@@ -590,6 +616,29 @@ def generate_daily_lineup(theater_name, date_str, date_obj, compact_titles=True,
         hide_index=True,
         column_config=column_config
     )
+
+    # Manual backfill button for missing runtime data
+    if 'Out-Time' in lineup_df.columns and (lineup_df['Out-Time'].isna().any() or (lineup_df['Out-Time'] == '').any()):
+        st.warning("⚠️ Some films are missing runtime data. Click below to fetch missing details.")
+        if st.button("🔄 Backfill Missing Film Details", use_container_width=True):
+            with st.spinner("Fetching film details from OMDb..."):
+                try:
+                    count = database.backfill_film_details_from_fandango()
+                    if count > 0:
+                        st.success(f"✅ Successfully enriched {count} film(s) with metadata!")
+                        st.info("🔃 Refreshing lineup with updated data...")
+                        # Regenerate lineup with updated data
+                        new_lineup_df = database.generate_daily_lineup(theater_name, date_str)
+                        if new_lineup_df is not None and not new_lineup_df.empty:
+                            st.session_state['lineup_df'] = new_lineup_df
+                            st.rerun()
+                        else:
+                            st.warning("Could not refresh lineup. Please regenerate manually.")
+                    else:
+                        st.info("No new film details were found. Films may need manual matching in Data Management mode.")
+                except Exception as e:
+                    st.error(f"Error during backfill: {str(e)}")
+                    st.info("💡 Tip: For films that can't be auto-matched, use the 'Film Details' section in Data Management mode.")
 
     # Print instructions
     st.divider()

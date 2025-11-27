@@ -113,7 +113,9 @@ data/*/reports/**/*.csv
 *.pyo
 
 # Streamlit
+# Ignore secrets at repo root and in any subfolder
 .streamlit/secrets.toml
+**/.streamlit/secrets.toml
 
 # OS Files
 Thumbs.db

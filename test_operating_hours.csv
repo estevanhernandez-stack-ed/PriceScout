@@ -1,0 +1,101 @@
+theater_name,date,opening_time,closing_time,total_showtimes
+Marcus Addison Cinema,2025-11-30,10:00AM,9:55AM,85
+Marcus Arnold Cinemas,2025-11-30,10:00AM,9:45AM,62
+Marcus Bay Park Cinemas,2025-11-30,10:00AM,9:45AM,64
+Marcus BistroPlex Southridge,2025-11-30,10:00AM,9:45AM,28
+Marcus Bloomington Cinema + IMAX,2025-11-30,10:00AM,9:45PM,60
+Marcus Campus Theatre,2025-11-30,1:00PM,7:00PM,3
+Marcus Cape West Cinema,2025-11-30,10:00AM,9:55AM,66
+Marcus Cedar Creek Cinema,2025-11-30,10:00AM,9:40AM,39
+Marcus Cedar Rapids Cinema,2025-11-30,10:00AM,9:50AM,69
+Marcus Century Cinema,2025-11-30,10:00AM,9:15AM,39
+Marcus Chesterfield Cinema,2025-11-30,10:00AM,9:30PM,61
+Marcus Chicago Heights Cinema,2025-11-30,10:00PM,9:50PM,58
+Marcus Cinema at the Renaissance,2025-11-30,10:00AM,9:45AM,56
+Marcus Coral Ridge Cinema,2025-11-30,11:00AM,9:30PM,39
+Marcus Country Club Hills Cinema,2025-11-30,10:00AM,9:50AM,67
+Marcus Crossroads Cinema,2025-11-30,10:00AM,9:50PM,52
+Marcus Crosswoods Cinema,2025-11-30,10:00PM,9:55PM,70
+Marcus Des Peres Cinema,2025-11-30,10:00AM,9:40AM,61
+Marcus Duluth Cinema,2025-11-30,10:00AM,9:30AM,42
+Marcus Eagles Landing Cinema,2025-11-30,11:00AM,7:25PM,26
+Marcus East Park Cinemas,2025-11-30,10:00AM,9:55PM,29
+Marcus Edgewood Cinemas,2025-11-30,11:00AM,8:15PM,22
+Marcus Elgin Cinema,2025-11-30,10:00AM,9:45PM,65
+Marcus Green Bay East Cinema,2025-11-30,10:55AM,8:00PM,40
+Marcus Gurnee Mills Cinema,2025-11-30,10:00AM,9:50AM,83
+Marcus Hillside Cinema,2025-11-30,11:45AM,8:00PM,42
+Marcus Hollywood Cinemas,2025-11-30,10:00AM,8:00PM,52
+Marcus La Crosse Cinemas,2025-11-30,10:00AM,9:50AM,45
+Marcus Lakes Cinema,2025-11-30,11:00AM,9:00PM,38
+Marcus Lincoln Grand Cinemas,2025-11-30,10:00AM,9:50PM,61
+Marcus Majestic Cinema of Brookfield,2025-11-30,10:00AM,9:55AM,73
+Marcus Majestic Cinema of Omaha,2025-11-30,10:05AM,9:55AM,79
+Marcus Menomonee Falls Cinema,2025-11-30,10:00AM,9:50AM,61
+Marcus Mid Rivers Cinema,2025-11-30,10:00AM,9:45AM,51
+Marcus North Shore Cinema,2025-11-30,10:00AM,9:55PM,46
+Marcus O'Fallon Cinema,2025-11-30,10:00PM,9:45PM,78
+Marcus Oakdale Cinema,2025-11-30,10:00AM,9:55AM,81
+Marcus Orland Park Cinemas,2025-11-30,10:00AM,9:50AM,62
+Marcus Oshkosh Cinema,2025-11-30,10:00AM,8:30PM,43
+Marcus Palace Cinema,2025-11-30,10:00AM,9:35AM,62
+Marcus Parkwood Cinema,2025-11-30,10:00AM,9:45AM,66
+Marcus Pickerington Cinema,2025-11-30,10:00AM,9:55AM,69
+Marcus Point Cinemas,2025-11-30,10:00AM,9:40AM,64
+Marcus Ridge Cinema,2025-11-30,10:00AM,9:45PM,80
+Marcus Rochester Cinema + IMAX,2025-11-30,10:00AM,9:50AM,52
+Marcus Ronnie's Cinema + IMAX  ,2025-11-30,10:00AM,9:50PM,94
+Marcus Rosemount Cinema,2025-11-30,10:00AM,9:45AM,43
+Marcus Sheboygan Cinema,2025-11-30,10:00AM,9:55AM,54
+Marcus South Pointe Cinemas,2025-11-30,10:00AM,9:45PM,29
+Marcus South Shore Cinema,2025-11-30,10:00AM,9:55AM,66
+Marcus Southbridge Crossing Cinema,2025-11-30,10:00AM,9:35AM,40
+Marcus St. Charles Cinema,2025-11-30,10:00AM,9:50PM,78
+Marcus Sycamore Cinema,2025-11-30,10:45AM,9:40PM,48
+Marcus Town Square Cinema,2025-11-30,10:00AM,9:10PM,51
+Marcus Twin Creek Cinema,2025-11-30,10:00AM,9:50PM,75
+Marcus Valley Grand Cinema,2025-11-30,10:00AM,9:50AM,69
+Marcus Village Pointe Cinema,2025-11-30,10:10AM,9:50AM,66
+Marcus West Acres Cinema,2025-11-30,10:00AM,9:55AM,54
+Marcus West End Cinema,2025-11-30,10:00AM,9:45AM,48
+Movie Tavern Aurora,2025-11-30,10:00AM,9:45PM,37
+Movie Tavern Brannon Crossing,2025-11-30,11:00AM,9:30PM,49
+Movie Tavern Brookfield,2025-11-30,10:00PM,9:50PM,34
+Movie Tavern Citiplace Cinema,2025-11-30,10:00AM,9:30PM,43
+Movie Tavern Collegeville Cinema,2025-11-30,10:00AM,9:30PM,31
+Movie Tavern Covington,2025-11-30,10:00AM,9:00PM,42
+Movie Tavern Denton,2025-11-30,10:00AM,9:45AM,37
+Movie Tavern Exton,2025-11-30,10:00AM,9:45PM,37
+Movie Tavern Flourtown,2025-11-30,10:00PM,9:30PM,31
+Movie Tavern Horizon Village,2025-11-30,10:00AM,9:30PM,33
+Movie Tavern Hulen,2025-11-30,10:00PM,9:45PM,50
+Movie Tavern Juban Crossing,2025-11-30,10:00AM,9:45PM,51
+Movie Tavern Little Rock,2025-11-30,10:00PM,9:45PM,48
+Movie Tavern Roswell,2025-11-30,10:00AM,9:45PM,46
+Movie Tavern Syracuse,2025-11-30,10:00AM,9:55PM,44
+Movie Tavern Trexlertown,2025-11-30,10:00AM,9:45PM,49
+Movie Tavern Tucker Cinema,2025-11-30,10:00AM,9:45PM,36
+Movie Tavern West 7th Street,2025-11-30,10:00AM,9:45PM,30
+Movie Tavern Williamsburg,2025-11-30,10:00AM,9:30AM,30
+Marcus Addison Cinema,2025-11-29,10:00AM,9:50PM,92
+Marcus Arnold Cinemas,2025-11-29,10:00AM,9:45PM,70
+Marcus Bay Park Cinemas,2025-11-29,10:00AM,9:45PM,76
+Marcus BistroPlex Southridge,2025-11-29,10:00PM,9:45PM,32
+Marcus Bloomington Cinema + IMAX,2025-11-29,10:00AM,9:40PM,60
+Marcus Campus Theatre,2025-11-29,1:00PM,7:00PM,3
+Marcus Cape West Cinema,2025-11-29,10:00AM,9:55AM,68
+Marcus Cedar Creek Cinema,2025-11-29,10:00AM,9:40PM,48
+Marcus Cedar Rapids Cinema,2025-11-29,10:00AM,9:55PM,72
+Marcus Century Cinema,2025-11-29,10:00AM,9:45PM,48
+Marcus Chesterfield Cinema,2025-11-29,10:00AM,9:30AM,66
+Marcus Chicago Heights Cinema,2025-11-29,10:00PM,9:50PM,58
+Marcus Cinema at the Renaissance,2025-11-29,10:00AM,9:40AM,59
+Marcus Coral Ridge Cinema,2025-11-29,10:00PM,9:25PM,45
+Marcus Country Club Hills Cinema,2025-11-29,10:00AM,9:50PM,70
+Marcus Crossroads Cinema,2025-11-29,10:00AM,9:50PM,57
+Marcus Crosswoods Cinema,2025-11-29,10:00PM,9:55PM,84
+Marcus Des Peres Cinema,2025-11-29,10:00AM,9:40AM,64
+Marcus Duluth Cinema,2025-11-29,10:00AM,9:40PM,49
+Marcus Eagles Landing Cinema,2025-11-29,10:00PM,9:55PM,33
+Marcus East Park Cinemas,2025-11-29,10:00AM,9:55PM,29
+Marcus Edgewood Cinemas,2025-11-29,11:00AM,8:15PM,22
