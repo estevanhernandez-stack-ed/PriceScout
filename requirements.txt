@@ -53,6 +53,10 @@ xlsxwriter>=3.1.0,<4.0.0       # Excel write support (better formatting)
 # === ENVIRONMENT ===
 python-dotenv>=1.0.0,<2.0.0    # Environment variable management
 
+# === API (Alpha) ===
+fastapi>=0.111.0,<1.0.0        # Lightweight API layer for report endpoints
+uvicorn[standard]>=0.29.0,<1.0 # ASGI server for FastAPI
+
 # ==============================================================================
 # TESTING (Dev/CI only - can be moved to requirements-dev.txt)
 # ==============================================================================
