@@ -641,19 +641,40 @@ Data Management provides centralized database operations:
 
 #### Configure API Key
 
-**Method 1: Environment Variable**
+**Method 1: Streamlit Secrets (Recommended)**
 ```bash
-# .env file
+# .streamlit/secrets.toml (create at project root)
+omdb_api_key = "your_key_here"
+omdb_poster_api_key = "your_key_here"
+```
+
+**Method 2: Environment Variable**
+```bash
+# Windows PowerShell
+$env:OMDB_API_KEY = "your_key_here"
+
+# Or add to .env file
 OMDB_API_KEY=your_key_here
 ```
 
-**Method 2: Data Management UI**
-1. Data Management mode
-2. **OMDb Enrichment** section
-3. Paste API key in field
-4. Key saved to session
+**Precedence:** Streamlit secrets take priority, then environment variable fallback.
+
+**Security:** `.streamlit/secrets.toml` is automatically excluded from git commits.
 
 #### Enrich Films
+
+**Automatic Enrichment (New Feature)**
+
+Film metadata is now automatically fetched when scraping in these modes:
+- **Daily Lineup Mode** - Auto-enriches after scraping showtimes
+- **Other Scraping Modes** - Auto-enriches when new films detected
+
+If auto-enrichment fails to find a film:
+- Film is logged as "unmatched" for manual review
+- Appears in **Unmatched Film Review** section below
+- Can be manually enriched or marked as special event
+
+**Manual Bulk Enrichment**
 
 1. **Select Films** tab
 2. View list of films in database
@@ -662,18 +683,44 @@ OMDB_API_KEY=your_key_here
 5. System queries OMDb API
 6. Metadata updated in database
 
+**Per-Film Enrichment (Daily Lineup)**
+
+When viewing a Daily Lineup with missing runtime data:
+1. Each film missing Out-Time shows a **"Backfill '[Film]' runtime"** button
+2. Click button to fetch that specific film's metadata
+3. Lineup refreshes automatically with updated Out-Time
+4. If OMDb can't find the film, it's logged for manual review
+
+**Unmatched Film Review**
+
+Films that couldn't be automatically matched appear here:
+1. Navigate to **Unmatched Film Review** section
+2. Review list of unmatched films
+3. For each film, choose an action:
+  - **Re-match with OMDb** - Try again with corrected title
+  - **Search Fandango** - Fetch from Fandango as fallback
+  - **Enter Manually** - Add metadata by hand
+  - **Accept as Special Event** - Mark as non-standard film (private event, etc.)
+  - **Mark as Mystery Movie** - Special case for unknown titles
+4. Click action button and follow prompts
+5. Successfully matched films removed from unmatched list
+
 **What Gets Updated:**
 - Genre (Action, Comedy, Drama, etc.)
 - MPAA Rating (G, PG, PG-13, R)
+- Runtime (for Out-Time calculations)
 - Release Year
 - Plot Summary
 - Director
 - Cast
+- Poster URL
 
 **Best Practices:**
 - Enrich in batches (10-20 at a time)
 - Monitor API usage (free tier = 1,000/day)
 - Run after major scrapes to update new films
+- Review unmatched films weekly to improve data quality
+- Use per-film buttons in Daily Lineup for immediate fixes
 
 ### Database Merging
 

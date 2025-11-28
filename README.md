@@ -15,11 +15,18 @@ PriceScout is a competitive intelligence and ticket pricing analysis platform fo
 
 - **Market Mode:** Compare pricing across theaters in your market
 - **CompSnipe Mode:** Competitive intelligence with ZIP code search
-- **Daily Lineup:** Print-ready theater schedules with compact titles
+- **Daily Lineup:** Print-ready theater schedules with auto-enrichment and per-film runtime backfill
 - **Operating Hours:** Track and analyze theater operating hours
 - **Analysis Mode:** Film and theater performance analytics
 - **Poster Board:** Film metadata and release calendar management
 - **Admin Panel:** User management, RBAC, bulk operations
+### Recent Features (v2.0.0)
+
+- **Auto-enrichment**: Film metadata automatically fetched from OMDb during scraping
+- **Per-film backfill**: Click button next to any film missing runtime to fetch instantly
+- **Unmatched logging**: Failed enrichments logged for manual review in Data Management
+- **Improved OMDb config**: Secrets file + environment variable fallback
+- **API Authentication**: SHA-256 API keys with 4-tier rate limiting
 
 ---
 
@@ -162,7 +169,30 @@ All security events logged in structured JSON format:
 | `DEBUG` | No | Enable debug mode (`true`/`false`) |
 | `LOG_LEVEL` | No | `DEBUG`, `INFO`, `WARNING`, `ERROR` |
 
-*Required for PostgreSQL; SQLite used automatically for local development.
+*Required for PostgreSQL; SQLite used automatically for local development.  
+**Can also use `.streamlit/secrets.toml` (takes priority).
+
+### OMDb API Configuration
+
+Get free API key: https://www.omdbapi.com/apikey.aspx (1,000 requests/day)
+
+**Method 1: Streamlit Secrets (Recommended)**
+```toml
+# Create .streamlit/secrets.toml at project root
+omdb_api_key = "your_key_here"
+omdb_poster_api_key = "your_key_here"
+```
+
+**Method 2: Environment Variable**
+```bash
+# Windows
+$env:OMDB_API_KEY = "your_key_here"
+
+# Linux/Mac or .env file
+export OMDB_API_KEY="your_key_here"
+```
+
+**Note:** `.streamlit/secrets.toml` is git-ignored for security.
 
 ### Database Support
 

@@ -7,6 +7,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.0.1] - 2025-11-27 🎯 Daily Lineup Enhancements
+
+### Added
+
+#### Film Metadata Auto-Enrichment
+- **Automatic OMDb enrichment** after scraping in Daily Lineup mode
+- Runtime, MPAA rating, and poster data fetched automatically for new films
+- **Per-film backfill buttons** - Click to fetch runtime for individual films missing Out-Time
+- Films strip format tags (e.g., "[IMAX]", "[3D]") before OMDb queries to improve match rates
+
+#### Unmatched Film Logging
+- Films that fail OMDb enrichment now automatically logged for review
+- New **Unmatched Film Review** section in Data Management mode
+- Manual actions available: Re-match, Search Fandango, Enter Manually, Mark as Special Event
+- Reduces data gaps and improves lineup completeness
+
+#### OMDb Configuration Improvements
+- **Streamlit secrets support** - Primary configuration via `.streamlit/secrets.toml`
+- **Environment variable fallback** - `OMDB_API_KEY` as backup method
+- Automatic `.gitignore` protection for secrets files (`**/.streamlit/secrets.toml`)
+- Clear error messages guide users to proper configuration
+
+#### API Authentication (from v2.0.0)
+- SHA-256 hashed API keys with 4-tier rate limiting (internal/partner/customer/public)
+- `manage_api_keys.py` CLI tool for key management
+- Usage tracking per endpoint and client
+- 12 authenticated endpoints (7 reports + 5 resources)
+
+### Changed
+- **Daily Lineup Out-Time detection** now catches both NaN and empty string values
+- OMDb enrichment messages updated to clarify OMDb as primary source (not Fandango)
+- Improved documentation for OMDb setup in README and ADMIN_GUIDE
+
+### Fixed
+- Per-row backfill buttons now correctly refresh lineup after enrichment
+- Unmatched films no longer silently fail - all logged for manual review
+- Git security hardened to ignore secrets in any subdirectory
+
+### Documentation
+- Updated `README.md` with OMDb configuration precedence
+- Enhanced `docs/ADMIN_GUIDE.md` with auto-enrichment workflows
+- Added per-film backfill instructions for Daily Lineup users
+- Documented unmatched film review process
+
+---
+
 ## [1.0.0] - 2025-10-26 🎉 FIRST PRODUCTION RELEASE
 
 **This marks the first production-ready, fully tested, and documented release of Price Scout.**
