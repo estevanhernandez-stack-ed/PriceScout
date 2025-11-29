@@ -2,6 +2,10 @@ import re
 import httpx
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
+from opentelemetry import trace
+
+# Get tracer for custom spans
+tracer = trace.get_tracer(__name__)
 
 class BoxOfficeMojoScraper:
     """
@@ -26,21 +30,36 @@ class BoxOfficeMojoScraper:
         Returns:
             list[dict]: A list of dictionaries, each containing a film's title and bom_url.
         """
-        all_films = []
-        for month in range(1, 13):
-            monthly_films = self.discover_films_by_month(year, month)
-            all_films.extend(monthly_films)
-        
-        # Remove duplicates
-        seen_titles = set()
-        unique_films = []
-        for film in all_films:
-            if film['title'] not in seen_titles:
-                unique_films.append(film)
-                seen_titles.add(film['title'])
+        with tracer.start_as_current_span(
+            "box_office_mojo.discover_films_by_year",
+            attributes={"bom.year": year}
+        ) as span:
+            try:
+                all_films = []
+                for month in range(1, 13):
+                    monthly_films = self.discover_films_by_month(year, month)
+                    all_films.extend(monthly_films)
+                
+                # Remove duplicates
+                seen_titles = set()
+                unique_films = []
+                for film in all_films:
+                    if film['title'] not in seen_titles:
+                        unique_films.append(film)
+                        seen_titles.add(film['title'])
 
-        print(f"[BOM Scraper] Discovered {len(unique_films)} unique films for {year}.")
-        return unique_films
+                print(f"[BOM Scraper] Discovered {len(unique_films)} unique films for {year}.")
+                
+                # Add business metrics
+                span.set_attribute("bom.films_discovered", len(unique_films))
+                span.set_attribute("bom.total_entries", len(all_films))
+                span.set_attribute("bom.duplicates_removed", len(all_films) - len(unique_films))
+                
+                return unique_films
+            except Exception as e:
+                span.set_attribute("bom.error", str(e))
+                span.set_attribute("bom.error_type", type(e).__name__)
+                raise
 
     def discover_films_by_month(self, year: int, month: int) -> list[dict]:
         """
@@ -215,36 +234,50 @@ class BoxOfficeMojoScraper:
         """
         Asynchronously fetches detailed financial data for a single film.
         """
-        print(f"[BOM Scraper] Async getting financials from: {bom_url}...")
-        financials = {"opening_weekend_domestic": None, "domestic_gross": None}
+        with tracer.start_as_current_span(
+            "box_office_mojo.get_film_financials",
+            attributes={"bom.url": bom_url}
+        ) as span:
+            try:
+                print(f"[BOM Scraper] Async getting financials from: {bom_url}...")
+                financials = {"opening_weekend_domestic": None, "domestic_gross": None}
 
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"
-        }
+                headers = {
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"
+                }
 
-        try:
-            async with httpx.AsyncClient(headers=headers, follow_redirects=True, timeout=15.0) as client:
-                response = await client.get(bom_url)
-                response.raise_for_status()
-            soup = BeautifulSoup(response.content.decode('utf-8'), 'html.parser')
-            
-            # Find the domestic gross
-            domestic_gross_label = soup.find('span', string='Domestic Gross')
-            if domestic_gross_label and domestic_gross_label.find_next_sibling('span'):
-                financials['domestic_gross'] = self._parse_money(domestic_gross_label.find_next_sibling('span').get_text(strip=True))
+                async with httpx.AsyncClient(headers=headers, follow_redirects=True, timeout=15.0) as client:
+                    response = await client.get(bom_url)
+                    response.raise_for_status()
+                soup = BeautifulSoup(response.content.decode('utf-8'), 'html.parser')
+                
+                # Find the domestic gross
+                domestic_gross_label = soup.find('span', string='Domestic Gross')
+                if domestic_gross_label and domestic_gross_label.find_next_sibling('span'):
+                    financials['domestic_gross'] = self._parse_money(domestic_gross_label.find_next_sibling('span').get_text(strip=True))
 
-            # Find the opening weekend domestic gross
-            opening_weekend_label = soup.find('span', string='Opening Weekend')
-            if opening_weekend_label and opening_weekend_label.find_next_sibling('span'):
-                financials['opening_weekend_domestic'] = self._parse_money(opening_weekend_label.find_next_sibling('span').get_text(strip=True))
+                # Find the opening weekend domestic gross
+                opening_weekend_label = soup.find('span', string='Opening Weekend')
+                if opening_weekend_label and opening_weekend_label.find_next_sibling('span'):
+                    financials['opening_weekend_domestic'] = self._parse_money(opening_weekend_label.find_next_sibling('span').get_text(strip=True))
 
-            return financials
-        except httpx.RequestError as e:
-            print(f"[BOM Scraper] [ERROR] Async HTTP request failed for {bom_url}. Reason: {e}")
-            return financials
-        except Exception as e:
-            print(f"[BOM Scraper] [ERROR] Async failed to parse financial data for {bom_url}. Reason: {e}")
-            return financials
+                # Add telemetry
+                span.set_attribute("bom.domestic_gross_found", financials['domestic_gross'] is not None)
+                span.set_attribute("bom.opening_weekend_found", financials['opening_weekend_domestic'] is not None)
+                if financials['domestic_gross']:
+                    span.set_attribute("bom.domestic_gross_value", financials['domestic_gross'])
+
+                return financials
+            except httpx.RequestError as e:
+                print(f"[BOM Scraper] [ERROR] Async HTTP request failed for {bom_url}. Reason: {e}")
+                span.set_attribute("bom.error", str(e))
+                span.set_attribute("bom.error_type", "HTTPError")
+                return financials
+            except Exception as e:
+                print(f"[BOM Scraper] [ERROR] Async failed to parse financial data for {bom_url}. Reason: {e}")
+                span.set_attribute("bom.error", str(e))
+                span.set_attribute("bom.error_type", type(e).__name__)
+                return financials
 
     def _parse_money(self, money_str: str) -> int | None:
         """

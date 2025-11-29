@@ -7,8 +7,12 @@ from playwright.async_api import async_playwright
 from bs4 import BeautifulSoup
 import streamlit as st
 import random
+from opentelemetry import trace
 
 from app.config import DEBUG_DIR, CACHE_FILE
+
+# Get tracer for custom spans
+tracer = trace.get_tracer(__name__)
 
 class Scraper:
     def __init__(self, headless=True, devtools=False):
@@ -531,69 +535,116 @@ class Scraper:
         return results
 
     async def get_all_showings_for_theaters(self, theaters, date):
-        showings_by_theater = {}
-        async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=True)
-            for theater in theaters:
-                context = await browser.new_context(user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
-                page = await context.new_page()
-                showings = await self._get_movies_from_theater_page(page, theater, date)
-                showings_by_theater[theater['name']] = showings
-                await context.close()
-        return showings_by_theater
+        """Get all movie showings for given theaters on a specific date.
+        
+        This method creates a custom span for telemetry tracking with business metrics.
+        """
+        with tracer.start_as_current_span(
+            "scraper.get_all_showings_for_theaters",
+            attributes={
+                "scraper.theater_count": len(theaters),
+                "scraper.date": str(date)
+            }
+        ) as span:
+            try:
+                showings_by_theater = {}
+                async with async_playwright() as p:
+                    browser = await p.chromium.launch(headless=True)
+                    for theater in theaters:
+                        context = await browser.new_context(user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
+                        page = await context.new_page()
+                        showings = await self._get_movies_from_theater_page(page, theater, date)
+                        showings_by_theater[theater['name']] = showings
+                        await context.close()
+                
+                # Add business metrics to span
+                total_showings = sum(len(shows) for shows in showings_by_theater.values())
+                span.set_attribute("scraper.total_showings_found", total_showings)
+                span.set_attribute("scraper.theaters_processed", len(showings_by_theater))
+                
+                return showings_by_theater
+            except Exception as e:
+                span.set_attribute("scraper.error", str(e))
+                span.set_attribute("scraper.error_type", type(e).__name__)
+                raise
 
     async def scrape_details(self, theaters, selected_showtimes, status_container=None):
-        all_price_data = []
-        showings_to_scrape = []
+        """Scrape detailed pricing information for selected showtimes.
+        
+        This method creates a custom span for telemetry tracking with business metrics.
+        """
+        with tracer.start_as_current_span(
+            "scraper.scrape_details",
+            attributes={
+                "scraper.theater_count": len(theaters),
+                "scraper.date_count": len(selected_showtimes)
+            }
+        ) as span:
+            try:
+                all_price_data = []
+                showings_to_scrape = []
 
-        print(f"  [SCRAPER] Building showings list...")
-        print(f"  [SCRAPER] selected_showtimes structure: {list(selected_showtimes.keys())}")
+                print(f"  [SCRAPER] Building showings list...")
+                print(f"  [SCRAPER] selected_showtimes structure: {list(selected_showtimes.keys())}")
 
-        # selected_showtimes has structure: {date: {theater_name: {film_title: {showtime: [showing_info_list]}}}}
-        # We need to iterate through dates first to find the theater data
-        for date_str, daily_selections in selected_showtimes.items():
-            print(f"  [SCRAPER] Processing date: {date_str}")
-            for theater in theaters:
-                theater_name = theater['name']
-                if theater_name in daily_selections:
-                    print(f"  [SCRAPER] Found theater '{theater_name}' in selections for {date_str}")
-                    for film, times in daily_selections[theater_name].items():
-                        for time_str, showing_info_list in times.items():
-                            for showing_info in showing_info_list:
-                                showings_to_scrape.append({**showing_info, "theater_name": theater_name})
+                # selected_showtimes has structure: {date: {theater_name: {film_title: {showtime: [showing_info_list]}}}}
+                # We need to iterate through dates first to find the theater data
+                for date_str, daily_selections in selected_showtimes.items():
+                    print(f"  [SCRAPER] Processing date: {date_str}")
+                    for theater in theaters:
+                        theater_name = theater['name']
+                        if theater_name in daily_selections:
+                            print(f"  [SCRAPER] Found theater '{theater_name}' in selections for {date_str}")
+                            for film, times in daily_selections[theater_name].items():
+                                for time_str, showing_info_list in times.items():
+                                    for showing_info in showing_info_list:
+                                        showings_to_scrape.append({**showing_info, "theater_name": theater_name})
 
-        print(f"  [SCRAPER] Starting price scrape for {len(showings_to_scrape)} showings")
+                print(f"  [SCRAPER] Starting price scrape for {len(showings_to_scrape)} showings")
+                span.set_attribute("scraper.showings_to_scrape", len(showings_to_scrape))
 
-        async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=True)  # Back to headless for production
-            for idx, showing in enumerate(showings_to_scrape, 1):
-                print(f"\n  [SCRAPER] Processing showing {idx}/{len(showings_to_scrape)}: {showing['film_title']} at {showing.get('theater_name', 'Unknown')}")
-                context = await browser.new_context(user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
-                page = await context.new_page()
-                scrape_results = await self._get_prices_and_capacity(page, showing)
-                await context.close()
+                async with async_playwright() as p:
+                    browser = await p.chromium.launch(headless=True)  # Back to headless for production
+                    for idx, showing in enumerate(showings_to_scrape, 1):
+                        print(f"\n  [SCRAPER] Processing showing {idx}/{len(showings_to_scrape)}: {showing['film_title']} at {showing.get('theater_name', 'Unknown')}")
+                        context = await browser.new_context(user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
+                        page = await context.new_page()
+                        scrape_results = await self._get_prices_and_capacity(page, showing)
+                        await context.close()
 
-                if scrape_results["error"]:
-                    print(f"  [SCRAPER] [ERROR] Scraping {showing['film_title']} at {showing.get('theater_name', 'Unknown')}: {scrape_results['error']}")
-                    continue
+                        if scrape_results["error"]:
+                            print(f"  [SCRAPER] [ERROR] Scraping {showing['film_title']} at {showing.get('theater_name', 'Unknown')}: {scrape_results['error']}")
+                            continue
+                        
+                        for ticket in scrape_results['tickets']:
+                            initial_format = showing['format']
+                            final_amenities = ticket['amenities']
+                            combined_format_list = [initial_format] + final_amenities
+                            unique_formats = sorted(list(set(combined_format_list)))
+                            if len(unique_formats) > 1 and "2D" in unique_formats:
+                                unique_formats.remove("2D")
+                            
+                            price_point = {
+                                "Theater Name": showing['theater_name'], "Film Title": showing['film_title'],
+                                "Format": ", ".join(unique_formats), "Showtime": showing['showtime'],
+                                "Daypart": showing['daypart'], "Ticket Type": ticket['type'], "Price": ticket['price'],
+                                "Capacity": scrape_results.get('capacity', 'N/A')
+                            }
+                            all_price_data.append(price_point)
+
+                # Add business metrics to span
+                span.set_attribute("scraper.price_points_collected", len(all_price_data))
+                span.set_attribute("scraper.showings_scraped", len(showings_to_scrape))
                 
-                for ticket in scrape_results['tickets']:
-                    initial_format = showing['format']
-                    final_amenities = ticket['amenities']
-                    combined_format_list = [initial_format] + final_amenities
-                    unique_formats = sorted(list(set(combined_format_list)))
-                    if len(unique_formats) > 1 and "2D" in unique_formats:
-                        unique_formats.remove("2D")
-                    
-                    price_point = {
-                        "Theater Name": showing['theater_name'], "Film Title": showing['film_title'],
-                        "Format": ", ".join(unique_formats), "Showtime": showing['showtime'],
-                        "Daypart": showing['daypart'], "Ticket Type": ticket['type'], "Price": ticket['price'],
-                        "Capacity": scrape_results.get('capacity', 'N/A')
-                    }
-                    all_price_data.append(price_point)
+                # Track unique films
+                unique_films = set(price['Film Title'] for price in all_price_data)
+                span.set_attribute("scraper.unique_films", len(unique_films))
 
-        return all_price_data, showings_to_scrape
+                return all_price_data, showings_to_scrape
+            except Exception as e:
+                span.set_attribute("scraper.error", str(e))
+                span.set_attribute("scraper.error_type", type(e).__name__)
+                raise
 
     async def run_diagnostic_scrape(self, markets_to_test, date):
         diagnostic_results = []

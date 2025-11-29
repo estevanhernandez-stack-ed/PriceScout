@@ -1,0 +1,12 @@
+{
+  "scriptFile": "scraper_function.py",
+  "bindings": [
+    {
+      "name": "msg",
+      "type": "serviceBusTrigger",
+      "direction": "in",
+      "queueName": "scrape-jobs",
+      "connection": "AzureServiceBusConnectionString"
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 # PriceScout
 
-**Version:** 2.0.0
-**Release Date:** November 24, 2025
+**Version:** 2.0.1
+**Release Date:** November 28, 2025
 **Status:** Production Ready (Azure Deployment)
 **Python:** 3.11+
 
@@ -82,14 +82,15 @@ docker build -t pricescout:latest .
 # Test locally
 docker run -p 8000:8000 pricescout:latest
 
-# Deploy to Azure (see deploy/AZURE_DEPLOYMENT.md)
+# Deploy to Azure (see azure/docs/AZURE_DEPLOYMENT.md)
 ```
 
 ### Documentation
 
 | Document | Description |
 |----------|-------------|
-| [deploy/AZURE_DEPLOYMENT.md](deploy/AZURE_DEPLOYMENT.md) | Complete Azure deployment guide |
+| [azure/docs/AZURE_DEPLOYMENT.md](azure/docs/AZURE_DEPLOYMENT.md) | Complete Azure deployment guide |
+| [azure/docs/DEPLOYMENT_GUIDE.md](azure/docs/DEPLOYMENT_GUIDE.md) | Step-by-step deployment guide |
 | [.env.example](.env.example) | Environment configuration template |
 | [Dockerfile](Dockerfile) | Multi-stage Docker build |
 
@@ -99,7 +100,11 @@ docker run -p 8000:8000 pricescout:latest
 
 ```
 pricescout/
-├── app/                      # Application code
+├── api/                      # FastAPI backend
+│   ├── routers/              # API route handlers
+│   ├── entra_auth.py         # Entra ID authentication
+│   └── main.py               # API entry point
+├── app/                      # Streamlit application
 │   ├── modes/                # Feature modules
 │   │   ├── analysis_mode.py  # Film & theater analytics
 │   │   ├── market_mode.py    # Market comparisons
@@ -109,21 +114,25 @@ pricescout/
 │   │   └── poster_mode.py    # Film metadata
 │   ├── price_scout_app.py    # Main application
 │   ├── scraper.py            # Playwright web scraper
-│   ├── db_adapter.py         # Database abstraction layer
-│   ├── db_models.py          # SQLAlchemy ORM models
-│   ├── db_session.py         # Database session management
-│   ├── users.py              # Authentication & RBAC
-│   ├── security_config.py    # Security utilities
+│   ├── api_client.py         # API client for backend
+│   ├── azure_secrets.py      # Key Vault integration
 │   └── config.py             # Configuration
-├── tests/                    # Test suite (441 tests)
-├── deploy/                   # Deployment configurations
-│   ├── AZURE_DEPLOYMENT.md   # Azure guide
-│   └── DEPLOYMENT_GUIDE.md   # Legacy Linux guide
+├── azure/                    # Azure infrastructure
+│   ├── iac/                  # Bicep IaC templates
+│   ├── functions/            # Azure Functions
+│   ├── docs/                 # Deployment documentation
+│   ├── deploy-infrastructure.ps1
+│   └── verify-deployment.ps1
+├── tests/                    # Test suite (441+ tests)
+├── scripts/                  # Utility scripts
 ├── docs/                     # Documentation
-├── data/                     # Company data directories
+│   ├── deployment/           # Deployment guides
+│   ├── development/          # Development docs
+│   └── archive/              # Historical docs
+├── migrations/               # Database migrations
 ├── Dockerfile                # Production container
+├── azure-pipelines.yml       # CI/CD pipeline
 ├── requirements.txt          # Python dependencies
-├── .env.example              # Environment template
 └── VERSION                   # Current version
 ```
 
@@ -318,6 +327,6 @@ Proprietary - 626labs LLC
 
 ---
 
-**Version:** 2.0.0
-**Last Updated:** November 24, 2025
+**Version:** 2.0.1
+**Last Updated:** November 28, 2025
 **Maintainer:** 626labs LLC

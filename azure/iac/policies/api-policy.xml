@@ -1,0 +1,108 @@
+<!-- 
+    Azure API Management Policy for PriceScout API
+    
+    This policy applies to all operations in the PriceScout API.
+    It provides:
+    - JWT token validation
+    - Rate limiting
+    - CORS configuration
+    - Error handling
+-->
+<policies>
+    <inbound>
+        <!-- CORS Configuration -->
+        <cors allow-credentials="true">
+            <allowed-origins>
+                <!-- Azure App Service URLs -->
+                <origin>https://price-scout-app.azurewebsites.net</origin>
+                <!-- For local development -->
+                <origin>http://localhost:8501</origin>
+                <origin>http://127.0.0.1:8501</origin>
+            </allowed-origins>
+            <allowed-methods>
+                <method>GET</method>
+                <method>POST</method>
+                <method>PUT</method>
+                <method>DELETE</method>
+                <method>PATCH</method>
+                <method>OPTIONS</method>
+            </allowed-methods>
+            <allowed-headers>
+                <header>*</header>
+            </allowed-headers>
+            <expose-headers>
+                <header>*</header>
+            </expose-headers>
+        </cors>
+
+        <!-- Rate Limiting -->
+        <!-- Allow 100 calls per minute per subscription key -->
+        <rate-limit calls="100" renewal-period="60" />
+        
+        <!-- Quota: 10,000 calls per week per subscription -->
+        <quota calls="10000" renewal-period="604800" />
+
+        <!-- JWT Validation (for authenticated endpoints) -->
+        <!-- Skip validation for public endpoints like /docs, /healthz -->
+        <choose>
+            <when condition="@(context.Request.Url.Path.Contains("/auth/") || context.Request.Url.Path.Contains("/docs") || context.Request.Url.Path.Contains("/openapi.json") || context.Request.Url.Path.Contains("/healthz"))">
+                <!-- Public endpoints - no JWT validation required -->
+            </when>
+            <otherwise>
+                <!-- Validate JWT token for protected endpoints -->
+                <validate-jwt header-name="Authorization" failed-validation-httpcode="401" failed-validation-error-message="Unauthorized. Access token is missing or invalid.">
+                    <openid-config url="https://login.microsoftonline.com/{{TENANT_ID}}/v2.0/.well-known/openid-configuration" />
+                    <required-claims>
+                        <claim name="aud" match="all">
+                            <value>{{CLIENT_ID}}</value>
+                        </claim>
+                    </required-claims>
+                </validate-jwt>
+            </otherwise>
+        </choose>
+
+        <!-- Set backend service URL -->
+        <set-backend-service base-url="https://price-scout-app.azurewebsites.net" />
+
+        <!-- Forward original request -->
+        <base />
+    </inbound>
+    
+    <backend>
+        <base />
+    </backend>
+    
+    <outbound>
+        <!-- Add security headers -->
+        <set-header name="X-Content-Type-Options" exists-action="override">
+            <value>nosniff</value>
+        </set-header>
+        <set-header name="X-Frame-Options" exists-action="override">
+            <value>DENY</value>
+        </set-header>
+        <set-header name="X-XSS-Protection" exists-action="override">
+            <value>1; mode=block</value>
+        </set-header>
+        
+        <!-- Remove backend server headers -->
+        <set-header name="X-Powered-By" exists-action="delete" />
+        <set-header name="Server" exists-action="delete" />
+        
+        <base />
+    </outbound>
+    
+    <on-error>
+        <!-- Custom error response -->
+        <set-header name="Content-Type" exists-action="override">
+            <value>application/json</value>
+        </set-header>
+        <set-body>@{
+            return new JObject(
+                new JProperty("error", true),
+                new JProperty("message", context.LastError.Message),
+                new JProperty("source", context.LastError.Source)
+            ).ToString();
+        }</set-body>
+        <base />
+    </on-error>
+</policies>

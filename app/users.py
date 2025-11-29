@@ -18,6 +18,13 @@ try:
 except ImportError:
     POSTGRES_AVAILABLE = False
 
+# Import MSSQL/Azure SQL support
+try:
+    import pyodbc
+    MSSQL_AVAILABLE = True
+except ImportError:
+    MSSQL_AVAILABLE = False
+
 DB_FILE = os.path.join(PROJECT_DIR, "users.db")  # Use absolute path to avoid confusion
 ROLE_PERMISSIONS_FILE = os.path.join(PROJECT_DIR, "role_permissions.json")
 
@@ -78,16 +85,72 @@ def save_role_permissions(permissions):
     security_config.log_security_event("role_permissions_updated", "system", 
                                       {"permissions": permissions})
 
+def _get_db_type():
+    """Detect database type from DATABASE_URL"""
+    db_url = os.getenv('DATABASE_URL', '')
+    if db_url.startswith('mssql') or 'sqlserver' in db_url.lower():
+        return 'mssql' if MSSQL_AVAILABLE else None
+    elif db_url.startswith('postgres'):
+        return 'postgres' if POSTGRES_AVAILABLE else None
+    elif db_url:
+        # Unknown but has URL - try to detect by content
+        if 'database.windows.net' in db_url:
+            return 'mssql' if MSSQL_AVAILABLE else None
+    return None  # Use SQLite
+
 def _use_postgresql():
     """Check if we should use PostgreSQL instead of SQLite"""
-    return POSTGRES_AVAILABLE and os.getenv('DATABASE_URL')
+    return _get_db_type() == 'postgres'
+
+def _use_mssql():
+    """Check if we should use MSSQL/Azure SQL instead of SQLite"""
+    return _get_db_type() == 'mssql'
 
 def get_db_connection():
-    """Get database connection - PostgreSQL if available, otherwise SQLite"""
-    if _use_postgresql():
+    """Get database connection - MSSQL, PostgreSQL, or SQLite"""
+    db_type = _get_db_type()
+
+    if db_type == 'mssql':
+        # Use MSSQL/Azure SQL via pyodbc
+        db_url = os.getenv('DATABASE_URL')
+        # Extract connection string from SQLAlchemy URL format
+        # mssql+pyodbc://user:pass@server/db?driver=...
+        if db_url.startswith('mssql+pyodbc://'):
+            # Parse the SQLAlchemy-style URL
+            from urllib.parse import urlparse, parse_qs, unquote
+            parsed = urlparse(db_url.replace('mssql+pyodbc://', 'http://'))
+
+            user = unquote(parsed.username or '')
+            password = unquote(parsed.password or '')
+            host = parsed.hostname or ''
+            port = parsed.port or 1433
+            database = parsed.path.lstrip('/') if parsed.path else ''
+
+            # Parse query params for driver
+            query_params = parse_qs(parsed.query)
+            driver = query_params.get('driver', ['ODBC Driver 18 for SQL Server'])[0]
+
+            conn_str = (
+                f"DRIVER={{{driver}}};"
+                f"SERVER={host},{port};"
+                f"DATABASE={database};"
+                f"UID={user};"
+                f"PWD={password};"
+                f"Encrypt=yes;"
+                f"TrustServerCertificate=no;"
+            )
+            conn = pyodbc.connect(conn_str)
+            return conn
+        else:
+            # Assume it's already an ODBC connection string
+            conn = pyodbc.connect(db_url)
+            return conn
+
+    elif db_type == 'postgres':
         # Use PostgreSQL
         conn = psycopg2.connect(os.getenv('DATABASE_URL'))
         return conn
+
     else:
         # Use SQLite
         conn = sqlite3.connect(DB_FILE, detect_types=sqlite3.PARSE_DECLTYPES)
@@ -112,17 +175,21 @@ class DictRow:
         return self._data.keys()
 
 def init_database():
-    """Initialize database - handles both PostgreSQL and SQLite"""
-    if _use_postgresql():
-        # PostgreSQL database is already initialized via schema.sql
+    """Initialize database - handles MSSQL, PostgreSQL, and SQLite"""
+    db_type = _get_db_type()
+
+    if db_type in ('mssql', 'postgres'):
+        # Cloud database is already initialized via schema migration
         # Just verify the connection works
         try:
-            with get_db_connection() as conn:
-                cursor = conn.cursor()
-                cursor.execute("SELECT COUNT(*) FROM users;")
-                cursor.fetchone()
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute("SELECT COUNT(*) FROM users;")
+            cursor.fetchone()
+            conn.close()
+            print(f"[OK] Connected to {db_type.upper()} database")
         except Exception as e:
-            print(f"Warning: Could not verify PostgreSQL users table: {e}")
+            print(f"Warning: Could not verify {db_type} users table: {e}")
         return
     
     # SQLite initialization (legacy)
@@ -283,14 +350,39 @@ def create_user(username, password, is_admin=False, company=None, default_compan
             return False, f"Error creating user: {str(e)}"
 
 def get_user(username):
-    """Get user by username (case-insensitive) - works with both PostgreSQL and SQLite"""
+    """Get user by username (case-insensitive) - works with MSSQL, PostgreSQL, and SQLite"""
     # Normalize username to lowercase for case-insensitive matching
     username = username.lower().strip()
+    db_type = _get_db_type()
 
-    with get_db_connection() as conn:
+    try:
+        conn = get_db_connection()
         cursor = conn.cursor()
 
-        if _use_postgresql():
+        if db_type == 'mssql':
+            # MSSQL uses ? placeholders and 1/0 for booleans
+            cursor.execute("""
+                SELECT u.*, c.company_name
+                FROM users u
+                LEFT JOIN companies c ON u.company_id = c.company_id
+                WHERE LOWER(u.username) = ? AND u.is_active = 1
+            """, (username,))
+            row = cursor.fetchone()
+            conn.close()
+            if row:
+                # Convert to dict-like object
+                columns = [desc[0] for desc in cursor.description]
+                user_dict = dict(zip(columns, row))
+
+                # Map fields for compatibility
+                user_dict['is_admin'] = (user_dict.get('role') == 'admin') or bool(user_dict.get('is_admin'))
+                user_dict['company'] = user_dict.get('company_name')
+                user_dict['default_company'] = user_dict.get('company_name')
+
+                return DictRow(user_dict)
+            return None
+
+        elif db_type == 'postgres':
             # PostgreSQL uses %s placeholders and has different schema
             cursor.execute("""
                 SELECT u.*, c.company_name
@@ -299,6 +391,7 @@ def get_user(username):
                 WHERE u.username = %s AND u.is_active = true
             """, (username,))
             row = cursor.fetchone()
+            conn.close()
             if row:
                 # Convert to dict-like object and map fields for compatibility
                 columns = [desc[0] for desc in cursor.description]
@@ -314,7 +407,11 @@ def get_user(username):
         else:
             # SQLite uses ? placeholders
             user = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
+            conn.close()
             return user
+    except Exception as e:
+        print(f"Error in get_user: {e}")
+        return None
 
 def verify_user(username, password):
     """
@@ -742,65 +839,91 @@ def parse_csv_to_users_dict(csv_content):
 def generate_reset_code(username):
     """
     Generate a time-limited password reset code for a user.
-    
+
     Args:
         username: Username requesting reset
-        
+
     Returns:
         Tuple of (success: bool, code_or_message: str)
     """
+    # Normalize username
+    username = username.lower().strip()
+
     user = get_user(username)
     if not user:
         # Don't reveal that user doesn't exist
         return False, "If this username exists, a reset code has been generated."
-    
+
     # Generate 6-digit numeric code
     reset_code = ''.join([str(secrets.randbelow(10)) for _ in range(RESET_CODE_LENGTH)])
-    
+
     # Hash the code before storing (same as passwords)
     code_hash = bcrypt.hashpw(reset_code.encode('utf-8'), bcrypt.gensalt())
-    
+
     # Set expiry time
     expiry_timestamp = int((datetime.now() + timedelta(minutes=RESET_CODE_EXPIRY_MINUTES)).timestamp())
-    
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        if _use_postgresql():
-            cursor.execute("""
-                UPDATE users 
-                SET reset_code = %s, reset_code_expiry = %s, reset_attempts = 0
-                WHERE username = %s
-            """, (code_hash.decode('utf-8'), expiry_timestamp, username))
-        else:
-            cursor.execute("""
-                UPDATE users 
-                SET reset_code = ?, reset_code_expiry = ?, reset_attempts = 0
-                WHERE username = ?
-            """, (code_hash.decode('utf-8'), expiry_timestamp, username))
-        conn.commit()
-    
-    security_config.log_security_event("password_reset_requested", username, 
+
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            if _use_postgresql():
+                cursor.execute("""
+                    UPDATE users
+                    SET reset_code = %s, reset_code_expiry = %s, reset_attempts = 0
+                    WHERE username = %s
+                """, (code_hash.decode('utf-8'), expiry_timestamp, username))
+                rows_affected = cursor.rowcount
+            else:
+                cursor.execute("""
+                    UPDATE users
+                    SET reset_code = ?, reset_code_expiry = ?, reset_attempts = 0
+                    WHERE username = ?
+                """, (code_hash.decode('utf-8'), expiry_timestamp, username))
+                rows_affected = cursor.rowcount
+            conn.commit()
+
+            print(f"DEBUG generate_reset_code: Updated {rows_affected} rows for user {username}")
+
+            # Verify the update was successful
+            if rows_affected == 0:
+                print(f"WARNING: No rows updated for user {username}")
+                return False, "Failed to generate reset code. Please try again."
+
+    except Exception as e:
+        print(f"ERROR generate_reset_code: {e}")
+        return False, "An error occurred. Please try again."
+
+    security_config.log_security_event("password_reset_requested", username,
                                       {"expiry_minutes": RESET_CODE_EXPIRY_MINUTES})
-    
+
     return True, reset_code
 
 def verify_reset_code(username, code):
     """
     Verify a password reset code.
-    
+
     Args:
         username: Username attempting reset
         code: Reset code provided by user
-        
+
     Returns:
         Tuple of (valid: bool, message: str)
     """
+    # Normalize username
+    username = username.lower().strip()
+
     user = get_user(username)
     if not user:
+        print(f"DEBUG verify_reset_code: User '{username}' not found")
         return False, "Invalid username or code."
-    
+
     # Check if code exists
-    if not user['reset_code'] or not user['reset_code_expiry']:
+    reset_code = user.get('reset_code') if hasattr(user, 'get') else user['reset_code'] if 'reset_code' in user.keys() else None
+    reset_expiry = user.get('reset_code_expiry') if hasattr(user, 'get') else user['reset_code_expiry'] if 'reset_code_expiry' in user.keys() else None
+
+    print(f"DEBUG verify_reset_code: User '{username}' - reset_code exists: {bool(reset_code)}, reset_expiry: {reset_expiry}")
+
+    if not reset_code or not reset_expiry:
         return False, "No active reset code for this account."
     
     # Check attempts

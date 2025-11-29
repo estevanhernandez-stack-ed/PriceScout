@@ -1,4 +1,4 @@
-# price_scout_app.py - The Streamlit User Interface & Scraping Engine (v27.0 - Enhanced Data Management)
+# price_scout_app.py - The Streamlit User Interface & Scraping Engine (v27.1 - Entra ID SSO Support)
 
 import sys
 import os
@@ -16,6 +16,14 @@ import pytz
 from app import theming
 from app import config
 from app import security_config
+
+# Optional MSAL import for Entra ID SSO
+try:
+    import msal
+    MSAL_AVAILABLE = True
+except ImportError:
+    msal = None
+    MSAL_AVAILABLE = False
 
 from app.config import SCRIPT_DIR, PROJECT_DIR, DEBUG_DIR, DATA_DIR, CACHE_FILE, CACHE_EXPIRATION_DAYS
 from app import db_adapter as database
@@ -128,8 +136,183 @@ def render_password_change_form():
         st.session_state.clear()
         st.rerun()
 
+
+# ============================================================================
+# ENTRA ID SSO AUTHENTICATION
+# ============================================================================
+
+def is_entra_configured():
+    """Check if Entra ID SSO is enabled and properly configured."""
+    return (
+        config.ENTRA_ENABLED and
+        MSAL_AVAILABLE and
+        config.ENTRA_CLIENT_ID and
+        config.ENTRA_TENANT_ID and
+        config.ENTRA_AUTHORITY
+    )
+
+
+def get_entra_auth_url():
+    """
+    Generate the Entra ID login URL for OAuth authorization code flow.
+
+    Returns:
+        str: Authorization URL to redirect user to Microsoft login
+    """
+    if not is_entra_configured():
+        return None
+
+    app = msal.ConfidentialClientApplication(
+        config.ENTRA_CLIENT_ID,
+        authority=config.ENTRA_AUTHORITY,
+        client_credential=config.ENTRA_CLIENT_SECRET,
+    )
+
+    # Generate auth URL
+    # Note: openid, profile, email are automatically added by MSAL
+    auth_url = app.get_authorization_request_url(
+        scopes=["User.Read"],
+        redirect_uri=config.ENTRA_REDIRECT_URI,
+    )
+
+    return auth_url
+
+
+def handle_entra_callback(auth_code: str):
+    """
+    Handle the OAuth callback from Entra ID.
+
+    Args:
+        auth_code: Authorization code from Entra callback
+
+    Returns:
+        dict: User information if successful, None otherwise
+    """
+    if not is_entra_configured():
+        return None
+
+    try:
+        app = msal.ConfidentialClientApplication(
+            config.ENTRA_CLIENT_ID,
+            authority=config.ENTRA_AUTHORITY,
+            client_credential=config.ENTRA_CLIENT_SECRET,
+        )
+
+        # Exchange code for token
+        # Note: openid, profile, email are automatically added by MSAL
+        result = app.acquire_token_by_authorization_code(
+            auth_code,
+            scopes=["User.Read"],
+            redirect_uri=config.ENTRA_REDIRECT_URI,
+        )
+
+        if "error" in result:
+            st.error(f"Authentication failed: {result.get('error_description', result['error'])}")
+            return None
+
+        # Extract user info from ID token claims
+        id_token_claims = result.get("id_token_claims", {})
+
+        user_info = {
+            "username": id_token_claims.get("preferred_username", id_token_claims.get("email", "")),
+            "display_name": id_token_claims.get("name", ""),
+            "email": id_token_claims.get("email", id_token_claims.get("preferred_username", "")),
+            "entra_id": id_token_claims.get("oid", ""),
+            "tenant_id": id_token_claims.get("tid", ""),
+            "roles": id_token_claims.get("roles", []),
+            "auth_method": "entra_id",
+        }
+
+        # Map Entra roles to local roles
+        roles_lower = [r.lower() for r in user_info["roles"]]
+        if "admin" in roles_lower or "pricescout.admin" in roles_lower:
+            user_info["role"] = "admin"
+        elif "manager" in roles_lower or "pricescout.manager" in roles_lower:
+            user_info["role"] = "manager"
+        else:
+            user_info["role"] = "user"
+
+        user_info["is_admin"] = user_info["role"] == "admin"
+
+        return user_info
+
+    except Exception as e:
+        st.error(f"Authentication error: {str(e)}")
+        return None
+
+
+def sync_entra_user_to_local(entra_user: dict):
+    """
+    Sync Entra ID user to local database (create if not exists).
+
+    Args:
+        entra_user: User info from Entra ID
+
+    Returns:
+        dict: Local user record
+    """
+    import secrets
+
+    # Check if user exists by email/username
+    local_user = users.get_user(entra_user["email"]) or users.get_user(entra_user["username"])
+
+    if local_user:
+        return local_user
+
+    # Create local user with random password (never used for Entra users)
+    temp_password = secrets.token_urlsafe(32)
+    success, message = users.create_user(
+        username=entra_user["email"],
+        password=temp_password,
+        role=entra_user.get("role", "user"),
+        company=None,  # Will be assigned by admin
+    )
+
+    if success:
+        return users.get_user(entra_user["email"])
+
+    return None
+
+
 def login():
     users.init_database() # Ensure the database is initialized
+
+    # Handle Entra ID callback (if code in URL)
+    if is_entra_configured():
+        auth_code = st.query_params.get("code")
+        if auth_code:
+            # Clear the code from URL to prevent reuse
+            st.query_params.clear()
+
+            with st.spinner("Signing in with Microsoft..."):
+                entra_user = handle_entra_callback(auth_code)
+
+                if entra_user:
+                    # Sync to local database
+                    local_user = sync_entra_user_to_local(entra_user)
+
+                    # Set session state (ensure all required fields are set)
+                    st.session_state.logged_in = True
+                    st.session_state.user_name = entra_user["username"]
+                    st.session_state.is_admin = entra_user["is_admin"]
+                    st.session_state.auth_method = "entra_id"
+                    st.session_state.display_name = entra_user.get("display_name", entra_user["username"])
+
+                    # Set company from local user if available, otherwise use defaults
+                    if local_user:
+                        st.session_state.company = local_user.get("company")
+                        st.session_state.default_company = local_user.get("default_company")
+                    else:
+                        st.session_state.company = None
+                        st.session_state.default_company = None
+
+                    # Set database context
+                    company_name = st.session_state.company or st.session_state.default_company or "System"
+                    database.set_current_company(company_name)
+
+                    st.success(f"Welcome, {entra_user.get('display_name', entra_user['username'])}!")
+                    time.sleep(1)
+                    st.rerun()
 
     # Try to restore session from URL query params if not already logged in
     if not st.session_state.get("logged_in"):
@@ -242,7 +425,47 @@ def login():
     if st.button("🔑 Forgot Password?", use_container_width=True):
         st.session_state.show_password_reset = True
         st.rerun()
-    
+
+    # Microsoft Entra ID SSO login (if enabled)
+    if is_entra_configured():
+        st.markdown("---")
+        st.markdown("##### Or sign in with your organization account:")
+
+        auth_url = get_entra_auth_url()
+        if auth_url:
+            # Microsoft branded sign-in button
+            microsoft_button_html = f'''
+            <a href="{auth_url}" target="_self" style="text-decoration: none;">
+                <div style="
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 12px;
+                    background-color: #ffffff;
+                    border: 1px solid #8c8c8c;
+                    border-radius: 4px;
+                    padding: 10px 20px;
+                    cursor: pointer;
+                    transition: background-color 0.2s;
+                    width: 100%;
+                    box-sizing: border-box;
+                " onmouseover="this.style.backgroundColor='#f3f3f3'" onmouseout="this.style.backgroundColor='#ffffff'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 21 21">
+                        <rect x="1" y="1" width="9" height="9" fill="#f25022"/>
+                        <rect x="11" y="1" width="9" height="9" fill="#7fba00"/>
+                        <rect x="1" y="11" width="9" height="9" fill="#00a4ef"/>
+                        <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
+                    </svg>
+                    <span style="color: #5e5e5e; font-size: 15px; font-weight: 600; font-family: 'Segoe UI', sans-serif;">
+                        Sign in with Microsoft
+                    </span>
+                </div>
+            </a>
+            '''
+            st.markdown(microsoft_button_html, unsafe_allow_html=True)
+        else:
+            st.warning("Microsoft SSO is enabled but not fully configured.")
+
     return False
 
 def render_password_reset_flow():
@@ -396,18 +619,21 @@ def setup_application(markets_data):
     # If selected_company is not set, or is no longer in available companies, default it
     if 'selected_company' not in st.session_state or st.session_state.selected_company not in all_available_companies:
         # --- NEW: Prioritize the user's default company setting ---
-        if st.session_state.get('default_company') and st.session_state.default_company in all_available_companies:
-            st.session_state.selected_company = st.session_state.default_company
-        elif st.session_state.is_admin:
+        user_default = st.session_state.get('default_company')
+        user_company = st.session_state.get('company')
+
+        if user_default and user_default in all_available_companies:
+            st.session_state.selected_company = user_default
+        elif st.session_state.get('is_admin'):
             st.session_state.selected_company = all_available_companies[0] # Fallback for admin
-        elif st.session_state.company and st.session_state.company in all_available_companies:
-            st.session_state.selected_company = st.session_state.company
+        elif user_company and user_company in all_available_companies:
+            st.session_state.selected_company = user_company
         else:
             st.session_state.selected_company = all_available_companies[0]
 
     # --- Company Selection ---
     # Only show company selector if admin OR user has access to multiple companies
-    if st.session_state.is_admin and len(all_available_companies) > 1:
+    if st.session_state.get('is_admin') and len(all_available_companies) > 1:
         st.sidebar.subheader("Company Selection")
         # --- FIX: Detect company change and reset dependent state ---
         previous_company = st.session_state.get('selected_company')

@@ -1,0 +1,57 @@
+<!-- 
+    Azure API Management Policy for Public Endpoints
+    
+    This policy applies to public endpoints that don't require authentication:
+    - /api/v1/docs
+    - /api/v1/openapi.json
+    - /api/v1/healthz
+    
+    It provides:
+    - CORS configuration
+    - Basic rate limiting (more permissive than authenticated endpoints)
+-->
+<policies>
+    <inbound>
+        <!-- CORS Configuration -->
+        <cors allow-credentials="false">
+            <allowed-origins>
+                <origin>*</origin>
+            </allowed-origins>
+            <allowed-methods>
+                <method>GET</method>
+                <method>OPTIONS</method>
+            </allowed-methods>
+            <allowed-headers>
+                <header>*</header>
+            </allowed-headers>
+        </cors>
+
+        <!-- Rate Limiting - More permissive for public docs -->
+        <rate-limit calls="200" renewal-period="60" />
+
+        <!-- Set backend service URL -->
+        <set-backend-service base-url="https://price-scout-app.azurewebsites.net" />
+
+        <base />
+    </inbound>
+    
+    <backend>
+        <base />
+    </backend>
+    
+    <outbound>
+        <!-- Cache responses for public documentation endpoints -->
+        <cache-store duration="3600" />
+        
+        <!-- Security headers -->
+        <set-header name="X-Content-Type-Options" exists-action="override">
+            <value>nosniff</value>
+        </set-header>
+        
+        <base />
+    </outbound>
+    
+    <on-error>
+        <base />
+    </on-error>
+</policies>

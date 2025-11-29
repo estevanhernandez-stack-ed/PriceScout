@@ -14,6 +14,37 @@ import os
 from pathlib import Path
 
 # ============================================================================
+# EARLY .ENV LOADING (must happen before any os.getenv() calls)
+# ============================================================================
+
+def _early_load_env():
+    """Load .env file early, before any configuration is read."""
+    # Determine project directory
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    project_dir = os.path.dirname(script_dir)
+    env_path = os.path.join(project_dir, '.env')
+
+    if not os.path.exists(env_path):
+        return
+
+    try:
+        with open(env_path, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#'):
+                    if '=' in line:
+                        key, value = line.split('=', 1)
+                        key = key.strip()
+                        value = value.strip().strip('"').strip("'")
+                        if key and not os.getenv(key):  # Don't override existing
+                            os.environ[key] = value
+    except Exception as e:
+        print(f"Warning: Failed to load .env: {e}")
+
+# Load .env FIRST before anything else
+_early_load_env()
+
+# ============================================================================
 # DEPLOYMENT ENVIRONMENT DETECTION
 # ============================================================================
 
@@ -113,9 +144,35 @@ AZURE_KEY_VAULT_URL = os.getenv('AZURE_KEY_VAULT_URL')  # e.g., https://pricesco
 APPLICATIONINSIGHTS_CONNECTION_STRING = os.getenv('APPLICATIONINSIGHTS_CONNECTION_STRING')
 APPINSIGHTS_INSTRUMENTATION_KEY = os.getenv('APPINSIGHTS_INSTRUMENTATION_KEY')
 
+AZURE_SERVICE_BUS_CONNECTION_STRING = os.getenv('AZURE_SERVICE_BUS_CONNECTION_STRING')
+
+# Azure Entra ID (for SSO)
+# Set ENTRA_ENABLED=true to enable Microsoft SSO login
+ENTRA_ENABLED = os.getenv('ENTRA_ENABLED', 'false').lower() == 'true'
+ENTRA_CLIENT_ID = os.getenv('ENTRA_CLIENT_ID')
+ENTRA_TENANT_ID = os.getenv('ENTRA_TENANT_ID')
+ENTRA_CLIENT_SECRET = os.getenv('ENTRA_CLIENT_SECRET')
+ENTRA_REDIRECT_URI = os.getenv('ENTRA_REDIRECT_URI', 'http://localhost:8501/')
+ENTRA_AUTHORITY = f"https://login.microsoftonline.com/{ENTRA_TENANT_ID}" if ENTRA_TENANT_ID else None
+
 # Azure Storage (for file uploads, logs, backups)
 AZURE_STORAGE_CONNECTION_STRING = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
 AZURE_STORAGE_CONTAINER = os.getenv('AZURE_STORAGE_CONTAINER', 'pricescout-data')
+
+# Azure API Management Gateway
+APIM_GATEWAY_URL = os.getenv('APIM_GATEWAY_URL')  # e.g., https://apim-pricescout-prod.azure-api.net
+APIM_SUBSCRIPTION_KEY = os.getenv('APIM_SUBSCRIPTION_KEY')  # Optional: for subscription-based access
+
+
+# ============================================================================
+# API / JWT Configuration
+# ============================================================================
+from fastapi.security import OAuth2PasswordBearer
+
+SECRET_KEY = os.getenv("SECRET_KEY", "a_very_secret_key_that_should_be_changed")
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+OAUTH2_SCHEME = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token")
 
 
 # ============================================================================
@@ -303,6 +360,32 @@ def load_env_file(env_file='.env'):
         return False
 
 
+def load_secrets_from_key_vault():
+    """
+    Load secrets from Azure Key Vault and set them as environment variables.
+    """
+    if AZURE_KEY_VAULT_URL:
+        try:
+            from azure.keyvault.secrets import SecretClient
+            from azure.identity import DefaultAzureCredential
+
+            credential = DefaultAzureCredential()
+            client = SecretClient(vault_url=AZURE_KEY_VAULT_URL, credential=credential)
+
+            secret_properties = client.list_properties_of_secrets()
+            for secret_prop in secret_properties:
+                secret_name = secret_prop.name
+                # Secret names in Key Vault often use dashes, but env vars use underscores
+                env_var_name = secret_name.replace('-', '_').upper()
+                if not os.getenv(env_var_name):
+                    secret_value = client.get_secret(secret_name).value
+                    os.environ[env_var_name] = secret_value
+            return True
+        except Exception as e:
+            print(f"Warning: Failed to load secrets from Key Vault: {e}")
+            return False
+    return False
+
 # ============================================================================
 # INITIALIZATION
 # ============================================================================
@@ -311,12 +394,17 @@ def load_env_file(env_file='.env'):
 if is_development():
     load_env_file()
 
+# Load secrets from Key Vault if in Azure
+if is_azure_deployment():
+    load_secrets_from_key_vault()
+
+
 # Validate configuration on import
 try:
     if is_production():
         validate_configuration()
 except ValueError as e:
-    print(f"⚠ Configuration Warning: {e}")
+    print(f"[WARNING] Configuration Warning: {e}")
 
 
 # Print configuration summary on import (debug mode only)

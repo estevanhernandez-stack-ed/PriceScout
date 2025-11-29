@@ -1,0 +1,410 @@
+# Azure DevOps Pipeline for PriceScout
+# Follows TheatreOperations platform standards (claude.md)
+#
+# Pipeline Flow: Build → DeployDev → DeployTest (approval) → DeployProd (approval)
+#
+# Prerequisites:
+# 1. Service connection 'AzureServiceConnection' linked to Azure subscription
+# 2. Variable group 'pricescout-secrets' with: DATABASE_URL, SECRET_KEY, OMDB_API_KEY
+# 3. Environment approvals configured for 'test' and 'prod' environments
+
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    exclude:
+      - '*.md'
+      - 'docs/*'
+
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    exclude:
+      - '*.md'
+      - 'docs/*'
+
+variables:
+  pythonVersion: '3.11'
+  azureSubscription: 'AzureServiceConnection'
+  resourceGroupDev: 'rg-pricescout-dev'
+  resourceGroupTest: 'rg-pricescout-test'
+  resourceGroupProd: 'rg-pricescout-prod'
+  appServiceNameDev: 'app-pricescout-dev'
+  appServiceNameTest: 'app-pricescout-test'
+  appServiceNameProd: 'app-pricescout-prod'
+  coverageThreshold: 80
+
+stages:
+  # ============================================================================
+  # STAGE 1: BUILD & TEST
+  # Runs on every PR and push to main
+  # ============================================================================
+  - stage: Build
+    displayName: 'Build & Test'
+    jobs:
+      - job: BuildAndTest
+        displayName: 'Build, Lint, and Test'
+        pool:
+          vmImage: 'ubuntu-latest'
+
+        steps:
+          # Checkout code
+          - checkout: self
+            fetchDepth: 0
+            displayName: 'Checkout repository'
+
+          # Setup Python
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '$(pythonVersion)'
+              addToPath: true
+            displayName: 'Setup Python $(pythonVersion)'
+
+          # Cache pip dependencies
+          - task: Cache@2
+            inputs:
+              key: 'pip | "$(Agent.OS)" | requirements.txt | tests/requirements-dev.txt'
+              restoreKeys: |
+                pip | "$(Agent.OS)"
+              path: $(PIP_CACHE_DIR)
+            displayName: 'Cache pip packages'
+
+          # Install dependencies
+          - script: |
+              python -m pip install --upgrade pip
+              pip install -r requirements.txt
+              pip install -r tests/requirements-dev.txt
+            displayName: 'Install dependencies'
+
+          # Install Playwright browsers (for scraper tests)
+          - script: |
+              playwright install chromium
+              playwright install-deps chromium
+            displayName: 'Install Playwright browsers'
+
+          # Run linting (optional - add if you have linting configured)
+          # - script: |
+          #     pip install flake8 black
+          #     flake8 app/ api/ --max-line-length=120
+          #     black --check app/ api/
+          #   displayName: 'Run linting'
+
+          # Run tests with coverage
+          - script: |
+              pytest tests/ \
+                --cov=app \
+                --cov=api \
+                --cov-report=xml:coverage.xml \
+                --cov-report=html:htmlcov \
+                --cov-report=term-missing \
+                --cov-fail-under=$(coverageThreshold) \
+                --junitxml=test-results.xml \
+                -v
+            displayName: 'Run tests with coverage'
+            env:
+              TESTING: 'true'
+
+          # Publish test results
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '**/test-results.xml'
+              testRunTitle: 'PriceScout Tests'
+              failTaskOnFailedTests: true
+            displayName: 'Publish test results'
+            condition: always()
+
+          # Publish code coverage
+          - task: PublishCodeCoverageResults@2
+            inputs:
+              summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage.xml'
+              failIfCoverageEmpty: true
+            displayName: 'Publish code coverage'
+            condition: always()
+
+          # Build Docker image (validates Dockerfile)
+          - task: Docker@2
+            inputs:
+              command: 'build'
+              Dockerfile: 'Dockerfile'
+              tags: |
+                $(Build.BuildId)
+                latest
+            displayName: 'Build Docker image'
+
+          # Create deployment artifact
+          - task: ArchiveFiles@2
+            inputs:
+              rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
+              includeRootFolder: false
+              archiveType: 'zip'
+              archiveFile: '$(Build.ArtifactStagingDirectory)/pricescout-$(Build.BuildId).zip'
+              replaceExistingArchive: true
+              excludePatterns: |
+                .git/**
+                .venv/**
+                **/__pycache__/**
+                **/*.pyc
+                htmlcov/**
+                .pytest_cache/**
+            displayName: 'Create deployment artifact'
+
+          # Publish artifact
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathToPublish: '$(Build.ArtifactStagingDirectory)'
+              artifactName: 'drop'
+            displayName: 'Publish artifact'
+
+  # ============================================================================
+  # STAGE 2: DEPLOY TO DEV
+  # Auto-deploys after successful build on main branch
+  # ============================================================================
+  - stage: DeployDev
+    displayName: 'Deploy to Dev'
+    dependsOn: Build
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+
+    jobs:
+      - deployment: DeployToDev
+        displayName: 'Deploy to Dev Environment'
+        pool:
+          vmImage: 'ubuntu-latest'
+        environment: 'dev'
+
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                # Download artifact
+                - download: current
+                  artifact: drop
+                  displayName: 'Download artifact'
+
+                # Deploy infrastructure (if needed)
+                - task: AzureCLI@2
+                  inputs:
+                    azureSubscription: '$(azureSubscription)'
+                    scriptType: 'pscore'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      # Validate Bicep templates
+                      az bicep build --file azure/iac/main.bicep
+
+                      # Deploy infrastructure (what-if first)
+                      az deployment group what-if `
+                        --resource-group $(resourceGroupDev) `
+                        --template-file azure/iac/main.bicep `
+                        --parameters environment=dev
+
+                      # Deploy infrastructure
+                      az deployment group create `
+                        --resource-group $(resourceGroupDev) `
+                        --template-file azure/iac/main.bicep `
+                        --parameters environment=dev
+                  displayName: 'Deploy infrastructure (Bicep)'
+                  condition: eq(variables['deployInfrastructure'], 'true')
+
+                # Deploy to App Service
+                - task: AzureWebApp@1
+                  inputs:
+                    azureSubscription: '$(azureSubscription)'
+                    appType: 'webAppLinux'
+                    appName: '$(appServiceNameDev)'
+                    resourceGroupName: '$(resourceGroupDev)'
+                    package: '$(Pipeline.Workspace)/drop/pricescout-$(Build.BuildId).zip'
+                    runtimeStack: 'PYTHON|3.11'
+                    startUpCommand: 'gunicorn -w 4 -k uvicorn.workers.UvicornWorker api.main:app'
+                  displayName: 'Deploy to App Service (Dev)'
+
+                # Run smoke tests
+                - task: AzureCLI@2
+                  inputs:
+                    azureSubscription: '$(azureSubscription)'
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      # Get App Service URL
+                      APP_URL=$(az webapp show \
+                        --name $(appServiceNameDev) \
+                        --resource-group $(resourceGroupDev) \
+                        --query defaultHostName -o tsv)
+
+                      echo "Testing https://$APP_URL/api/v1/health"
+
+                      # Wait for app to start
+                      sleep 30
+
+                      # Health check
+                      HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://$APP_URL/api/v1/health")
+
+                      if [ "$HTTP_STATUS" -eq 200 ]; then
+                        echo "✅ Health check passed (HTTP $HTTP_STATUS)"
+                      else
+                        echo "❌ Health check failed (HTTP $HTTP_STATUS)"
+                        exit 1
+                      fi
+
+                      # OpenAPI docs check
+                      HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://$APP_URL/api/v1/docs")
+
+                      if [ "$HTTP_STATUS" -eq 200 ]; then
+                        echo "✅ OpenAPI docs accessible (HTTP $HTTP_STATUS)"
+                      else
+                        echo "⚠️ OpenAPI docs not accessible (HTTP $HTTP_STATUS)"
+                      fi
+                  displayName: 'Run smoke tests'
+
+  # ============================================================================
+  # STAGE 3: DEPLOY TO TEST
+  # Requires manual approval before deployment
+  # ============================================================================
+  - stage: DeployTest
+    displayName: 'Deploy to Test'
+    dependsOn: DeployDev
+    condition: succeeded()
+
+    jobs:
+      - deployment: DeployToTest
+        displayName: 'Deploy to Test Environment'
+        pool:
+          vmImage: 'ubuntu-latest'
+        environment: 'test'  # Approval configured in Azure DevOps
+
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                # Download artifact
+                - download: current
+                  artifact: drop
+                  displayName: 'Download artifact'
+
+                # Deploy to App Service
+                - task: AzureWebApp@1
+                  inputs:
+                    azureSubscription: '$(azureSubscription)'
+                    appType: 'webAppLinux'
+                    appName: '$(appServiceNameTest)'
+                    resourceGroupName: '$(resourceGroupTest)'
+                    package: '$(Pipeline.Workspace)/drop/pricescout-$(Build.BuildId).zip'
+                    runtimeStack: 'PYTHON|3.11'
+                    startUpCommand: 'gunicorn -w 4 -k uvicorn.workers.UvicornWorker api.main:app'
+                  displayName: 'Deploy to App Service (Test)'
+
+                # Run integration tests
+                - task: AzureCLI@2
+                  inputs:
+                    azureSubscription: '$(azureSubscription)'
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      APP_URL=$(az webapp show \
+                        --name $(appServiceNameTest) \
+                        --resource-group $(resourceGroupTest) \
+                        --query defaultHostName -o tsv)
+
+                      echo "Running integration tests against https://$APP_URL"
+
+                      sleep 30
+
+                      # Health check
+                      curl -f "https://$APP_URL/api/v1/health" || exit 1
+                      echo "✅ Health check passed"
+
+                      # API endpoints check
+                      curl -f "https://$APP_URL/api/v1/openapi.json" || exit 1
+                      echo "✅ OpenAPI spec accessible"
+                  displayName: 'Run integration tests'
+
+  # ============================================================================
+  # STAGE 4: DEPLOY TO PRODUCTION
+  # Requires manual approval before deployment
+  # ============================================================================
+  - stage: DeployProd
+    displayName: 'Deploy to Production'
+    dependsOn: DeployTest
+    condition: succeeded()
+
+    jobs:
+      - deployment: DeployToProd
+        displayName: 'Deploy to Production Environment'
+        pool:
+          vmImage: 'ubuntu-latest'
+        environment: 'prod'  # Approval configured in Azure DevOps
+
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                # Download artifact
+                - download: current
+                  artifact: drop
+                  displayName: 'Download artifact'
+
+                # Deploy to App Service (with slot for zero-downtime)
+                - task: AzureWebApp@1
+                  inputs:
+                    azureSubscription: '$(azureSubscription)'
+                    appType: 'webAppLinux'
+                    appName: '$(appServiceNameProd)'
+                    resourceGroupName: '$(resourceGroupProd)'
+                    package: '$(Pipeline.Workspace)/drop/pricescout-$(Build.BuildId).zip'
+                    runtimeStack: 'PYTHON|3.11'
+                    startUpCommand: 'gunicorn -w 4 -k uvicorn.workers.UvicornWorker api.main:app'
+                    deployToSlotOrASE: true
+                    slotName: 'staging'
+                  displayName: 'Deploy to staging slot'
+
+                # Verify staging slot
+                - task: AzureCLI@2
+                  inputs:
+                    azureSubscription: '$(azureSubscription)'
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      SLOT_URL=$(az webapp deployment slot list \
+                        --name $(appServiceNameProd) \
+                        --resource-group $(resourceGroupProd) \
+                        --query "[?name=='staging'].defaultHostName" -o tsv)
+
+                      echo "Verifying staging slot: https://$SLOT_URL"
+                      sleep 30
+
+                      curl -f "https://$SLOT_URL/api/v1/health" || exit 1
+                      echo "✅ Staging slot healthy"
+                  displayName: 'Verify staging slot'
+
+                # Swap staging to production
+                - task: AzureAppServiceManage@0
+                  inputs:
+                    azureSubscription: '$(azureSubscription)'
+                    action: 'Swap Slots'
+                    webAppName: '$(appServiceNameProd)'
+                    resourceGroupName: '$(resourceGroupProd)'
+                    sourceSlot: 'staging'
+                    targetSlot: 'production'
+                  displayName: 'Swap to production'
+
+                # Final verification
+                - task: AzureCLI@2
+                  inputs:
+                    azureSubscription: '$(azureSubscription)'
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      APP_URL=$(az webapp show \
+                        --name $(appServiceNameProd) \
+                        --resource-group $(resourceGroupProd) \
+                        --query defaultHostName -o tsv)
+
+                      echo "Final verification: https://$APP_URL"
+                      sleep 10
+
+                      curl -f "https://$APP_URL/api/v1/health" || exit 1
+                      echo "✅ Production deployment verified"
+                      echo "🚀 PriceScout deployed successfully to production!"
+                  displayName: 'Verify production deployment'

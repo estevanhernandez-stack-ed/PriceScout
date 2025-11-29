@@ -14,7 +14,12 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from api.schemas import SelectionAnalysisRequest, ShowtimeViewRequest
-from api.auth import verify_api_key, check_rate_limit
+from api.unified_auth import require_auth, AuthData
+from api.errors import (
+    validation_error,
+    not_found_error,
+    pdf_generation_error
+)
 
 from app.utils import (
     generate_selection_analysis_report,
@@ -32,9 +37,8 @@ async def selection_analysis(
     req: SelectionAnalysisRequest,
     request: Request,
     format: str = Query("csv", regex="^(csv|json)$"),
-    api_key_data: dict = Depends(verify_api_key)
+    auth: AuthData = Depends(require_auth)
 ):
-    await check_rate_limit(api_key_data, request)
     df = generate_selection_analysis_report(req.selected_showtimes)
     if format == "json":
         return JSONResponse(content={"rows": df.to_dict(orient="records") if not df.empty else []})
@@ -49,9 +53,8 @@ async def selection_analysis(
 async def showtime_view_html(
     req: ShowtimeViewRequest,
     request: Request,
-    api_key_data: dict = Depends(verify_api_key)
+    auth: AuthData = Depends(require_auth)
 ):
-    await check_rate_limit(api_key_data, request)
     html_bytes = generate_showtime_html_report(
         req.all_showings,
         req.selected_films,
@@ -67,9 +70,8 @@ async def showtime_view_html(
 async def showtime_view_pdf(
     req: ShowtimeViewRequest,
     request: Request,
-    api_key_data: dict = Depends(verify_api_key)
+    auth: AuthData = Depends(require_auth)
 ):
-    await check_rate_limit(api_key_data, request)
     try:
         pdf_bytes = await generate_showtime_pdf_report(
             req.all_showings,
@@ -83,11 +85,10 @@ async def showtime_view_pdf(
             "Content-Disposition": "attachment; filename=Showtime_View.pdf"
         })
     except Exception as e:
-        # Fallback guidance mirrors UI behavior
-        return JSONResponse(status_code=503, content={
-            "error": "PDF generation failed. Install Playwright browsers: 'playwright install chromium' in venv.",
-            "detail": str(e)
-        })
+        return pdf_generation_error(
+            detail=f"PDF generation failed: {str(e)}",
+            instance=str(request.url.path)
+        )
 
 
 @router.get("/daily-lineup", response_model=None)
@@ -96,18 +97,21 @@ async def daily_lineup(
     theater: str = Query(..., description="Theater name (exact match)"),
     date: str = Query(..., description="Date in YYYY-MM-DD format"),
     format: str = Query("json", regex="^(json|csv)$", description="Response format"),
-    api_key_data: dict = Depends(verify_api_key)
+    auth: AuthData = Depends(require_auth)
 ):
     """
     Get daily lineup for a specific theater and date.
     Returns chronologically sorted showtimes with film titles and formats.
     """
-    await check_rate_limit(api_key_data, request)
     # Parse date
     try:
         play_date = datetime.strptime(date, '%Y-%m-%d').date()
     except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
+        return validation_error(
+            detail="Invalid date format",
+            errors={"date": ["Must be in YYYY-MM-DD format"]},
+            instance=str(request.url.path)
+        )
 
     # Query showings
     with get_session() as session:
@@ -135,7 +139,11 @@ async def daily_lineup(
         results = query.all()
 
         if not results:
-            raise HTTPException(status_code=404, detail=f"No showtimes found for {theater} on {date}")
+            return not_found_error(
+                detail=f"No showtimes found for {theater} on {date}",
+                instance=str(request.url.path),
+                resource_type="showtimes"
+            )
 
         # Convert to DataFrame for consistent processing
         df = pd.DataFrame(
@@ -170,13 +178,12 @@ async def operating_hours(
     date: str = Query(None, description="Date in YYYY-MM-DD format (optional)"),
     limit: int = Query(100, description="Maximum records to return (default 100)"),
     format: str = Query("json", regex="^(json|csv)$", description="Response format"),
-    api_key_data: dict = Depends(verify_api_key)
+    auth: AuthData = Depends(require_auth)
 ):
     """
     Get derived operating hours (first/last showtime) per theater per date.
     Based on actual showing data in the database.
     """
-    await check_rate_limit(api_key_data, request)
     from sqlalchemy import func
     
     with get_session() as session:
@@ -201,19 +208,27 @@ async def operating_hours(
                 date_obj = datetime.strptime(date, '%Y-%m-%d').date()
                 query = query.filter(Showing.play_date == date_obj)
             except ValueError:
-                raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
-        
+                return validation_error(
+                    detail="Invalid date format",
+                    errors={"date": ["Must be in YYYY-MM-DD format"]},
+                    instance=str(request.url.path)
+                )
+
         # Group and order
         query = query.group_by(Showing.theater_name, Showing.play_date)
         query = query.order_by(Showing.play_date.desc(), Showing.theater_name)
-        
+
         # Apply limit to avoid long queries
         query = query.limit(limit)
-        
+
         results = query.all()
-        
+
         if not results:
-            raise HTTPException(status_code=404, detail="No operating hours data found")
+            return not_found_error(
+                detail="No operating hours data found",
+                instance=str(request.url.path),
+                resource_type="operating_hours"
+            )
         
         # Convert to simple dict list (no pandas)
         data = [{

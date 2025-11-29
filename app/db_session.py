@@ -4,7 +4,7 @@ Version: 1.0.0
 Date: November 13, 2025
 
 This module handles database connections and session management.
-Supports both SQLite (local) and PostgreSQL (production) with automatic detection.
+Supports SQLite (local), PostgreSQL, and Azure SQL (MSSQL) with automatic detection.
 
 Usage:
     from app.db_session import get_session, get_engine
@@ -23,6 +23,7 @@ Usage:
 """
 
 import os
+from urllib.parse import urlparse, quote_plus
 from contextlib import contextmanager
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -37,16 +38,25 @@ _SessionFactory = None
 def _detect_database_type():
     """
     Detect which database to use based on configuration.
-    Returns: 'postgresql' or 'sqlite'
+    Returns: 'postgresql', 'mssql', or 'sqlite'
     """
-    # Check for DATABASE_URL environment variable (PostgreSQL)
-    if os.getenv('DATABASE_URL'):
-        return 'postgresql'
-    
-    # Check for Azure deployment indicator
-    if os.getenv('DEPLOYMENT_ENV') == 'azure' or os.getenv('AZURE_KEY_VAULT_URL'):
-        return 'postgresql'
-    
+    # Explicit override if provided
+    explicit = os.getenv('DB_TYPE')
+    if explicit in {'postgresql', 'postgres', 'mssql', 'sqlite'}:
+        return 'postgresql' if explicit in {'postgresql', 'postgres'} else explicit
+
+    db_url = os.getenv('DATABASE_URL')
+    if db_url:
+        try:
+            scheme = urlparse(db_url).scheme.lower()
+            if scheme.startswith('postgres'):
+                return 'postgresql'
+            if scheme.startswith('mssql'):
+                return 'mssql'
+        except Exception:
+            # If parsing fails, fall back to heuristics below
+            pass
+
     # Default to SQLite for local development
     return 'sqlite'
 
@@ -67,10 +77,11 @@ def _get_database_url():
                 db_url = db_url.replace('postgres://', 'postgresql://', 1)
             return db_url
         
-        # Try Azure Key Vault (requires azure_secrets.py from Task 7)
+        # Try Azure Key Vault (requires azure_secrets.py)
         try:
             from app.azure_secrets import get_secret
-            db_url = get_secret('postgresql-connection-string')
+            # Prefer generic secret name if present
+            db_url = get_secret('DATABASE-URL') or get_secret('postgresql-connection-string')
             if db_url:
                 return db_url
         except (ImportError, Exception) as e:
@@ -84,6 +95,36 @@ def _get_database_url():
         password = os.getenv('POSTGRES_PASSWORD', '')
         
         return f"postgresql://{user}:{password}@{host}:{port}/{database}?sslmode=prefer"
+    elif db_type == 'mssql':
+        # Try environment variable first
+        db_url = os.getenv('DATABASE_URL')
+        if db_url and urlparse(db_url).scheme.lower().startswith('mssql'):
+            return db_url
+
+        # Try Azure Key Vault (generic name recommended)
+        try:
+            from app.azure_secrets import get_secret
+            db_url = get_secret('DATABASE-URL') or get_secret('mssql-connection-string')
+            if db_url:
+                return db_url
+        except (ImportError, Exception) as e:
+            print(f"Warning: Could not load MSSQL credentials from Key Vault: {e}")
+
+        # Fallback: construct URL for Azure SQL / MSSQL with ODBC Driver 18
+        host = os.getenv('SQLSERVER_HOST', 'localhost')
+        port = os.getenv('SQLSERVER_PORT', '1433')
+        database = os.getenv('SQLSERVER_DATABASE', 'pricescout_db')
+        user = os.getenv('SQLSERVER_USER', 'pricescout_app')
+        password = os.getenv('SQLSERVER_PASSWORD', '')
+        driver = os.getenv('SQLSERVER_DRIVER', 'ODBC Driver 18 for SQL Server')
+
+        user_q = quote_plus(user)
+        pass_q = quote_plus(password)
+        driver_q = driver.replace(' ', '+')
+        return (
+            f"mssql+pyodbc://{user_q}:{pass_q}@{host}:{port}/{database}"
+            f"?driver={driver_q}&Encrypt=yes&TrustServerCertificate=no&Connection+Timeout=30"
+        )
     
     else:  # SQLite
         # Use config.DB_FILE if set (per-company database)
@@ -126,6 +167,16 @@ def get_engine(echo=False):
                     'connect_timeout': 10,
                     'application_name': 'PriceScout'
                 }
+            )
+        elif db_type == 'mssql':
+            _engine = create_engine(
+                db_url,
+                echo=echo,
+                pool_size=10,
+                max_overflow=20,
+                pool_pre_ping=True,
+                pool_recycle=3600,
+                fast_executemany=True
             )
         else:  # SQLite
             _engine = create_engine(
@@ -311,6 +362,11 @@ def legacy_db_connection():
 def is_using_postgresql():
     """Check if currently using PostgreSQL"""
     return _detect_database_type() == 'postgresql'
+
+
+def is_using_mssql():
+    """Check if currently using MSSQL (Azure SQL)"""
+    return _detect_database_type() == 'mssql'
 
 
 def is_using_sqlite():
