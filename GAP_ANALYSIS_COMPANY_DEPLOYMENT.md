@@ -2,33 +2,81 @@
 
 **Analysis Date:** November 28, 2025
 **Evaluated Against:** `claude.md` TheatreOperations Platform Standards
-**Current State:** ALL GAPS REMEDIATED
+**Current State:** FUNCTIONAL WITH ACKNOWLEDGED DEVIATIONS
 **Target:** Company Azure Environment Deployment
 
 ---
 
 ## Executive Summary
 
-PriceScout has achieved **100% compliance** with platform standards. All identified gaps have been remediated:
+PriceScout is functionally complete but has **two acknowledged deviations** from platform standards:
 
-- API endpoints now match `claude.md` specification (17 new endpoints)
-- Technology choice documented via ADR
-- Database schema includes ScrapeSources table
-- `competitive` schema views provide standard naming convention
-- Operations runbook complete
+1. **Technology Stack**: Uses Python/FastAPI instead of .NET 8+ Minimal APIs
+2. **Authentication**: Dual auth (Entra ID + Database) instead of Entra-only
 
-**Compliance Score: 100/100** (up from 88/100)
+These deviations are documented but represent real gaps from the standard.
+
+**Compliance Score: 85/100** (up from 73/100)
 
 | Category | Weight | Score | Status |
 |----------|--------|-------|--------|
 | API Design | 15% | 15/15 | Full - All endpoints implemented |
-| Authentication | 10% | 10/10 | Full - Entra ID + DB auth |
+| Authentication | 10% | 5/10 | **PARTIAL** - Dual auth violates Entra-only requirement |
 | Database | 15% | 15/15 | Full - competitive schema views added |
 | Security | 15% | 15/15 | Full |
 | DevOps | 15% | 15/15 | Full - CI/CD pipeline ready |
 | Infrastructure | 10% | 10/10 | Full - Bicep IaC complete |
 | Monitoring | 10% | 10/10 | Full - App Insights + OpenTelemetry |
 | Documentation | 10% | 10/10 | Full - ADR + Runbook complete |
+| **Technology Stack** | — | **-10** | **DEVIATION** - Python/FastAPI instead of .NET 8 |
+
+---
+
+## Acknowledged Deviations
+
+### Deviation 1: Technology Stack (-.NET 8)
+
+**Standard Requirement:**
+> Runtime: .NET 8+ Minimal APIs
+
+**Actual Implementation:** Python 3.11 + FastAPI
+
+**Impact:** -10 points (significant platform deviation)
+
+**Justification (see ADR-001):**
+- Web scraping requires Playwright Python ecosystem
+- Data science libraries (pandas, numpy) for analytics
+- Existing team expertise
+- Equivalent REST API capabilities
+
+**Risk Assessment:**
+- Different deployment model than other company apps
+- Separate CI/CD pipeline patterns
+- Different monitoring/debugging tooling
+
+---
+
+### Deviation 2: Dual Authentication
+
+**Standard Requirement:**
+> All users authenticate via corporate Entra ID
+
+**Actual Implementation:**
+- Entra ID SSO (optional, toggle via `ENTRA_ENABLED`)
+- Database authentication (username/password + JWT)
+- API keys for programmatic access
+
+**Impact:** -5 points (partial compliance)
+
+**Justification:**
+- Allows operation before Entra ID integration is complete
+- Supports external API consumers without Entra accounts
+- Provides fallback during Entra ID outages
+
+**Risk Assessment:**
+- Password management overhead
+- Multiple auth code paths to maintain
+- Potential security inconsistencies
 
 ---
 
@@ -42,13 +90,15 @@ PriceScout has achieved **100% compliance** with platform standards. All identif
 - **Status:** Exposed at `/api/v1/docs`, `/api/v1/redoc`, `/api/v1/openapi.json`
 - **Details:** Interactive Swagger UI, complete endpoint documentation
 
-### 3. Authentication Architecture
-- **Status:** Multi-method authentication implemented
-- **Details:**
-  - Entra ID SSO (toggle via `ENTRA_ENABLED`)
-  - JWT tokens with expiry
-  - API keys with SHA-256 hashing
+### 3. Authentication Architecture (PARTIAL COMPLIANCE)
+- **Status:** Multi-method authentication implemented - **DEVIATES FROM STANDARD**
+- **Standard Says:** "All users authenticate via corporate Entra ID"
+- **What We Have:**
+  - Entra ID SSO (optional, toggle via `ENTRA_ENABLED`)
+  - Database auth with JWT tokens (non-standard)
+  - API keys with SHA-256 hashing (non-standard for users)
   - 4-tier rate limiting (Free/Premium/Enterprise/Unlimited)
+- **Gap:** Dual auth creates maintenance burden and security inconsistency
 
 ### 4. Azure Infrastructure (Bicep IaC)
 - **Status:** Complete templates in `azure/iac/`
@@ -209,24 +259,52 @@ Comprehensive operations runbook including:
 
 ---
 
+## Path to Full Compliance
+
+### To Reach 90/100 (Remove Dual Auth)
+
+| Task | Effort | Impact |
+|------|--------|--------|
+| Make Entra ID the only auth method | Medium | +5 points |
+| Remove database auth fallback | Low | Cleaner codebase |
+| Convert API keys to Entra service principals | Medium | Platform alignment |
+
+**Note:** This may require all users to have Entra accounts before deployment.
+
+### To Reach 100/100 (Rewrite in .NET 8)
+
+| Task | Effort | Impact |
+|------|--------|--------|
+| Rewrite API in .NET 8 Minimal APIs | **HIGH** | +10 points |
+| Migrate Playwright to .NET | High | Different scraping patterns |
+| Replace pandas with .NET equivalents | High | Data processing changes |
+
+**Recommendation:** The .NET rewrite is likely not justified given:
+- Existing Python codebase works well
+- Web scraping is more mature in Python
+- Cost/benefit of rewrite is poor
+
+**Accept the 85/100 score** with documented ADR justification.
+
+---
+
 ## Recommendations
 
 ### Immediate (Before Company Deployment)
 
-1. **Document Technology Choice** - Add ADR explaining Python/FastAPI decision
+1. **Accept deviation score** - 85/100 is acceptable with ADR documentation
 2. **Test Pipeline Import** - Dry run pipeline in Azure DevOps
 3. **Prepare Entra ID Registration** - Coordinate with IT for app registration
 
 ### Short-Term (First Sprint Post-Deploy)
 
-4. **Add Missing Alert Endpoints** - Implement `/api/v1/price-alerts` CRUD
-5. **Add Price History Endpoint** - Implement `/api/v1/price-history/{id}`
+4. **Evaluate auth consolidation** - Could we remove DB auth and go Entra-only?
+5. **Monitor deviation impact** - Track any issues from Python/FastAPI choice
 
-### Medium-Term (Future Sprints)
+### Medium-Term (If Compliance Critical)
 
-6. **Implement ScrapeSources Table** - Configurable scrape source management
-7. **Add Market Analysis Endpoints** - Pre-computed market position data
-8. **Schema Alignment** - Consider renaming tables to match standard
+6. **Auth consolidation** - Remove DB auth, require Entra for all users (+5 pts)
+7. **API key migration** - Convert API keys to Entra service principals
 
 ---
 
