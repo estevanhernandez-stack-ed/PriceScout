@@ -56,27 +56,40 @@ These deviations are documented but represent real gaps from the standard.
 
 ---
 
-### Deviation 2: Dual Authentication
+### Deviation 2: Dual Authentication — NOW CONFIGURABLE
 
 **Standard Requirement:**
 > All users authenticate via corporate Entra ID
 
 **Actual Implementation:**
-- Entra ID SSO (optional, toggle via `ENTRA_ENABLED`)
-- Database authentication (username/password + JWT)
-- API keys for programmatic access
+- Entra ID SSO (toggle via `ENTRA_ENABLED`)
+- Database authentication (toggle via `DB_AUTH_ENABLED`)
+- API keys (toggle via `API_KEY_AUTH_ENABLED`)
 
-**Impact:** -5 points (partial compliance)
+**Impact:** -5 points if dual auth enabled, **0 points if Entra-only**
 
-**Justification:**
-- Allows operation before Entra ID integration is complete
-- Supports external API consumers without Entra accounts
-- Provides fallback during Entra ID outages
+**NEW: Config Flags Added (November 28, 2025)**
 
-**Risk Assessment:**
-- Password management overhead
-- Multiple auth code paths to maintain
-- Potential security inconsistencies
+To achieve Entra-only compliance, set these environment variables:
+```bash
+ENTRA_ENABLED=true
+DB_AUTH_ENABLED=false
+API_KEY_AUTH_ENABLED=false
+```
+
+This will:
+- Disable the `/api/v1/auth/token` endpoint (returns 403)
+- Reject API keys in `X-API-Key` header
+- Reject password-based JWT tokens (only Entra tokens accepted)
+- Show helpful error messages directing users to Entra SSO
+
+**Current Default (for backward compatibility):**
+- All auth methods enabled
+- 85/100 compliance score
+
+**Entra-Only Mode:**
+- Set flags as shown above
+- 90/100 compliance score (+5 points)
 
 ---
 
@@ -261,15 +274,27 @@ Comprehensive operations runbook including:
 
 ## Path to Full Compliance
 
-### To Reach 90/100 (Remove Dual Auth)
+### To Reach 90/100 (Entra-Only Mode) — CONFIG CHANGE ONLY
 
 | Task | Effort | Impact |
 |------|--------|--------|
-| Make Entra ID the only auth method | Medium | +5 points |
-| Remove database auth fallback | Low | Cleaner codebase |
-| Convert API keys to Entra service principals | Medium | Platform alignment |
+| Set `ENTRA_ENABLED=true` | **None** | Enable SSO |
+| Set `DB_AUTH_ENABLED=false` | **None** | +5 points |
+| Set `API_KEY_AUTH_ENABLED=false` | **None** | Cleaner auth |
 
-**Note:** This may require all users to have Entra accounts before deployment.
+**This is now a config change, not a code change!**
+
+```bash
+# Add to Azure App Service Configuration or .env
+ENTRA_ENABLED=true
+DB_AUTH_ENABLED=false
+API_KEY_AUTH_ENABLED=false
+```
+
+**Prerequisites:**
+- Entra ID app registration complete
+- All users have Entra accounts
+- ENTRA_CLIENT_ID, ENTRA_TENANT_ID, ENTRA_CLIENT_SECRET configured
 
 ### To Reach 100/100 (Rewrite in .NET 8)
 

@@ -31,6 +31,9 @@ from typing import Optional, List, Callable, Any
 from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import APIKeyHeader, OAuth2PasswordBearer
 
+# Import auth method config flags
+from app.config import DB_AUTH_ENABLED, API_KEY_AUTH_ENABLED, ENTRA_ENABLED
+
 logger = logging.getLogger(__name__)
 
 # ============================================================================
@@ -128,8 +131,13 @@ async def _try_api_key_auth(api_key: str) -> Optional[AuthData]:
     """
     Attempt to authenticate using API key.
 
-    Returns AuthData if successful, None if key is invalid.
+    Returns AuthData if successful, None if key is invalid or API key auth is disabled.
     """
+    # Check if API key auth is enabled
+    if not API_KEY_AUTH_ENABLED:
+        logger.debug("API key auth is disabled via API_KEY_AUTH_ENABLED=false")
+        return None
+
     try:
         from api.auth import verify_api_key
         key_data = await verify_api_key(api_key)
@@ -153,14 +161,30 @@ async def _try_jwt_auth(token: str) -> Optional[AuthData]:
     """
     Attempt to authenticate using JWT token.
 
-    Returns AuthData if successful, None if token is invalid.
+    Returns AuthData if successful, None if token is invalid or auth method is disabled.
+
+    Respects config flags:
+    - DB_AUTH_ENABLED: Controls tokens with auth_method="password"
+    - ENTRA_ENABLED: Controls tokens with auth_method="entra_id"
     """
     try:
         from api.routers.auth import get_current_user
         user = await get_current_user(token)
 
-        # Check if this was an Entra ID token
-        auth_method = AuthMethod.ENTRA_ID if user.get("auth_method") == "entra_id" else AuthMethod.JWT
+        # Determine auth method from token
+        token_auth_method = user.get("auth_method", "password")
+
+        # Check if the auth method used to create this token is still enabled
+        if token_auth_method == "password" and not DB_AUTH_ENABLED:
+            logger.debug("Rejecting password-based JWT: DB_AUTH_ENABLED=false")
+            return None
+
+        if token_auth_method == "entra_id" and not ENTRA_ENABLED:
+            logger.debug("Rejecting Entra ID JWT: ENTRA_ENABLED=false")
+            return None
+
+        # Map to AuthMethod enum
+        auth_method = AuthMethod.ENTRA_ID if token_auth_method == "entra_id" else AuthMethod.JWT
 
         return AuthData(
             username=user["username"],
@@ -191,8 +215,8 @@ async def require_auth(
     Require authentication via either API key or JWT token.
 
     Priority:
-    1. API Key (if X-API-Key header present)
-    2. JWT Bearer token (if Authorization header present)
+    1. API Key (if X-API-Key header present and API_KEY_AUTH_ENABLED)
+    2. JWT Bearer token (if Authorization header present and method enabled)
 
     Raises:
         HTTPException 401 if neither is provided or valid
@@ -216,11 +240,24 @@ async def require_auth(
             logger.debug(f"JWT auth successful: {auth_data.username}")
             return auth_data
 
-    # Neither worked - return 401
+    # Neither worked - build helpful error message
+    enabled_methods = []
+    if ENTRA_ENABLED:
+        enabled_methods.append("Entra ID SSO (/api/v1/auth/entra/login)")
+    if DB_AUTH_ENABLED:
+        enabled_methods.append("Username/Password (/api/v1/auth/token)")
+    if API_KEY_AUTH_ENABLED:
+        enabled_methods.append("API Key (X-API-Key header)")
+
+    if enabled_methods:
+        detail = f"Authentication required. Enabled methods: {', '.join(enabled_methods)}"
+    else:
+        detail = "No authentication methods are enabled. Contact your administrator."
+
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Authentication required. Provide X-API-Key header or Bearer token.",
-        headers={"WWW-Authenticate": "Bearer, ApiKey"}
+        detail=detail,
+        headers={"WWW-Authenticate": "Bearer, ApiKey"} if API_KEY_AUTH_ENABLED else {"WWW-Authenticate": "Bearer"}
     )
 
 

@@ -29,7 +29,10 @@ from jose import JWTError, jwt
 from pydantic import BaseModel
 
 from app import users
-from app.config import OAUTH2_SCHEME, SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+from app.config import (
+    OAUTH2_SCHEME, SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES,
+    DB_AUTH_ENABLED, ENTRA_ENABLED, API_KEY_AUTH_ENABLED
+)
 
 # Import RFC 7807 error helpers
 from api.errors import (
@@ -152,6 +155,9 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     This is the standard OAuth2 password flow. Send username and password
     as form data to receive a JWT access token.
 
+    **Note:** This endpoint can be disabled by setting `DB_AUTH_ENABLED=false`.
+    When disabled, use Entra ID SSO instead.
+
     **Request:**
     ```
     POST /api/v1/auth/token
@@ -168,6 +174,15 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     }
     ```
     """
+    # Check if database auth is enabled
+    if not DB_AUTH_ENABLED:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Database authentication is disabled. Use Entra ID SSO instead. "
+                   "Contact your administrator if you need access.",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+
     user = users.verify_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(
@@ -266,9 +281,9 @@ async def auth_health():
     """
     Authentication service health check.
 
-    Returns status of authentication services including Entra ID availability.
+    Returns status of authentication services including which methods are enabled.
     """
-    entra_status = {"enabled": False, "available": False}
+    entra_status = {"enabled": ENTRA_ENABLED, "available": False}
 
     try:
         from api.entra_auth import is_entra_enabled, get_entra_status
@@ -278,7 +293,19 @@ async def auth_health():
 
     return {
         "status": "healthy",
+        "auth_methods": {
+            "database_auth": {
+                "enabled": DB_AUTH_ENABLED,
+                "endpoint": "/api/v1/auth/token" if DB_AUTH_ENABLED else None
+            },
+            "api_key_auth": {
+                "enabled": API_KEY_AUTH_ENABLED,
+                "header": "X-API-Key" if API_KEY_AUTH_ENABLED else None
+            },
+            "entra_id": entra_status
+        },
         "jwt_configured": bool(SECRET_KEY),
         "token_expiry_minutes": ACCESS_TOKEN_EXPIRE_MINUTES,
-        "entra_id": entra_status
+        # Compliance note
+        "compliance_note": "Set DB_AUTH_ENABLED=false and API_KEY_AUTH_ENABLED=false for Entra-only mode"
     }

@@ -146,7 +146,20 @@ APPINSIGHTS_INSTRUMENTATION_KEY = os.getenv('APPINSIGHTS_INSTRUMENTATION_KEY')
 
 AZURE_SERVICE_BUS_CONNECTION_STRING = os.getenv('AZURE_SERVICE_BUS_CONNECTION_STRING')
 
-# Azure Entra ID (for SSO)
+# ============================================================================
+# AUTHENTICATION METHOD CONFIGURATION
+# ============================================================================
+#
+# PriceScout supports multiple authentication methods. Use these flags to
+# enable/disable each method for compliance with your organization's standards.
+#
+# For Entra-only (claude.md compliant):
+#   ENTRA_ENABLED=true
+#   DB_AUTH_ENABLED=false
+#   API_KEY_AUTH_ENABLED=false  (or true for service accounts)
+#
+
+# Azure Entra ID (for SSO) - Enterprise authentication
 # Set ENTRA_ENABLED=true to enable Microsoft SSO login
 ENTRA_ENABLED = os.getenv('ENTRA_ENABLED', 'false').lower() == 'true'
 ENTRA_CLIENT_ID = os.getenv('ENTRA_CLIENT_ID')
@@ -154,6 +167,28 @@ ENTRA_TENANT_ID = os.getenv('ENTRA_TENANT_ID')
 ENTRA_CLIENT_SECRET = os.getenv('ENTRA_CLIENT_SECRET')
 ENTRA_REDIRECT_URI = os.getenv('ENTRA_REDIRECT_URI', 'http://localhost:8501/')
 ENTRA_AUTHORITY = f"https://login.microsoftonline.com/{ENTRA_TENANT_ID}" if ENTRA_TENANT_ID else None
+
+# Database Authentication (username/password → JWT)
+# Set DB_AUTH_ENABLED=false to disable local username/password login
+# When disabled, /api/v1/auth/token endpoint returns 403
+DB_AUTH_ENABLED = os.getenv('DB_AUTH_ENABLED', 'true').lower() == 'true'
+
+# API Key Authentication (X-API-Key header)
+# Set API_KEY_AUTH_ENABLED=false to disable API key authentication
+# Useful for Entra-only environments where service principals should be used instead
+API_KEY_AUTH_ENABLED = os.getenv('API_KEY_AUTH_ENABLED', 'true').lower() == 'true'
+
+# Require at least one auth method in production
+def _validate_auth_config():
+    """Ensure at least one authentication method is enabled."""
+    if not any([ENTRA_ENABLED, DB_AUTH_ENABLED, API_KEY_AUTH_ENABLED]):
+        raise ValueError(
+            "At least one authentication method must be enabled. "
+            "Set ENTRA_ENABLED=true, DB_AUTH_ENABLED=true, or API_KEY_AUTH_ENABLED=true"
+        )
+
+# Validate on import (will raise if misconfigured)
+_validate_auth_config()
 
 # Azure Storage (for file uploads, logs, backups)
 AZURE_STORAGE_CONNECTION_STRING = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
